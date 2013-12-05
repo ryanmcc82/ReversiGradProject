@@ -1,0 +1,48 @@
+package edu.uab.cis.reversi;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+public class BoardTest {
+
+	@Test
+	public void testInitialDefaultSize() {
+		Board board = new Board();
+		Assert.assertEquals(8, board.size());
+		Assert.assertEquals(Player.WHITE, board.get(3, 3));
+		Assert.assertEquals(Player.WHITE, board.get(4, 4));
+		Assert.assertEquals(Player.BLACK, board.get(3, 4));
+		Assert.assertEquals(Player.BLACK, board.get(4, 3));
+		Assert.assertEquals(
+				"________\n________\n________\n___WB___\n___BW___\n________\n________\n________\n",
+				board.toString());
+	}
+
+	@Test
+	public void testInitialSize4() {
+		Board board = new Board(4);
+		Assert.assertEquals(4, board.size());
+		Assert.assertEquals(Player.WHITE, board.get(1, 1));
+		Assert.assertEquals(Player.WHITE, board.get(2, 2));
+		Assert.assertEquals(Player.BLACK, board.get(1, 2));
+		Assert.assertEquals(Player.BLACK, board.get(2, 1));
+		Assert.assertEquals("____\n_WB_\n_BW_\n____\n", board.toString());
+	}
+
+	@Test
+	public void testEqualityAndHashing() {
+		Board board1 = new Board();
+		Board board2 = new Board();
+		Assert.assertEquals(board1, board2);
+		Assert.assertEquals(board1.hashCode(), board2.hashCode());
+
+		board1.set(2, 3, Player.BLACK);
+		Assert.assertNotEquals(board1, board2);
+		Assert.assertNotEquals(board1.hashCode(), board2.hashCode());
+
+		board2.set(2, 3, Player.BLACK);
+		Assert.assertEquals(board1, board2);
+		Assert.assertEquals(board1.hashCode(), board2.hashCode());
+	}
+
+}

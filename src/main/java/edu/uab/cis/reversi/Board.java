@@ -12,6 +12,10 @@ public class Board {
 	}
 
 	public Board(int size) {
+		if (size % 2 != 0 || size <= 2) {
+			throw new IllegalArgumentException(
+					"Board size must be an even integer greater than 2");
+		}
 		this.size = size;
 		this.squares = new Player[size][size];
 		int mid = this.size / 2;
@@ -56,6 +60,14 @@ public class Board {
 
 	public int size() {
 		return this.size;
+	}
+
+	public Player get(int row, int column) {
+		return this.squares[row][column];
+	}
+
+	public void set(int row, int column, Player player) {
+		this.squares[row][column] = player;
 	}
 
 	public boolean isValidSquare(int row, int column) {
