@@ -9,10 +9,10 @@ public class BoardTest {
   public void testInitialDefaultSize() {
     Board board = new Board();
     Assert.assertEquals(8, board.size());
-    Assert.assertEquals(Player.WHITE, board.getPlayer(3, 3));
-    Assert.assertEquals(Player.WHITE, board.getPlayer(4, 4));
-    Assert.assertEquals(Player.BLACK, board.getPlayer(3, 4));
-    Assert.assertEquals(Player.BLACK, board.getPlayer(4, 3));
+    Assert.assertEquals(Player.WHITE, board.getOwner(3, 3));
+    Assert.assertEquals(Player.WHITE, board.getOwner(4, 4));
+    Assert.assertEquals(Player.BLACK, board.getOwner(3, 4));
+    Assert.assertEquals(Player.BLACK, board.getOwner(4, 3));
     Assert.assertEquals(
         "________\n________\n________\n___WB___\n___BW___\n________\n________\n________\n",
         board.toString());
@@ -22,10 +22,10 @@ public class BoardTest {
   public void testInitialSize4() {
     Board board = new Board(4);
     Assert.assertEquals(4, board.size());
-    Assert.assertEquals(Player.WHITE, board.getPlayer(1, 1));
-    Assert.assertEquals(Player.WHITE, board.getPlayer(2, 2));
-    Assert.assertEquals(Player.BLACK, board.getPlayer(1, 2));
-    Assert.assertEquals(Player.BLACK, board.getPlayer(2, 1));
+    Assert.assertEquals(Player.WHITE, board.getOwner(1, 1));
+    Assert.assertEquals(Player.WHITE, board.getOwner(2, 2));
+    Assert.assertEquals(Player.BLACK, board.getOwner(1, 2));
+    Assert.assertEquals(Player.BLACK, board.getOwner(2, 1));
     Assert.assertEquals("____\n_WB_\n_BW_\n____\n", board.toString());
   }
 

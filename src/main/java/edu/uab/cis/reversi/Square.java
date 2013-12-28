@@ -2,10 +2,10 @@ package edu.uab.cis.reversi;
 
 import java.util.Objects;
 
-public class Move {
+public class Square {
   private int row, column;
 
-  public Move(int row, int column) {
+  public Square(int row, int column) {
     super();
     this.row = row;
     this.column = column;
@@ -26,8 +26,8 @@ public class Move {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj instanceof Move) {
-      Move that = (Move) obj;
+    if (obj instanceof Square) {
+      Square that = (Square) obj;
       return this.row == that.row && this.column == that.column;
     }
     return false;
