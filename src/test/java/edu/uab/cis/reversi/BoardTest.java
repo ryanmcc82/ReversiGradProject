@@ -45,4 +45,33 @@ public class BoardTest {
     Assert.assertEquals(board1.hashCode(), board2.hashCode());
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testIllegalToReplaceStartingPieceWithSamePlayer() {
+    Board board = new Board();
+    board.addMove(3, 3, Player.WHITE);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testIllegalToReplaceStartingPieceWithDifferentPlayer() {
+    Board board = new Board();
+    board.addMove(4, 3, Player.WHITE);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testIllegalToPlaceNonAdjacent() {
+    Board board = new Board();
+    board.addMove(6, 6, Player.BLACK);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testIllegalToPlaceNonCapturing() {
+    Board board = new Board();
+    board.addMove(5, 5, Player.BLACK);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testIllegalForWhiteToMoveFirst() {
+    Board board = new Board();
+    board.addMove(2, 4, Player.WHITE);
+  }
 }

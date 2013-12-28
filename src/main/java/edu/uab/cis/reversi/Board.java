@@ -8,6 +8,13 @@ import org.pcollections.PMap;
 public class Board {
   private int size;
   private PMap<Move, Player> moves;
+  private Player nextPlayer;
+
+  private Board(int size, PMap<Move, Player> moves, Player nextPlayer) {
+    this.size = size;
+    this.moves = moves;
+    this.nextPlayer = nextPlayer;
+  }
 
   public Board() {
     this(8);
@@ -24,6 +31,7 @@ public class Board {
     this.moves = this.moves.plus(new Move(mid - 1, mid), Player.BLACK);
     this.moves = this.moves.plus(new Move(mid, mid - 1), Player.BLACK);
     this.moves = this.moves.plus(new Move(mid, mid), Player.WHITE);
+    this.nextPlayer = Player.BLACK;
   }
 
   @Override
@@ -68,13 +76,25 @@ public class Board {
     return this.moves.get(new Move(row, column));
   }
 
-  public Board addMove(int i, int j, Player player) {
-    Board board = new Board(this.size);
-    board.moves = board.moves.plus(new Move(i, j), player);
-    return board;
+  public Board addMove(int row, int column, Player player) {
+    if (player != this.nextPlayer) {
+      String message = "%s cannot play - it is %s's turn";
+      throw new IllegalArgumentException(String.format(message, player, this.nextPlayer));
+    }
+    Move move = new Move(row, column);
+    Player existingPlayer = this.moves.get(move);
+    if (existingPlayer != null) {
+      String message = "A %s piece already exists at (%d,%d)";
+      throw new IllegalArgumentException(String.format(message, existingPlayer, row, column));
+    }
+    if (!this.isValidMove(player, row, column)) {
+      String message = "%s will not capture any pieces if placed at (%d,%d)";
+      throw new IllegalArgumentException(String.format(message, player, row, column));
+    }
+    return new Board(this.size, this.moves.plus(move, player), player.opponent());
   }
 
-  public boolean isValidSquare(int row, int column) {
+  private boolean isValidSquare(int row, int column) {
     return 0 <= row && row < this.size && 0 <= column && column < this.size;
   }
 
@@ -82,16 +102,16 @@ public class Board {
     int[][] directions =
         new int[][] { { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { -1, 0 },
             { -1, 1 } };
-    Player other = player == Player.WHITE ? Player.BLACK : Player.WHITE;
+    Player opponent = player.opponent();
     for (int[] direction : directions) {
       int rowStep = direction[0];
       int columnStep = direction[1];
       int r = row + rowStep;
       int c = column + columnStep;
-      if (this.isValidSquare(r, c) && this.getPlayer(r, c) == other) {
+      if (this.isValidSquare(r, c) && this.getPlayer(r, c) == opponent) {
         r += rowStep;
         c += columnStep;
-        while (this.isValidSquare(r, c) && this.getPlayer(r, c) == other) {
+        while (this.isValidSquare(r, c) && this.getPlayer(r, c) == opponent) {
           r += rowStep;
           c += columnStep;
         }
