@@ -74,4 +74,52 @@ public class BoardTest {
     Board board = new Board();
     board.addMove(2, 4, Player.WHITE);
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testIllegalToPassWhenMovesPossible() {
+    Board board = new Board();
+    board.pass(Player.BLACK);
+  }
+
+  @Test
+  public void testHasMoreMoves() {
+    Board board = new Board(4);
+    Assert.assertTrue(board.hasMoreMoves());
+    Assert.assertEquals("____\n_WB_\n_BW_\n____\n", board.toString());
+    board = board.addMove(1, 0, Player.BLACK);
+    Assert.assertEquals("____\nBBB_\n_BW_\n____\n", board.toString());
+    board = board.addMove(0, 0, Player.WHITE);
+    Assert.assertEquals("W___\nBWB_\n_BW_\n____\n", board.toString());
+    board = board.addMove(3, 2, Player.BLACK);
+    Assert.assertEquals("W___\nBWB_\n_BB_\n__B_\n", board.toString());
+    board = board.addMove(3, 3, Player.WHITE);
+    Assert.assertEquals("W___\nBWB_\n_BW_\n__BW\n", board.toString());
+    board = board.addMove(2, 3, Player.BLACK);
+    Assert.assertEquals("W___\nBWB_\n_BBB\n__BW\n", board.toString());
+    board = board.addMove(3, 1, Player.WHITE);
+    Assert.assertEquals("W___\nBWB_\n_WBB\n_WWW\n", board.toString());
+    board = board.addMove(3, 0, Player.BLACK);
+    Assert.assertEquals("W___\nBWB_\n_BBB\nBWWW\n", board.toString());
+    board = board.addMove(1, 3, Player.WHITE);
+    Assert.assertEquals("W___\nBWWW\n_BWW\nBWWW\n", board.toString());
+    board = board.addMove(0, 3, Player.BLACK);
+    Assert.assertEquals("W__B\nBWBW\n_BWW\nBWWW\n", board.toString());
+    board = board.addMove(2, 0, Player.WHITE);
+    Assert.assertEquals("W__B\nWWBW\nWWWW\nBWWW\n", board.toString());
+    board = board.pass(Player.BLACK);
+    Assert.assertEquals("W__B\nWWBW\nWWWW\nBWWW\n", board.toString());
+    Assert.assertTrue(board.hasMoreMoves());
+
+    // end by completely filling the board
+    Board completeBoard = board.addMove(0, 2, Player.WHITE);
+    Assert.assertEquals("W_WB\nWWWW\nWWWW\nBWWW\n", completeBoard.toString());
+    completeBoard = completeBoard.addMove(0, 1, Player.BLACK);
+    Assert.assertEquals("WBBB\nWWWW\nWWWW\nBWWW\n", completeBoard.toString());
+    Assert.assertFalse(completeBoard.hasMoreMoves());
+
+    // end without completely filling the board
+    Board incompleteBoard = board.addMove(0, 1, Player.WHITE);
+    Assert.assertEquals("WW_B\nWWWW\nWWWW\nBWWW\n", incompleteBoard.toString());
+    Assert.assertFalse(incompleteBoard.hasMoreMoves());
+  }
 }
