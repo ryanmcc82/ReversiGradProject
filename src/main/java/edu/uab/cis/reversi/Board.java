@@ -1,11 +1,13 @@
 package edu.uab.cis.reversi;
 
-import java.util.Arrays;
 import java.util.Objects;
+
+import org.pcollections.HashTreePMap;
+import org.pcollections.PMap;
 
 public class Board {
   private int size;
-  private Player[][] squares;
+  private PMap<Move, Player> moves;
 
   public Board() {
     this(8);
@@ -16,24 +18,24 @@ public class Board {
       throw new IllegalArgumentException("Board size must be an even integer greater than 2");
     }
     this.size = size;
-    this.squares = new Player[size][size];
+    this.moves = HashTreePMap.empty();
     int mid = this.size / 2;
-    this.squares[mid - 1][mid - 1] = Player.WHITE;
-    this.squares[mid - 1][mid] = Player.BLACK;
-    this.squares[mid][mid - 1] = Player.BLACK;
-    this.squares[mid][mid] = Player.WHITE;
+    this.moves = this.moves.plus(new Move(mid - 1, mid - 1), Player.WHITE);
+    this.moves = this.moves.plus(new Move(mid - 1, mid), Player.BLACK);
+    this.moves = this.moves.plus(new Move(mid, mid - 1), Player.BLACK);
+    this.moves = this.moves.plus(new Move(mid, mid), Player.WHITE);
   }
 
   @Override
   public int hashCode() {
-    return Arrays.deepHashCode(this.squares);
+    return Objects.hash(this.size, this.moves);
   }
 
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof Board) {
       Board that = (Board) obj;
-      return Objects.deepEquals(this.squares, that.squares);
+      return this.size == that.size && Objects.equals(this.moves, that.moves);
     }
     return false;
   }
@@ -44,9 +46,10 @@ public class Board {
 
     for (int row = 0; row < this.size; ++row) {
       for (int col = 0; col < this.size; ++col) {
-        if (this.squares[row][col] == Player.WHITE) {
+        Player player = this.getPlayer(row, col);
+        if (player == Player.WHITE) {
           builder.append('W');
-        } else if (this.squares[row][col] == Player.BLACK) {
+        } else if (player == Player.BLACK) {
           builder.append('B');
         } else {
           builder.append('_');
@@ -61,12 +64,14 @@ public class Board {
     return this.size;
   }
 
-  public Player get(int row, int column) {
-    return this.squares[row][column];
+  public Player getPlayer(int row, int column) {
+    return this.moves.get(new Move(row, column));
   }
 
-  public void set(int row, int column, Player player) {
-    this.squares[row][column] = player;
+  public Board addMove(int i, int j, Player player) {
+    Board board = new Board(this.size);
+    board.moves = board.moves.plus(new Move(i, j), player);
+    return board;
   }
 
   public boolean isValidSquare(int row, int column) {
@@ -83,14 +88,14 @@ public class Board {
       int columnStep = direction[1];
       int r = row + rowStep;
       int c = column + columnStep;
-      if (this.isValidSquare(r, c) && this.squares[r][c] == other) {
+      if (this.isValidSquare(r, c) && this.getPlayer(r, c) == other) {
         r += rowStep;
         c += columnStep;
-        while (this.isValidSquare(r, c) && this.squares[r][c] == other) {
+        while (this.isValidSquare(r, c) && this.getPlayer(r, c) == other) {
           r += rowStep;
           c += columnStep;
         }
-        if (this.isValidSquare(r, c) && this.squares[r][c] == player) {
+        if (this.isValidSquare(r, c) && this.getPlayer(r, c) == player) {
           return true;
         }
       }
