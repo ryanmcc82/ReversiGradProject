@@ -84,11 +84,11 @@ public class Board {
     return this.moves.get(new Square(row, column));
   }
 
-  public boolean isValidNextMove(int row, int column, Player player) {
-    return this.nextMoves.get(new Square(row, column)) != null;
+  public boolean hasMoreMoves() {
+    return !this.nextMoves.isEmpty();
   }
 
-  public Set<Square> getValidNextMoves(Player player) {
+  public Set<Square> getPossibleMoves(Player player) {
     return this.nextMoves.keySet();
   }
 
@@ -114,16 +114,12 @@ public class Board {
 
   public Board pass(Player player) {
     this.assertCorrectPlayer(player);
-    Set<Square> validNextMoves = this.getValidNextMoves(player);
+    Set<Square> validNextMoves = this.getPossibleMoves(player);
     if (!validNextMoves.isEmpty()) {
       String message = "%s cannot pass since there are valid moves: %s";
       throw new IllegalArgumentException(String.format(message, player, validNextMoves));
     }
     return new Board(this.size, this.moves, player.opponent());
-  }
-
-  public boolean hasMoreMoves() {
-    return !this.nextMoves.isEmpty();
   }
 
   private void assertCorrectPlayer(Player player) {
