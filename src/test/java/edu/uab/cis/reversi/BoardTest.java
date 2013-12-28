@@ -94,6 +94,7 @@ public class BoardTest {
     Assert.assertEquals("W__B\nBWBW\n_BWW\nBWWW\n", board.toString());
     board = board.addMove(2, 0);
     Assert.assertEquals("W__B\nWWBW\nWWWW\nBWWW\n", board.toString());
+    Assert.assertTrue(board.hasMoreMoves());
     board = board.pass();
     Assert.assertEquals("W__B\nWWBW\nWWWW\nBWWW\n", board.toString());
     Assert.assertTrue(board.hasMoreMoves());

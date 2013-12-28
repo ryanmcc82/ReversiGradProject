@@ -88,7 +88,7 @@ public class Board {
   }
 
   public boolean hasMoreMoves() {
-    return !this.possibleMoves.isEmpty();
+    return !this.possibleMoves.isEmpty() || !this.pass().possibleMoves.isEmpty();
   }
 
   public Set<Square> getPossibleMoves() {
