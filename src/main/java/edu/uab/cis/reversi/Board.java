@@ -88,7 +88,7 @@ public class Board {
     return this.nextMoves.get(new Square(row, column)) != null;
   }
 
-  public Set<Square> getValidNextMoves() {
+  public Set<Square> getValidNextMoves(Player player) {
     return this.nextMoves.keySet();
   }
 
