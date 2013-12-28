@@ -33,4 +33,9 @@ public class Move {
     return false;
   }
 
+  @Override
+  public String toString() {
+    return String.format("(%d,%d)", this.row, this.column);
+  }
+
 }

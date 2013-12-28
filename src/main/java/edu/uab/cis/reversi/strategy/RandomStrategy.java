@@ -16,7 +16,7 @@ public class RandomStrategy implements Strategy {
     List<Move> possibleMoves = new ArrayList<>();
     for (int row = 0; row < board.size(); ++row) {
       for (int column = 0; column < board.size(); ++column) {
-        if (board.isValidMove(player, row, column)) {
+        if (board.isValidNextMove(row, column, player)) {
           possibleMoves.add(new Move(row, column));
         }
       }
