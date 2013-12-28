@@ -70,9 +70,9 @@ public class BoardTest {
   }
 
   @Test
-  public void testHasMoreMoves() {
+  public void testIsComplete() {
     Board board = new Board(4);
-    Assert.assertTrue(board.hasMoreMoves());
+    Assert.assertFalse(board.isComplete());
     Assert.assertEquals("____\n_WB_\n_BW_\n____\n", board.toString());
     board = board.addMove(1, 0);
     Assert.assertEquals("____\nBBB_\n_BW_\n____\n", board.toString());
@@ -94,21 +94,21 @@ public class BoardTest {
     Assert.assertEquals("W__B\nBWBW\n_BWW\nBWWW\n", board.toString());
     board = board.addMove(2, 0);
     Assert.assertEquals("W__B\nWWBW\nWWWW\nBWWW\n", board.toString());
-    Assert.assertTrue(board.hasMoreMoves());
+    Assert.assertFalse(board.isComplete());
     board = board.pass();
     Assert.assertEquals("W__B\nWWBW\nWWWW\nBWWW\n", board.toString());
-    Assert.assertTrue(board.hasMoreMoves());
+    Assert.assertFalse(board.isComplete());
 
     // end by completely filling the board
     Board completeBoard = board.addMove(0, 2);
     Assert.assertEquals("W_WB\nWWWW\nWWWW\nBWWW\n", completeBoard.toString());
     completeBoard = completeBoard.addMove(0, 1);
     Assert.assertEquals("WBBB\nWWWW\nWWWW\nBWWW\n", completeBoard.toString());
-    Assert.assertFalse(completeBoard.hasMoreMoves());
+    Assert.assertTrue(completeBoard.isComplete());
 
     // end without completely filling the board
     Board incompleteBoard = board.addMove(0, 1);
     Assert.assertEquals("WW_B\nWWWW\nWWWW\nBWWW\n", incompleteBoard.toString());
-    Assert.assertFalse(incompleteBoard.hasMoreMoves());
+    Assert.assertTrue(incompleteBoard.isComplete());
   }
 }
