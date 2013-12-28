@@ -13,7 +13,7 @@ public class RandomStrategy implements Strategy {
 
   @Override
   public Square getMove(Player player, Board board) {
-    List<Square> possibleMoves = new ArrayList<>(board.getPossibleMoves(player));
+    List<Square> possibleMoves = new ArrayList<>(board.getPossibleMoves());
     int index = new Random().nextInt(possibleMoves.size());
     return possibleMoves.get(index);
   }

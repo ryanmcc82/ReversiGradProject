@@ -11,17 +11,17 @@ import org.pcollections.PSet;
 public class Board {
   private int size;
   private PMap<Square, Player> moves;
-  private Player nextPlayer;
-  private PMap<Square, PSet<Square>> nextMoves;
+  private Player player;
+  private PMap<Square, PSet<Square>> possibleMoves;
 
-  private Board(int size, PMap<Square, Player> moves, Player nextPlayer) {
+  private Board(int size, PMap<Square, Player> moves, Player player) {
     if (size % 2 != 0 || size <= 2) {
       throw new IllegalArgumentException("Board size must be an even integer greater than 2");
     }
     this.size = size;
     this.moves = moves;
-    this.nextPlayer = nextPlayer;
-    this.nextMoves = this.getNextValidMoves();
+    this.player = player;
+    this.possibleMoves = this.calculatePossibleMoves();
   }
 
   public Board() {
@@ -59,13 +59,12 @@ public class Board {
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder();
-
     for (int row = 0; row < this.size; ++row) {
       for (int col = 0; col < this.size; ++col) {
-        Player player = this.getOwner(row, col);
-        if (player == Player.WHITE) {
+        Player owner = this.getOwner(row, col);
+        if (owner == Player.WHITE) {
           builder.append('W');
-        } else if (player == Player.BLACK) {
+        } else if (owner == Player.BLACK) {
           builder.append('B');
         } else {
           builder.append('_');
@@ -80,58 +79,53 @@ public class Board {
     return this.size;
   }
 
+  public Player getCurrentPlayer() {
+    return this.player;
+  }
+
   public Player getOwner(int row, int column) {
     return this.moves.get(new Square(row, column));
   }
 
   public boolean hasMoreMoves() {
-    return !this.nextMoves.isEmpty();
+    return !this.possibleMoves.isEmpty();
   }
 
-  public Set<Square> getPossibleMoves(Player player) {
-    return this.nextMoves.keySet();
+  public Set<Square> getPossibleMoves() {
+    return this.possibleMoves.keySet();
   }
 
-  public Board addMove(int row, int column, Player player) {
-    this.assertCorrectPlayer(player);
+  public Board addMove(int row, int column) {
     Square move = new Square(row, column);
     Player existingPlayer = this.moves.get(move);
     if (existingPlayer != null) {
       String message = "A %s piece already exists at (%d,%d)";
       throw new IllegalArgumentException(String.format(message, existingPlayer, row, column));
     }
-    PSet<Square> captures = this.nextMoves.get(new Square(row, column));
+    PSet<Square> captures = this.possibleMoves.get(new Square(row, column));
     if (captures == null) {
       String message = "%s will not capture any pieces if placed at (%d,%d)";
-      throw new IllegalArgumentException(String.format(message, player, row, column));
+      throw new IllegalArgumentException(String.format(message, this.player, row, column));
     }
-    PMap<Square, Player> newMoves = this.moves.plus(move, player);
+    PMap<Square, Player> newMoves = this.moves.plus(move, this.player);
     for (Square square : captures) {
-      newMoves = newMoves.plus(square, player);
+      newMoves = newMoves.plus(square, this.player);
     }
-    return new Board(this.size, newMoves, player.opponent());
+    return new Board(this.size, newMoves, this.player.opponent());
   }
 
-  public Board pass(Player player) {
-    this.assertCorrectPlayer(player);
-    Set<Square> validNextMoves = this.getPossibleMoves(player);
+  public Board pass() {
+    Set<Square> validNextMoves = this.getPossibleMoves();
     if (!validNextMoves.isEmpty()) {
       String message = "%s cannot pass since there are valid moves: %s";
-      throw new IllegalArgumentException(String.format(message, player, validNextMoves));
+      throw new IllegalArgumentException(String.format(message, this.player, validNextMoves));
     }
-    return new Board(this.size, this.moves, player.opponent());
+    return new Board(this.size, this.moves, this.player.opponent());
   }
 
-  private void assertCorrectPlayer(Player player) {
-    if (player != this.nextPlayer) {
-      String message = "%s cannot play since it is %s's turn";
-      throw new IllegalArgumentException(String.format(message, player, this.nextPlayer));
-    }
-  }
-
-  private PMap<Square, PSet<Square>> getNextValidMoves() {
+  private PMap<Square, PSet<Square>> calculatePossibleMoves() {
     PMap<Square, PSet<Square>> validNextMoves = HashTreePMap.empty();
-    Player opponent = this.nextPlayer.opponent();
+    Player opponent = this.player.opponent();
 
     // this is a brute force approach, just going through all squares
     // it could be more efficient in exactly which locations it checks
@@ -157,7 +151,7 @@ public class Board {
                 r += rowStep;
                 c += columnStep;
               }
-              if (this.isValidSquare(r, c) && this.getOwner(r, c) == this.nextPlayer) {
+              if (this.isValidSquare(r, c) && this.getOwner(r, c) == this.player) {
                 allCaptures = allCaptures.plusAll(captures);
               }
             }
