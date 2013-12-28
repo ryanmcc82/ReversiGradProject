@@ -61,7 +61,7 @@ public class Board {
     StringBuilder builder = new StringBuilder();
     for (int row = 0; row < this.size; ++row) {
       for (int col = 0; col < this.size; ++col) {
-        Player owner = this.getOwner(row, col);
+        Player owner = this.getOwner(new Square(row, col));
         if (owner == Player.WHITE) {
           builder.append('W');
         } else if (owner == Player.BLACK) {
@@ -84,7 +84,11 @@ public class Board {
   }
 
   public Player getOwner(int row, int column) {
-    return this.moves.get(new Square(row, column));
+    return this.getOwner(new Square(row, column));
+  }
+
+  public Player getOwner(Square square) {
+    return this.moves.get(square);
   }
 
   public boolean isComplete() {
@@ -96,20 +100,23 @@ public class Board {
   }
 
   public Board addMove(int row, int column) {
-    Square move = new Square(row, column);
-    Player existingPlayer = this.moves.get(move);
+    return this.addMove(new Square(row, column));
+  }
+
+  public Board addMove(Square square) {
+    Player existingPlayer = this.moves.get(square);
     if (existingPlayer != null) {
-      String message = "A %s piece already exists at (%d,%d)";
-      throw new IllegalArgumentException(String.format(message, existingPlayer, row, column));
+      String message = "A %s piece already exists at %s";
+      throw new IllegalArgumentException(String.format(message, existingPlayer, square));
     }
-    PSet<Square> captures = this.possibleMoves.get(new Square(row, column));
+    PSet<Square> captures = this.possibleMoves.get(square);
     if (captures == null) {
       String message = "%s will not capture any pieces if placed at (%d,%d)";
-      throw new IllegalArgumentException(String.format(message, this.player, row, column));
+      throw new IllegalArgumentException(String.format(message, this.player, square));
     }
-    PMap<Square, Player> newMoves = this.moves.plus(move, this.player);
-    for (Square square : captures) {
-      newMoves = newMoves.plus(square, this.player);
+    PMap<Square, Player> newMoves = this.moves.plus(square, this.player);
+    for (Square capture : captures) {
+      newMoves = newMoves.plus(capture, this.player);
     }
     return new Board(this.size, newMoves, this.player.opponent());
   }
@@ -142,16 +149,16 @@ public class Board {
             int r = row + rowStep;
             int c = column + columnStep;
             PSet<Square> captures = HashTreePSet.empty();
-            if (this.isValidSquare(r, c) && this.getOwner(r, c) == opponent) {
+            if (this.isValidSquare(r, c) && this.getOwner(new Square(r, c)) == opponent) {
               captures = captures.plus(new Square(r, c));
               r += rowStep;
               c += columnStep;
-              while (this.isValidSquare(r, c) && this.getOwner(r, c) == opponent) {
+              while (this.isValidSquare(r, c) && this.getOwner(new Square(r, c)) == opponent) {
                 captures = captures.plus(new Square(r, c));
                 r += rowStep;
                 c += columnStep;
               }
-              if (this.isValidSquare(r, c) && this.getOwner(r, c) == this.player) {
+              if (this.isValidSquare(r, c) && this.getOwner(new Square(r, c)) == this.player) {
                 allCaptures = allCaptures.plusAll(captures);
               }
             }
