@@ -117,26 +117,54 @@ public class Board {
     return builder.toString();
   }
 
+  /**
+   * @return The number of rows (= the number of columns) in this Reversi board.
+   */
   public int size() {
     return this.size;
   }
 
+  /**
+   * @return A mapping from squares to the players currently occupying them.
+   */
   public Map<Square, Player> getSquareOwners() {
     return this.owners;
   }
 
+  /**
+   * @return True if no squares remain that can be played by either player,
+   *         false otherwise.
+   */
   public boolean isComplete() {
     return this.possibleMoves.isEmpty() && this.pass().possibleMoves.isEmpty();
   }
 
+  /**
+   * @return The player that gets to choose a square next.
+   */
   public Player getCurrentPlayer() {
     return this.player;
   }
 
+  /**
+   * @return The possible valid moves that the current player may choose from.
+   */
   public Set<Square> getCurrentPossibleSquares() {
     return this.possibleMoves.keySet();
   }
 
+  /**
+   * Places a game piece for the current player at the given square.
+   * 
+   * @param square
+   *          The square where the current player would like to place their
+   *          piece. Must be a valid play: there must not already be a piece
+   *          there, and placing a piece there must capture at least one new
+   *          piece for the current player.
+   * @return The new board with the given piece played, with all pieces that
+   *         were captured by this play now occupied by the player, and with the
+   *         current player now set to the opponent.
+   */
   public Board play(Square square) {
     Player existingPlayer = this.owners.get(square);
     if (existingPlayer != null) {
@@ -155,6 +183,13 @@ public class Board {
     return new Board(this.size, newMoves, this.player.opponent());
   }
 
+  /**
+   * Passes the current player's turn. Only valid when there are no possible
+   * capturing moves for the current player.
+   * 
+   * @return A new board with the same layout as the current one, but with the
+   *         current player now set to the opponent.
+   */
   public Board pass() {
     Set<Square> validNextMoves = this.getCurrentPossibleSquares();
     if (!validNextMoves.isEmpty()) {
