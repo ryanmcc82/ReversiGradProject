@@ -193,6 +193,33 @@ public class BoardTest {
   @Test
   public void testGetWinnerTie() {
     Board board = new Board(4);
-    // TODO
+    board = board.play(new Square(1, 0));
+    Assert.assertEquals("____\nBBB_\n_BW_\n____\n", board.toString());
+    board = board.play(new Square(0, 2));
+    Assert.assertEquals("__W_\nBBW_\n_BW_\n____\n", board.toString());
+    board = board.play(new Square(2, 3));
+    Assert.assertEquals("__W_\nBBW_\n_BBB\n____\n", board.toString());
+    board = board.play(new Square(3, 2));
+    Assert.assertEquals("__W_\nBBW_\n_BWB\n__W_\n", board.toString());
+    board = board.play(new Square(0, 1));
+    Assert.assertEquals("_BW_\nBBB_\n_BWB\n__W_\n", board.toString());
+    board = board.play(new Square(0, 0));
+    Assert.assertEquals("WWW_\nBWB_\n_BWB\n__W_\n", board.toString());
+    board = board.pass();
+    Assert.assertEquals("WWW_\nBWB_\n_BWB\n__W_\n", board.toString());
+    board = board.play(new Square(1, 3));
+    Assert.assertEquals("WWW_\nBWWW\n_BWB\n__W_\n", board.toString());
+    board = board.play(new Square(0, 3));
+    Assert.assertEquals("WWWB\nBWBB\n_BWB\n__W_\n", board.toString());
+    board = board.play(new Square(2, 0));
+    Assert.assertEquals("WWWB\nWWBB\nWWWB\n__W_\n", board.toString());
+    board = board.play(new Square(3, 0));
+    Assert.assertEquals("WWWB\nWWBB\nWBWB\nB_W_\n", board.toString());
+    board = board.play(new Square(3, 1));
+    Assert.assertEquals("WWWB\nWWBB\nWWWB\nBWW_\n", board.toString());
+    board = board.play(new Square(3, 3));
+    Assert.assertEquals("WWWB\nWWBB\nWWWB\nBBBB\n", board.toString());
+
+    Assert.assertNull(board.getWinner());
   }
 }
