@@ -9,6 +9,10 @@ import edu.uab.cis.reversi.Board;
 import edu.uab.cis.reversi.Square;
 import edu.uab.cis.reversi.Strategy;
 
+/**
+ * A simple strategy that just chooses randomly from the squares available to
+ * the current player.
+ */
 public class RandomStrategy implements Strategy {
 
   @Override
@@ -16,9 +20,16 @@ public class RandomStrategy implements Strategy {
     return chooseOne(board.getCurrentPossibleSquares());
   }
 
-  protected Square chooseOne(Set<Square> squares) {
-    List<Square> squareList = new ArrayList<>(squares);
-    int index = new Random().nextInt(squareList.size());
-    return squareList.get(index);
+  /**
+   * A simple utility method for selecting a random item from a set. Not
+   * particularly efficient.
+   * 
+   * @param itemSet
+   *          The set of items from which to select.
+   * @return A random item from the set.
+   */
+  public static <T> T chooseOne(Set<T> itemSet) {
+    List<T> itemList = new ArrayList<>(itemSet);
+    return itemList.get(new Random().nextInt(itemList.size()));
   }
 }
