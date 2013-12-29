@@ -22,7 +22,7 @@ public class Board {
   private int size;
   private Player player;
   private PMap<Square, Player> owners;
-  private PMap<Square, PSet<Square>> possibleMoves;
+  private PMap<Square, PSet<Square>> possibleSquares;
   private PMap<Player, Integer> playerSquareCounts;
 
   /**
@@ -58,7 +58,7 @@ public class Board {
     this.size = size;
     this.owners = owners;
     this.player = player;
-    this.possibleMoves = HashTreePMap.empty();
+    this.possibleSquares = HashTreePMap.empty();
     this.playerSquareCounts = playerSquareCounts;
     // This is a brute force approach to determine the possible moves, just
     // going through all the squares, one at a time. It could be more efficient
@@ -92,7 +92,7 @@ public class Board {
             }
           }
           if (!allCaptures.isEmpty()) {
-            this.possibleMoves = this.possibleMoves.plus(new Square(row, column), allCaptures);
+            this.possibleSquares = this.possibleSquares.plus(new Square(row, column), allCaptures);
           }
         }
       }
@@ -185,7 +185,7 @@ public class Board {
    *         false otherwise.
    */
   public boolean isComplete() {
-    return this.possibleMoves.isEmpty() && this.pass().possibleMoves.isEmpty();
+    return this.possibleSquares.isEmpty() && this.pass().possibleSquares.isEmpty();
   }
 
   /**
@@ -219,7 +219,7 @@ public class Board {
    * @return The possible valid moves that the current player may choose from.
    */
   public Set<Square> getCurrentPossibleSquares() {
-    return this.possibleMoves.keySet();
+    return this.possibleSquares.keySet();
   }
 
   /**
@@ -240,7 +240,7 @@ public class Board {
       String message = "A %s piece already exists at %s";
       throw new IllegalArgumentException(String.format(message, existingPlayer, square));
     }
-    PSet<Square> captures = this.possibleMoves.get(square);
+    PSet<Square> captures = this.possibleSquares.get(square);
     if (captures == null) {
       String message = "%s will not capture any pieces if placed at (%d,%d)";
       throw new IllegalArgumentException(String.format(message, this.player, square));
