@@ -1,5 +1,6 @@
 package edu.uab.cis.reversi;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -114,5 +115,26 @@ public class BoardTest {
     Board incompleteBoard = board.play(new Square(0, 1));
     Assert.assertEquals("WW_B\nWWWW\nWWWW\nBWWW\n", incompleteBoard.toString());
     Assert.assertTrue(incompleteBoard.isComplete());
+  }
+
+  @Test
+  public void testGetPlayerSquareCounts() {
+    Board board = new Board(4);
+    Map<Player, Integer> expected = new HashMap<>();
+    expected.put(Player.BLACK, 2);
+    expected.put(Player.WHITE, 2);
+    Assert.assertEquals(expected, board.getPlayerSquareCounts());
+
+    board = board.play(new Square(1, 0));
+    Assert.assertEquals("____\nBBB_\n_BW_\n____\n", board.toString());
+    expected.put(Player.BLACK, 4);
+    expected.put(Player.WHITE, 1);
+    Assert.assertEquals(expected, board.getPlayerSquareCounts());
+
+    board = board.play(new Square(0, 0));
+    Assert.assertEquals("W___\nBWB_\n_BW_\n____\n", board.toString());
+    expected.put(Player.BLACK, 3);
+    expected.put(Player.WHITE, 3);
+    Assert.assertEquals(expected, board.getPlayerSquareCounts());
   }
 }

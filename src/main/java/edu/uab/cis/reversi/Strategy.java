@@ -11,6 +11,7 @@ public interface Strategy {
    * <li>{@link Board#getCurrentPossibleSquares()}</li>
    * <li>{@link Board#getCurrentPlayer()}</li>
    * <li>{@link Board#getSquareOwners()}</li>
+   * <li>{@link Board#getPlayerSquareCounts()}</li>
    * </ul>
    * 
    * @param board
