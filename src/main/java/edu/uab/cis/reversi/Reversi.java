@@ -15,7 +15,7 @@ public class Reversi {
     @Option(longName = "strategy2")
     public String getStrategy2();
 
-    @Option(longName = "games")
+    @Option(longName = "games", defaultValue = "1000")
     public int getNumberOfGames();
   }
 
@@ -27,9 +27,11 @@ public class Reversi {
     int nGames = options.getNumberOfGames();
     Map<Strategy, Integer> wins = playMultiple(new Board(), strategy1, strategy2, nGames);
     System.err.printf(
-        "Strategy 1: %4d\nStrategy 2: %4d\nTies:       %4d\n",
+        "%4d won by %s\n%4d won by %s\n%4d tied\n",
         wins.get(strategy1),
+        options.getStrategy1(),
         wins.get(strategy2),
+        options.getStrategy2(),
         wins.get(null));
   }
 
