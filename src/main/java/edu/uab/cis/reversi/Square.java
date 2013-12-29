@@ -2,19 +2,37 @@ package edu.uab.cis.reversi;
 
 import java.util.Objects;
 
+/**
+ * A square on a Reversi board, identified by a row and a column. Rows and
+ * columns typically start counting at 0.
+ */
 public class Square {
   private int row, column;
 
+  /**
+   * Identifies a square on the Reversi board via the given row and column.
+   * 
+   * @param row
+   *          The row on the Reversi board.
+   * @param column
+   *          The column on the Reversi board.
+   */
   public Square(int row, int column) {
     super();
     this.row = row;
     this.column = column;
   }
 
+  /**
+   * @return The row of this square on the Reversi board.
+   */
   public int getRow() {
     return this.row;
   }
 
+  /**
+   * @return The column of this square on the Reversi board.
+   */
   public int getColumn() {
     return this.column;
   }
