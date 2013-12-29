@@ -43,20 +43,21 @@ public class Reversi {
     // play until the board is complete
     Board board = new Board();
     while (!board.isComplete()) {
-      if (board.getPossibleMoves().isEmpty()) {
+      if (board.getCurrentPossibleSquares().isEmpty()) {
         board = board.pass();
       } else {
         Player player = board.getCurrentPlayer();
         Square square = strategies.get(player).getMove(board);
-        board = board.addMove(square.getRow(), square.getColumn());
+        board = board.play(square);
       }
     }
 
     // count the squares owned by each player
     Multiset<Strategy> squareCounts = HashMultiset.create();
+    Map<Square, Player> owners = board.getSquareOwners();
     for (int row = 0; row < board.size(); ++row) {
       for (int column = 0; column < board.size(); ++column) {
-        Player owner = board.getOwner(new Square(row, column));
+        Player owner = owners.get(new Square(row, column));
         if (owner != null) {
           squareCounts.add(strategies.get(owner));
         }

@@ -13,7 +13,7 @@ public class RandomStrategy implements Strategy {
 
   @Override
   public Square getMove(Board board) {
-    return chooseOne(board.getPossibleMoves());
+    return chooseOne(board.getCurrentPossibleSquares());
   }
 
   protected Square chooseOne(Set<Square> squares) {

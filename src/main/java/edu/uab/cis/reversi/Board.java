@@ -1,5 +1,6 @@
 package edu.uab.cis.reversi;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -10,16 +11,16 @@ import org.pcollections.PSet;
 
 public class Board {
   private int size;
-  private PMap<Square, Player> moves;
+  private PMap<Square, Player> owners;
   private Player player;
   private PMap<Square, PSet<Square>> possibleMoves;
 
-  private Board(int size, PMap<Square, Player> moves, Player player) {
+  private Board(int size, PMap<Square, Player> owners, Player player) {
     if (size % 2 != 0 || size <= 2) {
       throw new IllegalArgumentException("Board size must be an even integer greater than 2");
     }
     this.size = size;
-    this.moves = moves;
+    this.owners = owners;
     this.player = player;
     this.possibleMoves = this.calculatePossibleMoves();
   }
@@ -29,29 +30,29 @@ public class Board {
   }
 
   public Board(int size) {
-    this(size, getInitialMoves(size), Player.BLACK);
+    this(size, getInitialOwners(size), Player.BLACK);
   }
 
-  private static PMap<Square, Player> getInitialMoves(int size) {
-    PMap<Square, Player> moves = HashTreePMap.empty();
+  private static PMap<Square, Player> getInitialOwners(int size) {
+    PMap<Square, Player> owners = HashTreePMap.empty();
     int mid = size / 2;
-    moves = moves.plus(new Square(mid - 1, mid - 1), Player.WHITE);
-    moves = moves.plus(new Square(mid - 1, mid), Player.BLACK);
-    moves = moves.plus(new Square(mid, mid - 1), Player.BLACK);
-    moves = moves.plus(new Square(mid, mid), Player.WHITE);
-    return moves;
+    owners = owners.plus(new Square(mid - 1, mid - 1), Player.WHITE);
+    owners = owners.plus(new Square(mid - 1, mid), Player.BLACK);
+    owners = owners.plus(new Square(mid, mid - 1), Player.BLACK);
+    owners = owners.plus(new Square(mid, mid), Player.WHITE);
+    return owners;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.size, this.moves);
+    return Objects.hash(this.size, this.owners);
   }
 
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof Board) {
       Board that = (Board) obj;
-      return this.size == that.size && Objects.equals(this.moves, that.moves);
+      return this.size == that.size && Objects.equals(this.owners, that.owners);
     }
     return false;
   }
@@ -61,7 +62,7 @@ public class Board {
     StringBuilder builder = new StringBuilder();
     for (int row = 0; row < this.size; ++row) {
       for (int col = 0; col < this.size; ++col) {
-        Player owner = this.getOwner(new Square(row, col));
+        Player owner = this.owners.get(new Square(row, col));
         if (owner == Player.WHITE) {
           builder.append('W');
         } else if (owner == Player.BLACK) {
@@ -79,32 +80,24 @@ public class Board {
     return this.size;
   }
 
-  public Player getCurrentPlayer() {
-    return this.player;
-  }
-
-  public Player getOwner(int row, int column) {
-    return this.getOwner(new Square(row, column));
-  }
-
-  public Player getOwner(Square square) {
-    return this.moves.get(square);
+  public Map<Square, Player> getSquareOwners() {
+    return this.owners;
   }
 
   public boolean isComplete() {
     return this.possibleMoves.isEmpty() && this.pass().possibleMoves.isEmpty();
   }
 
-  public Set<Square> getPossibleMoves() {
+  public Player getCurrentPlayer() {
+    return this.player;
+  }
+
+  public Set<Square> getCurrentPossibleSquares() {
     return this.possibleMoves.keySet();
   }
 
-  public Board addMove(int row, int column) {
-    return this.addMove(new Square(row, column));
-  }
-
-  public Board addMove(Square square) {
-    Player existingPlayer = this.moves.get(square);
+  public Board play(Square square) {
+    Player existingPlayer = this.owners.get(square);
     if (existingPlayer != null) {
       String message = "A %s piece already exists at %s";
       throw new IllegalArgumentException(String.format(message, existingPlayer, square));
@@ -114,7 +107,7 @@ public class Board {
       String message = "%s will not capture any pieces if placed at (%d,%d)";
       throw new IllegalArgumentException(String.format(message, this.player, square));
     }
-    PMap<Square, Player> newMoves = this.moves.plus(square, this.player);
+    PMap<Square, Player> newMoves = this.owners.plus(square, this.player);
     for (Square capture : captures) {
       newMoves = newMoves.plus(capture, this.player);
     }
@@ -122,12 +115,12 @@ public class Board {
   }
 
   public Board pass() {
-    Set<Square> validNextMoves = this.getPossibleMoves();
+    Set<Square> validNextMoves = this.getCurrentPossibleSquares();
     if (!validNextMoves.isEmpty()) {
       String message = "%s cannot pass since there are valid moves: %s";
       throw new IllegalArgumentException(String.format(message, this.player, validNextMoves));
     }
-    return new Board(this.size, this.moves, this.player.opponent());
+    return new Board(this.size, this.owners, this.player.opponent());
   }
 
   private PMap<Square, PSet<Square>> calculatePossibleMoves() {
@@ -141,7 +134,7 @@ public class Board {
             { -1, 1 } };
     for (int row = 0; row < this.size; ++row) {
       for (int column = 0; column < this.size; ++column) {
-        if (this.moves.get(new Square(row, column)) == null) {
+        if (this.owners.get(new Square(row, column)) == null) {
           PSet<Square> allCaptures = HashTreePSet.empty();
           for (int[] direction : directions) {
             int rowStep = direction[0];
@@ -149,16 +142,16 @@ public class Board {
             int r = row + rowStep;
             int c = column + columnStep;
             PSet<Square> captures = HashTreePSet.empty();
-            if (this.isValidSquare(r, c) && this.getOwner(new Square(r, c)) == opponent) {
+            if (this.isValidSquare(r, c) && this.owners.get(new Square(r, c)) == opponent) {
               captures = captures.plus(new Square(r, c));
               r += rowStep;
               c += columnStep;
-              while (this.isValidSquare(r, c) && this.getOwner(new Square(r, c)) == opponent) {
+              while (this.isValidSquare(r, c) && this.owners.get(new Square(r, c)) == opponent) {
                 captures = captures.plus(new Square(r, c));
                 r += rowStep;
                 c += columnStep;
               }
-              if (this.isValidSquare(r, c) && this.getOwner(new Square(r, c)) == this.player) {
+              if (this.isValidSquare(r, c) && this.owners.get(new Square(r, c)) == this.player) {
                 allCaptures = allCaptures.plusAll(captures);
               }
             }
