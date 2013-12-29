@@ -12,7 +12,7 @@ import edu.uab.cis.reversi.Strategy;
 public class RandomStrategy implements Strategy {
 
   @Override
-  public Square getMove(Board board) {
+  public Square chooseSquare(Board board) {
     return chooseOne(board.getCurrentPossibleSquares());
   }
 

@@ -25,7 +25,7 @@ public class RandomStrategyTest {
             new Square(5, 4)));
     Set<Square> actual = new HashSet<>();
     for (int i = 0; i < 100; ++i) {
-      actual.add(strategy.getMove(board));
+      actual.add(strategy.chooseSquare(board));
     }
     Assert.assertEquals(expected, actual);
   }

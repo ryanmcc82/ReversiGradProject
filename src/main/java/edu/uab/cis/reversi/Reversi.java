@@ -47,7 +47,8 @@ public class Reversi {
         board = board.pass();
       } else {
         Player player = board.getCurrentPlayer();
-        Square square = strategies.get(player).getMove(board);
+        Strategy strategy = strategies.get(player);
+        Square square = strategy.chooseSquare(board);
         board = board.play(square);
       }
     }
