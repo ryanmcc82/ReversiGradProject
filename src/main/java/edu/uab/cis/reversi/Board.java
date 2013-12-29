@@ -202,7 +202,10 @@ public class Board {
         return getPlayerSquareCounts().get(input);
       }
     });
-    return bySquares.max(Arrays.asList(Player.values()));
+    Player winner = bySquares.max(Arrays.asList(Player.values()));
+    return this.playerSquareCounts.get(winner) == this.playerSquareCounts.get(winner.opponent())
+        ? null
+        : winner;
   }
 
   /**
