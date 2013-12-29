@@ -15,6 +15,14 @@ public class Board {
   private Player player;
   private PMap<Square, PSet<Square>> possibleMoves;
 
+  public Board() {
+    this(8);
+  }
+
+  public Board(int size) {
+    this(size, getInitialOwners(size), Player.BLACK);
+  }
+
   private Board(int size, PMap<Square, Player> owners, Player player) {
     if (size % 2 != 0 || size <= 2) {
       throw new IllegalArgumentException("Board size must be an even integer greater than 2");
@@ -22,15 +30,48 @@ public class Board {
     this.size = size;
     this.owners = owners;
     this.player = player;
-    this.possibleMoves = this.calculatePossibleMoves();
+    this.possibleMoves = HashTreePMap.empty();
+    // This is a brute force approach to determine the possible moves, just
+    // going through all the squares, one at a time. It could be more efficient
+    // in exactly which locations it checks
+    Player opponent = this.player.opponent();
+    int[][] directions =
+        new int[][] { { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { -1, 0 },
+            { -1, 1 } };
+    for (int row = 0; row < this.size; ++row) {
+      for (int column = 0; column < this.size; ++column) {
+        if (this.owners.get(new Square(row, column)) == null) {
+          PSet<Square> allCaptures = HashTreePSet.empty();
+          for (int[] direction : directions) {
+            int rowStep = direction[0];
+            int columnStep = direction[1];
+            int r = row + rowStep;
+            int c = column + columnStep;
+            PSet<Square> captures = HashTreePSet.empty();
+            if (this.isValidSquare(r, c) && this.owners.get(new Square(r, c)) == opponent) {
+              captures = captures.plus(new Square(r, c));
+              r += rowStep;
+              c += columnStep;
+              while (this.isValidSquare(r, c) && this.owners.get(new Square(r, c)) == opponent) {
+                captures = captures.plus(new Square(r, c));
+                r += rowStep;
+                c += columnStep;
+              }
+              if (this.isValidSquare(r, c) && this.owners.get(new Square(r, c)) == this.player) {
+                allCaptures = allCaptures.plusAll(captures);
+              }
+            }
+          }
+          if (!allCaptures.isEmpty()) {
+            this.possibleMoves = this.possibleMoves.plus(new Square(row, column), allCaptures);
+          }
+        }
+      }
+    }
   }
 
-  public Board() {
-    this(8);
-  }
-
-  public Board(int size) {
-    this(size, getInitialOwners(size), Player.BLACK);
+  private boolean isValidSquare(int row, int column) {
+    return 0 <= row && row < this.size && 0 <= column && column < this.size;
   }
 
   private static PMap<Square, Player> getInitialOwners(int size) {
@@ -121,51 +162,5 @@ public class Board {
       throw new IllegalArgumentException(String.format(message, this.player, validNextMoves));
     }
     return new Board(this.size, this.owners, this.player.opponent());
-  }
-
-  private PMap<Square, PSet<Square>> calculatePossibleMoves() {
-    PMap<Square, PSet<Square>> validNextMoves = HashTreePMap.empty();
-    Player opponent = this.player.opponent();
-
-    // this is a brute force approach, just going through all squares
-    // it could be more efficient in exactly which locations it checks
-    int[][] directions =
-        new int[][] { { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { -1, 0 },
-            { -1, 1 } };
-    for (int row = 0; row < this.size; ++row) {
-      for (int column = 0; column < this.size; ++column) {
-        if (this.owners.get(new Square(row, column)) == null) {
-          PSet<Square> allCaptures = HashTreePSet.empty();
-          for (int[] direction : directions) {
-            int rowStep = direction[0];
-            int columnStep = direction[1];
-            int r = row + rowStep;
-            int c = column + columnStep;
-            PSet<Square> captures = HashTreePSet.empty();
-            if (this.isValidSquare(r, c) && this.owners.get(new Square(r, c)) == opponent) {
-              captures = captures.plus(new Square(r, c));
-              r += rowStep;
-              c += columnStep;
-              while (this.isValidSquare(r, c) && this.owners.get(new Square(r, c)) == opponent) {
-                captures = captures.plus(new Square(r, c));
-                r += rowStep;
-                c += columnStep;
-              }
-              if (this.isValidSquare(r, c) && this.owners.get(new Square(r, c)) == this.player) {
-                allCaptures = allCaptures.plusAll(captures);
-              }
-            }
-          }
-          if (!allCaptures.isEmpty()) {
-            validNextMoves = validNextMoves.plus(new Square(row, column), allCaptures);
-          }
-        }
-      }
-    }
-    return validNextMoves;
-  }
-
-  private boolean isValidSquare(int row, int column) {
-    return 0 <= row && row < this.size && 0 <= column && column < this.size;
   }
 }
