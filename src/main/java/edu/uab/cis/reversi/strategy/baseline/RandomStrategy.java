@@ -1,4 +1,4 @@
-package edu.uab.cis.reversi.strategy;
+package edu.uab.cis.reversi.strategy.baseline;
 
 import java.util.ArrayList;
 import java.util.List;
