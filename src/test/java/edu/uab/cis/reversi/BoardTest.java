@@ -38,8 +38,12 @@ public class BoardTest {
   public void testEqualityAndHashing() {
     Board board1 = new Board();
     Board board2 = new Board();
+    Board board3 = new Board(4);
     Assert.assertEquals(board1, board2);
     Assert.assertEquals(board1.hashCode(), board2.hashCode());
+    Assert.assertNotEquals(board1, board3);
+    Assert.assertNotEquals(board2, board3);
+    Assert.assertNotEquals(board1, null);
 
     board1 = board1.play(new Square(2, 3));
     Assert.assertNotEquals(board1, board2);
@@ -48,6 +52,19 @@ public class BoardTest {
     board2 = board2.play(new Square(2, 3));
     Assert.assertEquals(board1, board2);
     Assert.assertEquals(board1.hashCode(), board2.hashCode());
+
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testIllegalToHaveSmallSize() {
+    Board board = new Board(2);
+    board.toString();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testIllegalToHaveOddSize() {
+    Board board = new Board(3);
+    board.toString();
   }
 
   @Test(expected = IllegalArgumentException.class)
