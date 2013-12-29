@@ -1,5 +1,6 @@
 package edu.uab.cis.reversi;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -8,6 +9,9 @@ import org.pcollections.HashTreePMap;
 import org.pcollections.HashTreePSet;
 import org.pcollections.PMap;
 import org.pcollections.PSet;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Ordering;
 
 /**
  * A single state of a Reversi board. It records which pieces have been played
@@ -182,6 +186,23 @@ public class Board {
    */
   public boolean isComplete() {
     return this.possibleMoves.isEmpty() && this.pass().possibleMoves.isEmpty();
+  }
+
+  /**
+   * @return The winner on this Reversi board. Only valid after
+   *         {@link #isComplete()} returns true.
+   */
+  public Player getWinner() {
+    if (!this.isComplete()) {
+      throw new IllegalStateException("getWinner cannot be called until the game is complete");
+    }
+    Ordering<Player> bySquares = Ordering.natural().onResultOf(new Function<Player, Integer>() {
+      @Override
+      public Integer apply(Player input) {
+        return getPlayerSquareCounts().get(input);
+      }
+    });
+    return bySquares.max(Arrays.asList(Player.values()));
   }
 
   /**

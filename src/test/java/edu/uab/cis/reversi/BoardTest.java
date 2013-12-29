@@ -154,4 +154,45 @@ public class BoardTest {
     expected.put(Player.WHITE, 3);
     Assert.assertEquals(expected, board.getPlayerSquareCounts());
   }
+
+  @Test(expected = IllegalStateException.class)
+  public void testGetWinnerIncompleteBoard() {
+    Board board = new Board();
+    board.getWinner();
+  }
+
+  @Test
+  public void testGetWinner() {
+    Board board = new Board(4);
+    board = board.play(new Square(1, 0));
+    board = board.play(new Square(0, 0));
+    board = board.play(new Square(3, 2));
+    board = board.play(new Square(3, 3));
+    board = board.play(new Square(2, 3));
+    board = board.play(new Square(3, 1));
+    board = board.play(new Square(3, 0));
+    board = board.play(new Square(1, 3));
+    board = board.play(new Square(0, 3));
+    board = board.play(new Square(2, 0));
+    board = board.pass();
+    Assert.assertEquals("W__B\nWWBW\nWWWW\nBWWW\n", board.toString());
+
+    // end by completely filling the board
+    Board completeBoard = board.play(new Square(0, 2));
+    completeBoard = completeBoard.play(new Square(0, 1));
+    Assert.assertEquals("WBBB\nWWWW\nWWWW\nBWWW\n", completeBoard.toString());
+    Assert.assertEquals(Player.WHITE, completeBoard.getWinner());
+
+    // end without completely filling the board
+    Board incompleteBoard = board.play(new Square(0, 1));
+    Assert.assertEquals("WW_B\nWWWW\nWWWW\nBWWW\n", incompleteBoard.toString());
+    Assert.assertEquals(Player.WHITE, incompleteBoard.getWinner());
+
+  }
+
+  @Test
+  public void testGetWinnerTie() {
+    Board board = new Board(4);
+    // TODO
+  }
 }
