@@ -24,8 +24,7 @@ public enum Player {
         return BLACK;
       case BLACK:
         return WHITE;
-      default:
-        throw new IllegalStateException("unexpected Player: " + this);
     }
+    throw new IllegalStateException("unexpected Player: " + this);
   }
 }
