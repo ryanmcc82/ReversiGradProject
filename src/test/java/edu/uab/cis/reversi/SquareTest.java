@@ -18,6 +18,24 @@ public class SquareTest {
     Square square2 = new Square(7, 3);
     Assert.assertEquals(square1, square2);
     Assert.assertEquals(square1.hashCode(), square2.hashCode());
+    Assert.assertNotEquals(square1, null);
+    Assert.assertNotEquals(square1, new Square(7, 2));
+    Assert.assertNotEquals(square1, new Square(6, 3));
   }
 
+  @Test
+  public void testPass() {
+    Square square = new Square(4, 4);
+    Assert.assertNotEquals(Square.PASS, square);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testPassHasNoRow() {
+    Square.PASS.getRow();
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testPassHasNoColumn() {
+    Square.PASS.getColumn();
+  }
 }
