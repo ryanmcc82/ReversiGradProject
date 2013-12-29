@@ -9,20 +9,39 @@ import org.pcollections.HashTreePSet;
 import org.pcollections.PMap;
 import org.pcollections.PSet;
 
+/**
+ * A single state of a Reversi board. It records which pieces have been played
+ * so far by which players, which pieces have been captured, and who the next
+ * player to play should be.
+ */
 public class Board {
   private int size;
   private PMap<Square, Player> owners;
   private Player player;
   private PMap<Square, PSet<Square>> possibleMoves;
 
+  /**
+   * Creates a standard 8x8 Reversi board with the standard initial
+   * configuration of {@link Player#BLACK} and {@link Player#WHITE} pieces.
+   */
   public Board() {
     this(8);
   }
 
+  /**
+   * Creates an NxN Reversi board with the standard initial configuration of
+   * {@link Player#BLACK} and {@link Player#WHITE} pieces.
+   * 
+   * @param size
+   *          The number of rows (= the number of columns) on the board.
+   */
   public Board(int size) {
     this(size, getInitialOwners(size), Player.BLACK);
   }
 
+  /**
+   * Low-level constructor. Intended only for internal use.
+   */
   private Board(int size, PMap<Square, Player> owners, Player player) {
     if (size % 2 != 0 || size <= 2) {
       throw new IllegalArgumentException("Board size must be an even integer greater than 2");
@@ -48,16 +67,16 @@ public class Board {
             int r = row + rowStep;
             int c = column + columnStep;
             PSet<Square> captures = HashTreePSet.empty();
-            if (this.isValidSquare(r, c) && this.owners.get(new Square(r, c)) == opponent) {
+            if (this.hasOwner(r, c, opponent)) {
               captures = captures.plus(new Square(r, c));
               r += rowStep;
               c += columnStep;
-              while (this.isValidSquare(r, c) && this.owners.get(new Square(r, c)) == opponent) {
+              while (this.hasOwner(r, c, opponent)) {
                 captures = captures.plus(new Square(r, c));
                 r += rowStep;
                 c += columnStep;
               }
-              if (this.isValidSquare(r, c) && this.owners.get(new Square(r, c)) == this.player) {
+              if (this.hasOwner(r, c, this.player)) {
                 allCaptures = allCaptures.plusAll(captures);
               }
             }
@@ -70,10 +89,19 @@ public class Board {
     }
   }
 
-  private boolean isValidSquare(int row, int column) {
-    return 0 <= row && row < this.size && 0 <= column && column < this.size;
+  /**
+   * Utility method for simultaneously checking bounds and owner. Intended only
+   * for internal use.
+   */
+  private boolean hasOwner(int row, int column, Player owner) {
+    return 0 <= row && row < this.size && 0 <= column && column < this.size
+        && this.owners.get(new Square(row, column)) == owner;
   }
 
+  /**
+   * Utility method for generating the initial board configuration. Intended
+   * only for internal use.
+   */
   private static PMap<Square, Player> getInitialOwners(int size) {
     PMap<Square, Player> owners = HashTreePMap.empty();
     int mid = size / 2;
