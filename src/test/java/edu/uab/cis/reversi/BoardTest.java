@@ -1,6 +1,8 @@
 package edu.uab.cis.reversi;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -221,5 +223,51 @@ public class BoardTest {
     Assert.assertEquals("WWWB\nWWBB\nWWWB\nBBBB\n", board.toString());
 
     Assert.assertNull(board.getWinner());
+  }
+
+  @Test
+  public void testGetMoves() {
+    Board board = new Board(4);
+    List<Move> expected = new ArrayList<>();
+    Assert.assertEquals(expected, board.getMoves());
+    board = board.play(new Square(1, 0));
+    expected.add(new Move(new Square(1, 0), Player.BLACK));
+    Assert.assertEquals(expected, board.getMoves());
+    board = board.play(new Square(0, 2));
+    expected.add(new Move(new Square(0, 2), Player.WHITE));
+    Assert.assertEquals(expected, board.getMoves());
+    board = board.play(new Square(2, 3));
+    expected.add(new Move(new Square(2, 3), Player.BLACK));
+    Assert.assertEquals(expected, board.getMoves());
+    board = board.play(new Square(3, 2));
+    expected.add(new Move(new Square(3, 2), Player.WHITE));
+    Assert.assertEquals(expected, board.getMoves());
+    board = board.play(new Square(0, 1));
+    expected.add(new Move(new Square(0, 1), Player.BLACK));
+    Assert.assertEquals(expected, board.getMoves());
+    board = board.play(new Square(0, 0));
+    expected.add(new Move(new Square(0, 0), Player.WHITE));
+    Assert.assertEquals(expected, board.getMoves());
+    board = board.pass();
+    expected.add(new Move(Square.PASS, Player.BLACK));
+    Assert.assertEquals(expected, board.getMoves());
+    board = board.play(new Square(1, 3));
+    expected.add(new Move(new Square(1, 3), Player.WHITE));
+    Assert.assertEquals(expected, board.getMoves());
+    board = board.play(new Square(0, 3));
+    expected.add(new Move(new Square(0, 3), Player.BLACK));
+    Assert.assertEquals(expected, board.getMoves());
+    board = board.play(new Square(2, 0));
+    expected.add(new Move(new Square(2, 0), Player.WHITE));
+    Assert.assertEquals(expected, board.getMoves());
+    board = board.play(new Square(3, 0));
+    expected.add(new Move(new Square(3, 0), Player.BLACK));
+    Assert.assertEquals(expected, board.getMoves());
+    board = board.play(new Square(3, 1));
+    expected.add(new Move(new Square(3, 1), Player.WHITE));
+    Assert.assertEquals(expected, board.getMoves());
+    board = board.play(new Square(3, 3));
+    expected.add(new Move(new Square(3, 3), Player.BLACK));
+    Assert.assertEquals(expected, board.getMoves());
   }
 }

@@ -7,6 +7,27 @@ import java.util.Objects;
  * columns typically start counting at 0.
  */
 public class Square {
+
+  /**
+   * A special Square for indicating that no piece was placed.
+   */
+  public static final Square PASS = new Square(-1, -1) {
+    @Override
+    public String toString() {
+      return "Square.PASS";
+    }
+
+    @Override
+    public int getRow() {
+      throw new UnsupportedOperationException(String.format("%s does not have a row", this));
+    }
+
+    @Override
+    public int getColumn() {
+      throw new UnsupportedOperationException(String.format("%s does not have a column", this));
+    }
+  };
+
   private int row, column;
 
   /**

@@ -1,6 +1,7 @@
 package edu.uab.cis.reversi;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -8,7 +9,9 @@ import java.util.Set;
 import org.pcollections.HashTreePMap;
 import org.pcollections.HashTreePSet;
 import org.pcollections.PMap;
+import org.pcollections.PSequence;
 import org.pcollections.PSet;
+import org.pcollections.TreePVector;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
@@ -22,6 +25,7 @@ public class Board {
   private int size;
   private Player player;
   private PMap<Square, Player> owners;
+  private PSequence<Move> moves;
   private PMap<Square, PSet<Square>> possibleSquares;
   private PMap<Player, Integer> playerSquareCounts;
 
@@ -41,7 +45,12 @@ public class Board {
    *          The number of rows (= the number of columns) on the board.
    */
   public Board(int size) {
-    this(size, Player.BLACK, getInitialOwners(size), getInitialPlayerSquareCounts());
+    this(
+        size,
+        Player.BLACK,
+        TreePVector.<Move> empty(),
+        getInitialOwners(size),
+        getInitialPlayerSquareCounts());
   }
 
   /**
@@ -50,14 +59,16 @@ public class Board {
   private Board(
       int size,
       Player player,
+      PSequence<Move> moves,
       PMap<Square, Player> owners,
       PMap<Player, Integer> playerSquareCounts) {
     if (size % 2 != 0 || size <= 2) {
       throw new IllegalArgumentException("Board size must be an even integer greater than 2");
     }
     this.size = size;
-    this.owners = owners;
     this.player = player;
+    this.moves = moves;
+    this.owners = owners;
     this.possibleSquares = HashTreePMap.empty();
     this.playerSquareCounts = playerSquareCounts;
     // This is a brute force approach to determine the possible moves, just
@@ -167,6 +178,15 @@ public class Board {
   }
 
   /**
+   * @return The moves made by the players so far. That is, each square where a
+   *         piece has been placed along with the player who played the piece
+   *         there.
+   */
+  public List<Move> getMoves() {
+    return this.moves;
+  }
+
+  /**
    * @return A mapping from squares to the players currently occupying them.
    */
   public Map<Square, Player> getSquareOwners() {
@@ -245,9 +265,10 @@ public class Board {
       String message = "%s will not capture any pieces if placed at (%d,%d)";
       throw new IllegalArgumentException(String.format(message, this.player, square));
     }
-    PMap<Square, Player> newMoves = this.owners.plus(square, this.player);
+    PSequence<Move> newMoves = this.moves.plus(new Move(square, this.player));
+    PMap<Square, Player> newOwners = this.owners.plus(square, this.player);
     for (Square capture : captures) {
-      newMoves = newMoves.plus(capture, this.player);
+      newOwners = newOwners.plus(capture, this.player);
     }
     Player opponent = this.player.opponent();
     int playerSquareCount = this.playerSquareCounts.get(this.player) + captures.size() + 1;
@@ -255,7 +276,7 @@ public class Board {
     PMap<Player, Integer> newPlayerSquareCounts = this.playerSquareCounts;
     newPlayerSquareCounts = newPlayerSquareCounts.plus(this.player, playerSquareCount);
     newPlayerSquareCounts = newPlayerSquareCounts.plus(opponent, opponentSquareCount);
-    return new Board(this.size, opponent, newMoves, newPlayerSquareCounts);
+    return new Board(this.size, opponent, newMoves, newOwners, newPlayerSquareCounts);
   }
 
   /**
@@ -271,6 +292,8 @@ public class Board {
       String message = "%s cannot pass since there are valid moves: %s";
       throw new IllegalArgumentException(String.format(message, this.player, validNextMoves));
     }
-    return new Board(this.size, this.player.opponent(), this.owners, this.playerSquareCounts);
+    Player opponent = this.player.opponent();
+    PSequence<Move> newMoves = this.moves.plus(new Move(Square.PASS, this.player));
+    return new Board(this.size, opponent, newMoves, this.owners, this.playerSquareCounts);
   }
 }
