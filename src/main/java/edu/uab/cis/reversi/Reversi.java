@@ -24,12 +24,6 @@ public class Reversi {
 
     @Option(longName = "games", defaultValue = "1000")
     public int getNumberOfGames();
-
-    @Option(longName = "timeout", defaultValue = "100")
-    public long getTimeout();
-
-    @Option(longName = "timeout-unit", defaultValue = "MILLISECONDS")
-    public TimeUnit getTimeoutUnit();
   }
 
   public static void main(String... args) throws Exception {
