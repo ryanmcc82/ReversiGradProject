@@ -31,8 +31,21 @@ public class ReversiTest {
     }
   }
 
+  static class NeverTerminatesStrategy implements Strategy {
+
+    private boolean stop = false;
+
+    @Override
+    public Square chooseSquare(Board board) {
+      while (!this.stop) {
+        // simulate a strategy that never terminates
+      }
+      return null;
+    }
+  }
+
   @Test
-  public void testPlay() {
+  public void testPlay() throws Exception {
     Strategy blackStrategy = new SequentialStrategy();
     Strategy whiteStrategy = new SequentialStrategy();
     Reversi reversi = new Reversi(blackStrategy, whiteStrategy);
@@ -53,6 +66,18 @@ public class ReversiTest {
     Map<Strategy, Integer> expected = new HashMap<>();
     expected.put(strategy1, 5);
     expected.put(strategy2, 5);
+    expected.put(null, 0);
+    Assert.assertEquals(expected, wins);
+  }
+
+  @Test
+  public void testSlowStrategyAlwaysLoses() {
+    Strategy normal = new SequentialStrategy();
+    Strategy slow = new NeverTerminatesStrategy();
+    Map<Strategy, Integer> wins = Reversi.playMultiple(new Board(), normal, slow, 10);
+    Map<Strategy, Integer> expected = new HashMap<>();
+    expected.put(normal, 10);
+    expected.put(slow, 0);
     expected.put(null, 0);
     Assert.assertEquals(expected, wins);
   }
