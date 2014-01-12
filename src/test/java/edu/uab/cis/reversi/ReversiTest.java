@@ -1,9 +1,9 @@
 package edu.uab.cis.reversi;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Assert;
@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
+
+import edu.uab.cis.reversi.strategy.baseline.RandomStrategy;
 
 public class ReversiTest {
 
@@ -58,34 +60,31 @@ public class ReversiTest {
     Assert.assertEquals(whiteStrategy, reversi.getWinner(board));
   }
 
-  @Test
-  public void testPlayMultiple() {
-    Strategy strategy1 = new SequentialStrategy();
-    Strategy strategy2 = new SequentialStrategy();
-    Map<Strategy, Integer> wins = Reversi.playMultiple(new Board(), strategy1, strategy2, 10);
-    Map<Strategy, Integer> expected = new HashMap<>();
-    expected.put(strategy1, 5);
-    expected.put(strategy2, 5);
-    expected.put(null, 0);
-    Assert.assertEquals(expected, wins);
-  }
-
-  @Test
-  public void testSlowStrategyAlwaysLoses() {
+  @Test(expected = Reversi.StrategyTimedOutException.class)
+  public void testSlowStrategyIsTerminated() throws Exception {
     Strategy normal = new SequentialStrategy();
     Strategy slow = new NeverTerminatesStrategy();
-    Map<Strategy, Integer> wins = Reversi.playMultiple(new Board(), normal, slow, 10);
-    Map<Strategy, Integer> expected = new HashMap<>();
-    expected.put(normal, 10);
-    expected.put(slow, 0);
-    expected.put(null, 0);
-    Assert.assertEquals(expected, wins);
+    Reversi reversi = new Reversi(normal, slow);
+    reversi.play(new Board());
   }
 
   @Test
   public void testMain() throws Exception {
-    // not a thorough test, but at least we ensure it throws no exceptions
-    String strategy = SequentialStrategy.class.getName();
-    Reversi.main("--strategy1", strategy, "--strategy2", strategy, "--games", "4");
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    PrintStream oldOut = System.out;
+    try {
+      System.setOut(new PrintStream(output));
+      Reversi.main(
+          "--games",
+          "2",
+          "--strategies",
+          RandomStrategy.class.getName(),
+          SequentialStrategy.class.getName(),
+          NeverTerminatesStrategy.class.getName());
+    } finally {
+      System.setOut(oldOut);
+    }
+    String expected = String.format("0\t%s\n", NeverTerminatesStrategy.class.getName());
+    Assert.assertTrue(output.toString().endsWith(expected));
   }
 }
