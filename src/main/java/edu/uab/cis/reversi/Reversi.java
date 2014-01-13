@@ -18,22 +18,44 @@ import com.google.common.collect.Ordering;
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
 
+/**
+ * A game of Reversi, played by two strategies.
+ */
 public class Reversi {
 
+  /**
+   * The command-line options for the {@link Reversi#main(String...)} method.
+   */
   public static interface Options {
-    @Option(longName = "strategies")
+    @Option(
+        longName = "strategies",
+        description = "Subclasses of edu.uab.cis.reversi.Strategy to play against each other")
     public List<String> getStrategies();
 
-    @Option(longName = "games", defaultValue = "10")
+    @Option(
+        longName = "games",
+        defaultValue = "10",
+        description = "Number of games to play against each strategy")
     public int getNumberOfGames();
 
-    @Option(longName = "timeout", defaultValue = "100")
+    @Option(
+        longName = "timeout",
+        defaultValue = "100",
+        description = "Maximum time allowed to a strategy for choosing a square")
     public long getTimeout();
 
-    @Option(longName = "timeout-unit", defaultValue = "MILLISECONDS")
+    @Option(
+        longName = "timeout-unit",
+        defaultValue = "MILLISECONDS",
+        description = "Unit of the timeout, e.g. MILLISECONDS")
     public TimeUnit getTimeoutUnit();
   }
 
+  /**
+   * Runs a round-robin tournament over Reversi strategies.
+   * 
+   * @see Options for the available command-line options.
+   */
   public static void main(String... args) throws Exception {
     Options options = CliFactory.parseArguments(Options.class, args);
     int nGames = options.getNumberOfGames();
@@ -101,10 +123,30 @@ public class Reversi {
 
   private TimeUnit timeoutUnit;
 
+  /**
+   * Creates a new Reversi game.
+   * 
+   * @param blackStrategy
+   *          The strategy used to play the black pieces.
+   * @param whiteStrategy
+   *          The strategy used to play the white pieces.
+   */
   public Reversi(Strategy blackStrategy, Strategy whiteStrategy) {
     this(blackStrategy, whiteStrategy, 100, TimeUnit.MILLISECONDS);
   }
 
+  /**
+   * Creates a new Reversi game.
+   * 
+   * @param blackStrategy
+   *          The strategy used to play the black pieces.
+   * @param whiteStrategy
+   *          The strategy used to play the white pieces.
+   * @param timeout
+   *          The maximum time allowed to a strategy for choosing a square.
+   * @param timeoutUnit
+   *          The unit of the timeout, e.g. {@link TimeUnit#MILLISECONDS}
+   */
   public Reversi(Strategy blackStrategy, Strategy whiteStrategy, long timeout, TimeUnit timeoutUnit) {
     this.strategies = new HashMap<>();
     this.strategies.put(Player.BLACK, blackStrategy);
@@ -113,6 +155,15 @@ public class Reversi {
     this.timeoutUnit = timeoutUnit;
   }
 
+  /**
+   * Plays the strategies on the given Reversi board.
+   * 
+   * @param board
+   *          The board in its initial state.
+   * @return The board after play is complete.
+   * @throws StrategyTimedOutException
+   *           If a strategy exceeds the alloted time to choose a square.
+   */
   public Board play(Board board) throws StrategyTimedOutException {
     ExecutorService executor = Executors.newSingleThreadExecutor();
     Board curr = board;
@@ -143,28 +194,48 @@ public class Reversi {
     return curr;
   }
 
+  /**
+   * Gets the winning strategy from a board.
+   * 
+   * This maps from the {@link Player}s of the board to the {@link Strategy}s of
+   * the Reversi game.
+   * 
+   * @param board
+   *          A Reversi board, after the game is complete.
+   * @return The winning strategy.
+   */
   public Strategy getWinner(Board board) {
     return this.strategies.get(board.getWinner());
   }
 
+  /**
+   * Identifies a strategy that exceeded the allotted time to choose a square.
+   */
   public static class StrategyTimedOutException extends Exception {
     private static final long serialVersionUID = 1L;
-
-    private Strategy timedOutStrategy;
-
-    public Strategy getTimedOutStrategy() {
-      return this.timedOutStrategy;
-    }
-
-    public Strategy getOpponentStrategy() {
-      return this.opponentStrategy;
-    }
-
-    private Strategy opponentStrategy;
 
     public StrategyTimedOutException(Strategy timedOutStrategy, Strategy opponentStrategy) {
       this.timedOutStrategy = timedOutStrategy;
       this.opponentStrategy = opponentStrategy;
     }
+
+    private Strategy timedOutStrategy;
+
+    /**
+     * @return The strategy that exceeded the allotted time.
+     */
+    public Strategy getTimedOutStrategy() {
+      return this.timedOutStrategy;
+    }
+
+    /**
+     * @return The strategy that was playing against the strategy that exceeded
+     *         the allotted time.
+     */
+    public Strategy getOpponentStrategy() {
+      return this.opponentStrategy;
+    }
+
+    private Strategy opponentStrategy;
   }
 }
