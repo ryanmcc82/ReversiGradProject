@@ -24,7 +24,7 @@ Your `Strategy` should inspect the `edu.uab.cis.reversi.Board` that it is given,
 
 ## Test your code
 
-There are no tests provided that can directly grade your code as correct or incorrect. Instead, you should compare your strategy to some baseline strategies. One example baseline strategy, `edu.uab.cis.reversi.strategy.baseline.RandomStrategy` is provided for you. To get at least a C on this assignment, your strategy must consistently outperform `RandomStrategy`.
+There are no tests provided that can directly grade your code as correct or incorrect. Instead, you should compare your strategy to some baseline strategies. One example baseline strategy, `edu.uab.cis.reversi.strategy.baseline.RandomStrategy` is provided for you.
 
 To test whether your strategy outperforms `RandomStrategy`, you can run `edu.uab.cis.reversi.Reversi`. See that class for the full set of options, but if you run something like:
 
