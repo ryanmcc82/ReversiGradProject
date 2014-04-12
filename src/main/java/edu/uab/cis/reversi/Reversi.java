@@ -4,16 +4,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-import com.google.common.base.Functions;
+import com.google.common.base.Function;
+import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multiset;
 import com.google.common.collect.Ordering;
 import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.Option;
@@ -51,6 +51,10 @@ public class Reversi {
     public TimeUnit getTimeoutUnit();
   }
 
+  enum Result {
+    WIN, LOSS, TIE, FAIL
+  }
+
   /**
    * Runs a round-robin tournament over Reversi strategies.
    * 
@@ -69,9 +73,9 @@ public class Reversi {
     }
 
     // keep track of number of wins for each strategy
-    Map<Strategy, Integer> wins = Maps.newHashMap();
+    final Map<Strategy, Multiset<Result>> results = Maps.newHashMap();
     for (Strategy strategy : strategies) {
-      wins.put(strategy, 0);
+      results.put(strategy, HashMultiset.<Result> create());
     }
 
     // Run N rounds, pairing each strategy with each other strategy. There will
@@ -83,37 +87,60 @@ public class Reversi {
           Strategy strategy1 = strategies.get(i);
           Strategy strategy2 = strategies.get(j);
           Reversi reversi;
-          Strategy winner;
 
           // first game: strategy1=BLACK, strategy2=WHITE
           reversi = new Reversi(strategy1, strategy2, timeout, timeoutUnit);
-          try {
-            winner = reversi.getWinner(reversi.play(board));
-          } catch (StrategyTimedOutException e) {
-            winner = e.getOpponentStrategy();
-          }
-          if (winner != null) {
-            wins.put(winner, wins.get(winner) + 1);
-          }
+          updateResults(results, reversi, board);
 
           // second game: strategy2=BLACK, strategy1=WHITE
           reversi = new Reversi(strategy2, strategy1, timeout, timeoutUnit);
-          try {
-            winner = reversi.getWinner(reversi.play(board));
-          } catch (StrategyTimedOutException e) {
-            winner = e.getOpponentStrategy();
-          }
-          if (winner != null) {
-            wins.put(winner, wins.get(winner) + 1);
-          }
+          updateResults(results, reversi, board);
         }
       }
     }
 
     // rank strategies by number of wins
-    Ordering<Strategy> byWins = Ordering.natural().onResultOf(Functions.forMap(wins)).reverse();
-    for (Strategy strategy : byWins.sortedCopy(wins.keySet())) {
-      System.out.printf("%4d\t%s\n", wins.get(strategy), strategy.getClass().getName());
+    System.out.printf("%4s\t%4s\t%4s\t%4s\n", "win", "loss", "tie", "fail");
+    Ordering<Strategy> byWins = Ordering.natural().onResultOf(new Function<Strategy, Integer>() {
+      @Override
+      public Integer apply(Strategy strategy) {
+        return results.get(strategy).count(Result.WIN);
+      }
+    }).reverse();
+    for (Strategy strategy : byWins.sortedCopy(strategies)) {
+      Multiset<Result> strategyResults = results.get(strategy);
+      System.out.printf(
+          "%4d\t%4d\t%4d\t%4d\t%s\n",
+          strategyResults.count(Result.WIN),
+          strategyResults.count(Result.LOSS),
+          strategyResults.count(Result.TIE),
+          strategyResults.count(Result.FAIL),
+          strategy.getClass().getSimpleName());
+    }
+  }
+
+  private static void updateResults(
+      Map<Strategy, Multiset<Result>> results,
+      Reversi reversi,
+      Board board) {
+    Strategy winner;
+    try {
+      winner = reversi.getWinner(reversi.play(board));
+      if (winner != null) {
+        results.get(winner).add(Result.WIN);
+        for (Strategy strategy : reversi.strategies.values()) {
+          if (strategy != winner) {
+            results.get(strategy).add(Result.LOSS);
+          }
+        }
+      } else {
+        for (Strategy strategy : reversi.strategies.values()) {
+          results.get(strategy).add(Result.TIE);
+        }
+      }
+    } catch (StrategyTimedOutException e) {
+      results.get(e.getOpponentStrategy()).add(Result.WIN);
+      results.get(e.getTimedOutStrategy()).add(Result.FAIL);
     }
   }
 
@@ -180,14 +207,13 @@ public class Reversi {
             return strategy.chooseSquare(boardForFuture);
           }
         });
-        Square square;
         try {
-          square = future.get(this.timeout, this.timeoutUnit);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+          Square square = future.get(this.timeout, this.timeoutUnit);
+          curr = curr.play(square);
+        } catch (Exception e) {
           future.cancel(true);
           throw new StrategyTimedOutException(strategy, this.strategies.get(player.opponent()));
         }
-        curr = curr.play(square);
       }
     }
     executor.shutdownNow();
