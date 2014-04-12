@@ -262,7 +262,7 @@ public class Board {
     }
     PSet<Square> captures = this.possibleSquares.get(square);
     if (captures == null) {
-      String message = "%s will not capture any pieces if placed at (%d,%d)";
+      String message = "%s will not capture any pieces if placed at %s";
       throw new IllegalArgumentException(String.format(message, this.player, square));
     }
     PSequence<Move> newMoves = this.moves.plus(new Move(square, this.player));
