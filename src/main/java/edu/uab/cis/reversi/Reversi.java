@@ -69,7 +69,9 @@ public class Reversi {
     // convert strategy names to class instances
     List<Strategy> strategies = Lists.newArrayList();
     for (String strategyName : options.getStrategies()) {
-      strategies.add(Class.forName(strategyName).asSubclass(Strategy.class).newInstance());
+      Strategy strategy = Class.forName(strategyName).asSubclass(Strategy.class).newInstance();
+      strategy.setChooseSquareTimeLimit(timeout, timeoutUnit);
+      strategies.add(strategy);
     }
 
     // keep track of number of wins for each strategy
@@ -201,12 +203,7 @@ public class Reversi {
         Player player = curr.getCurrentPlayer();
         final Strategy strategy = this.strategies.get(player);
         final Board boardForFuture = curr;
-        Future<Square> future = executor.submit(new Callable<Square>() {
-          @Override
-          public Square call() throws Exception {
-            return strategy.chooseSquare(boardForFuture);
-          }
-        });
+        Future<Square> future = executor.submit(() -> strategy.chooseSquare(boardForFuture));
         try {
           Square square = future.get(this.timeout, this.timeoutUnit);
           curr = curr.play(square);

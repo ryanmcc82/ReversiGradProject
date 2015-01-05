@@ -1,5 +1,7 @@
 package edu.uab.cis.reversi;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * A strategy for choosing where a player should play their next piece.
  */
@@ -19,4 +21,15 @@ public interface Strategy {
    * @return The square where the current player should play their next piece.
    */
   public Square chooseSquare(Board board);
+
+  /**
+   * Indicates to the strategy how much time will be allowed for each call to chooseSquare. If the
+   * strategy takes longer than the allotted time, it will be considered to have lost the game.
+   *
+   * @param time The time allowed
+   * @param unit The time unit of the time argument
+   */
+  default public void setChooseSquareTimeLimit(long time, TimeUnit unit) {
+    // by default, do nothing
+  }
 }
