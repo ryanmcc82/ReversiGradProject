@@ -84,7 +84,8 @@ public class ReversiTest {
     } finally {
       System.setOut(oldOut);
     }
-    String expected = String.format("0\t%s\n", NeverTerminatesStrategy.class.getName());
+    // check that NeverTerminatesStrategy fails 8 times
+    String expected = String.format("8\t%s\n", NeverTerminatesStrategy.class.getSimpleName());
     Assert.assertTrue(output.toString().endsWith(expected));
   }
 }
