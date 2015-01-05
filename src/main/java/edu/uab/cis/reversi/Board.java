@@ -223,9 +223,9 @@ public class Board {
       }
     });
     Player winner = bySquares.max(Arrays.asList(Player.values()));
-    return this.playerSquareCounts.get(winner) == this.playerSquareCounts.get(winner.opponent())
-        ? null
-        : winner;
+    int winnerCount = this.playerSquareCounts.get(winner);
+    int loserCount = this.playerSquareCounts.get(winner.opponent());
+    return winnerCount == loserCount ? null : winner;
   }
 
   /**
