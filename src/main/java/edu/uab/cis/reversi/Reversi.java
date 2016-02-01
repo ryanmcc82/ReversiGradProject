@@ -8,7 +8,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.base.Function;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -102,12 +101,7 @@ public class Reversi {
 
     // rank strategies by number of wins
     System.out.printf("%4s\t%4s\t%4s\t%4s\n", "win", "loss", "tie", "fail");
-    Ordering<Strategy> byWins = Ordering.natural().onResultOf(new Function<Strategy, Integer>() {
-      @Override
-      public Integer apply(Strategy strategy) {
-        return results.get(strategy).count(Result.WIN);
-      }
-    }).reverse();
+    Ordering<Strategy> byWins = Ordering.natural().onResultOf(s -> results.get(s).count(Result.WIN)).reverse();
     for (Strategy strategy : byWins.sortedCopy(strategies)) {
       Multiset<Result> strategyResults = results.get(strategy);
       System.out.printf(

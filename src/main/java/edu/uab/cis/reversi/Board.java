@@ -13,7 +13,6 @@ import org.pcollections.PSequence;
 import org.pcollections.PSet;
 import org.pcollections.TreePVector;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
 
 /**
@@ -216,12 +215,7 @@ public class Board {
     if (!this.isComplete()) {
       throw new IllegalStateException("getWinner cannot be called until the game is complete");
     }
-    Ordering<Player> bySquares = Ordering.natural().onResultOf(new Function<Player, Integer>() {
-      @Override
-      public Integer apply(Player input) {
-        return getPlayerSquareCounts().get(input);
-      }
-    });
+    Ordering<Player> bySquares = Ordering.natural().onResultOf(input -> getPlayerSquareCounts().get(input));
     Player winner = bySquares.max(Arrays.asList(Player.values()));
     int winnerCount = this.playerSquareCounts.get(winner);
     int loserCount = this.playerSquareCounts.get(winner.opponent());
