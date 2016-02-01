@@ -46,6 +46,14 @@ public class ReversiTest {
     }
   }
 
+  static class ThrowsExceptionsStrategy implements Strategy {
+
+    @Override
+    public Square chooseSquare(Board board) {
+      throw new UnsupportedOperationException("Testing here");
+    }
+  }
+
   @Test
   public void testPlay() throws Exception {
     Strategy blackStrategy = new SequentialStrategy();
@@ -66,6 +74,18 @@ public class ReversiTest {
     Strategy slow = new NeverTerminatesStrategy();
     Reversi reversi = new Reversi(normal, slow);
     reversi.play(new Board());
+  }
+
+  @Test
+  public void testErrorsArePropagated() throws Exception{
+    Strategy normal = new SequentialStrategy();
+    Strategy exceptions = new ThrowsExceptionsStrategy();
+    Reversi reversi = new Reversi(normal, exceptions);
+    try {
+      reversi.play(new Board());
+    } catch (Reversi.StrategyTimedOutException e) {
+      Assert.assertTrue(e.getMessage().contains("Testing here"));
+    }
   }
 
   @Test

@@ -206,9 +206,9 @@ public class Reversi {
         try {
           Square square = future.get(this.timeout, this.timeoutUnit);
           curr = curr.play(square);
-        } catch (Exception e) {
+        } catch (Exception cause) {
           future.cancel(true);
-          throw new StrategyTimedOutException(strategy, this.strategies.get(player.opponent()));
+          throw new StrategyTimedOutException(strategy, this.strategies.get(player.opponent()), cause);
         }
       }
     }
@@ -236,7 +236,8 @@ public class Reversi {
   public static class StrategyTimedOutException extends Exception {
     private static final long serialVersionUID = 1L;
 
-    public StrategyTimedOutException(Strategy timedOutStrategy, Strategy opponentStrategy) {
+    public StrategyTimedOutException(Strategy timedOutStrategy, Strategy opponentStrategy, Exception cause) {
+      super(cause);
       this.timedOutStrategy = timedOutStrategy;
       this.opponentStrategy = opponentStrategy;
     }
