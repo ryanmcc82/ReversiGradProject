@@ -16,7 +16,7 @@ Note that I will grade only a single fork per group, so be sure all members of y
 
 ## Implement your part of the code
 
-Your group's task is to design a strategy for playing [Reversi](http://en.wikipedia.org/wiki/Reversi). The [Wikipedia article](http://en.wikipedia.org/wiki/Reversi) gives a clear description of the rules, and you can use it as your reference. You may also find it useful to try playing a few times in [a version of the game online](http://briannickel.brinkster.net/html5-reversi/).
+Your group's task is to design a strategy for playing [Reversi](http://en.wikipedia.org/wiki/Reversi). The [Wikipedia article](http://en.wikipedia.org/wiki/Reversi) gives a clear description of the rules, and you can use it as your reference. You may also find it useful to try playing a few times in [a version of the game online](http://othellogame.net/revello/).
 
 You will be creating a new implementation of `edu.uab.cis.reversi.Strategy`. Your class should be named `edu.uab.cis.reversi.strategy.group<n>.Group<n>Strategy` and should be placed in a corresponding subfolder under the `src/main/java` directory. The group number, `<n>` will be assigned by your instructor.
 
