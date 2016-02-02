@@ -24,33 +24,29 @@ public class Reversi {
   /**
    * The command-line options for the {@link Reversi#main(String...)} method.
    */
-  public static interface Options {
-    @Option(
-        longName = "strategies",
-        description = "Subclasses of edu.uab.cis.reversi.Strategy to play against each other")
-    public List<String> getStrategies();
+  public interface Options {
+    @Option(longName = "strategies",
+            description = "Subclasses of edu.uab.cis.reversi.Strategy to play against each other")
+    List<String> getStrategies();
 
-    @Option(
-        longName = "games",
-        defaultValue = "10",
-        description = "Number of games to play against each strategy")
-    public int getNumberOfGames();
+    @Option(longName = "games",
+            defaultValue = "10",
+            description = "Number of games to play against each strategy")
+    int getNumberOfGames();
 
-    @Option(
-        longName = "timeout",
-        defaultValue = "100",
-        description = "Maximum time allowed to a strategy for choosing a square")
-    public long getTimeout();
+    @Option(longName = "timeout",
+            defaultValue = "100",
+            description = "Maximum time allowed to a strategy for choosing a square")
+    long getTimeout();
 
-    @Option(
-        longName = "timeout-unit",
-        defaultValue = "MILLISECONDS",
-        description = "Unit of the timeout, e.g. MILLISECONDS")
-    public TimeUnit getTimeoutUnit();
+    @Option(longName = "timeout-unit",
+            defaultValue = "MILLISECONDS",
+            description = "Unit of the timeout, e.g. MILLISECONDS")
+    TimeUnit getTimeoutUnit();
 
     @Option(longName = "debug",
             description = "Prints out additional information that may be useful for debugging")
-    public boolean getDebug();
+    boolean getDebug();
   }
 
   enum Result {
