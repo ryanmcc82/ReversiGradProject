@@ -90,22 +90,45 @@ public class ReversiTest {
 
   @Test
   public void testMain() throws Exception {
+    String output = getMainOutput(
+            "--games",
+            "2",
+            "--strategies",
+            RandomStrategy.class.getName(),
+            SequentialStrategy.class.getName(),
+            NeverTerminatesStrategy.class.getName());
+
+    // check that Exception trace is not printed
+    Assert.assertFalse(output, output.contains("Exception"));
+
+    // check that NeverTerminatesStrategy fails 8 times
+    String expected = String.format("8\t%s\n", NeverTerminatesStrategy.class.getSimpleName());
+    Assert.assertTrue(output, output.endsWith(expected));
+  }
+
+  @Test
+  public void testDebugMain() throws Exception {
+    String output = getMainOutput(
+            "--debug",
+            "--games",
+            "2",
+            "--strategies",
+            RandomStrategy.class.getName(),
+            ThrowsExceptionsStrategy.class.getName());
+
+    // check that Exception trace is printed
+    Assert.assertTrue(output, output.contains("UnsupportedOperationException"));
+  }
+
+  private String getMainOutput(String... args) throws Exception {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     PrintStream oldOut = System.out;
     try {
       System.setOut(new PrintStream(output));
-      Reversi.main(
-          "--games",
-          "2",
-          "--strategies",
-          RandomStrategy.class.getName(),
-          SequentialStrategy.class.getName(),
-          NeverTerminatesStrategy.class.getName());
+      Reversi.main(args);
     } finally {
       System.setOut(oldOut);
     }
-    // check that NeverTerminatesStrategy fails 8 times
-    String expected = String.format("8\t%s\n", NeverTerminatesStrategy.class.getSimpleName());
-    Assert.assertTrue(output.toString().endsWith(expected));
+    return output.toString();
   }
 }

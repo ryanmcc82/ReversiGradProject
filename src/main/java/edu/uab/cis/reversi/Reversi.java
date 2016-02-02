@@ -47,6 +47,10 @@ public class Reversi {
         defaultValue = "MILLISECONDS",
         description = "Unit of the timeout, e.g. MILLISECONDS")
     public TimeUnit getTimeoutUnit();
+
+    @Option(longName = "debug",
+            description = "Prints out additional information that may be useful for debugging")
+    public boolean getDebug();
   }
 
   enum Result {
@@ -83,18 +87,33 @@ public class Reversi {
     Board board = new Board();
     for (int game = 0; game < nGames; ++game) {
       for (int i = 0; i < strategies.size(); ++i) {
-        for (int j = i + 1; j < strategies.size(); ++j) {
-          Strategy strategy1 = strategies.get(i);
-          Strategy strategy2 = strategies.get(j);
-          Reversi reversi;
+        for (int j = 0; j < strategies.size(); ++j) {
+          if (i != j) {
+            Reversi reversi = new Reversi(strategies.get(i), strategies.get(j), timeout, timeoutUnit);
 
-          // first game: strategy1=BLACK, strategy2=WHITE
-          reversi = new Reversi(strategy1, strategy2, timeout, timeoutUnit);
-          updateResults(results, reversi, board);
-
-          // second game: strategy2=BLACK, strategy1=WHITE
-          reversi = new Reversi(strategy2, strategy1, timeout, timeoutUnit);
-          updateResults(results, reversi, board);
+            Strategy winner;
+            try {
+              winner = reversi.getWinner(reversi.play(board));
+              if (winner != null) {
+                results.get(winner).add(Result.WIN);
+                for (Strategy strategy : reversi.strategies.values()) {
+                  if (strategy != winner) {
+                    results.get(strategy).add(Result.LOSS);
+                  }
+                }
+              } else {
+                for (Strategy strategy : reversi.strategies.values()) {
+                  results.get(strategy).add(Result.TIE);
+                }
+              }
+            } catch (StrategyTimedOutException e) {
+              if (options.getDebug()) {
+                e.printStackTrace(System.out);
+              }
+              results.get(e.getOpponentStrategy()).add(Result.WIN);
+              results.get(e.getTimedOutStrategy()).add(Result.FAIL);
+            }
+          }
         }
       }
     }
@@ -111,31 +130,6 @@ public class Reversi {
           strategyResults.count(Result.TIE),
           strategyResults.count(Result.FAIL),
           strategy.getClass().getSimpleName());
-    }
-  }
-
-  private static void updateResults(
-      Map<Strategy, Multiset<Result>> results,
-      Reversi reversi,
-      Board board) {
-    Strategy winner;
-    try {
-      winner = reversi.getWinner(reversi.play(board));
-      if (winner != null) {
-        results.get(winner).add(Result.WIN);
-        for (Strategy strategy : reversi.strategies.values()) {
-          if (strategy != winner) {
-            results.get(strategy).add(Result.LOSS);
-          }
-        }
-      } else {
-        for (Strategy strategy : reversi.strategies.values()) {
-          results.get(strategy).add(Result.TIE);
-        }
-      }
-    } catch (StrategyTimedOutException e) {
-      results.get(e.getOpponentStrategy()).add(Result.WIN);
-      results.get(e.getTimedOutStrategy()).add(Result.FAIL);
     }
   }
 
