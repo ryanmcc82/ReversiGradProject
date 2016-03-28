@@ -78,13 +78,35 @@ public class BitBoardNode {
         }
 
     }
+    
+    public void getMoves(Long opponent, Long movers){
+        Long allPossible = -1L;
+        Long occupied = opponent | movers; //keep this allocated
+       Long unoccupied = allPossible ^ occupied;
+       occupied.
+       Long tempOpp = opponent;
+       Long searchBit = Long.highestOneBit(tempOpp);
+       Long surrounding;
+       Long moves = 0L;
+       
+       if(Long.bitCount(occupied) < 32){//Note May should skip this comparison and just default to one or the other
+           while(searchBit != 0L){
+               surrounding = ajacentArray[Long.numberOfTrailingZeros(searchBit)];
+               
+               tempOpp = tempOpp ^ searchBit;
+               searchBit = Long.highestOneBit(tempOpp);
+           }
+       }
+//       int  set = opponent.
+       Long possibles = 
+       Long.highestOneBit(opponent);
+    }
 
     public static void main(String args[]) {
 
-        long tMax = Long.MAX_VALUE;
+        long tMax = -1L;
         long tMin = Long.MIN_VALUE;
-        long test[] = { sq77flag, sq76flag, sq75flag, sq74flag, sq73flag, tMax,
-                tMin, (sq11flag | sq00flag | sq22flag | sq33flag | sq44flag), patternEdges };
+        long test[] = {tMax, (sq11flag | sq00flag | sq22flag | sq33flag | sq44flag), patternEdges };
         int count = 0;
 
         for (long sq : test) {
@@ -98,7 +120,8 @@ public class BitBoardNode {
             printSBoard(sq);
         }
     }
-
+    
+    
     // ###################
     // # X X X X X X X X #
     // # X X X X X X X X #
@@ -183,36 +206,87 @@ public class BitBoardNode {
     public static final long sq03flag = 0b1000000000000000000000000000000000000000000000000000000000000L;
     public static final long sq02flag = 0b10000000000000000000000000000000000000000000000000000000000000L;
     public static final long sq01flag = 0b100000000000000000000000000000000000000000000000000000000000000L;
-    public static final long sq00flag = 0b1000000000000000000000000000000000000000000000000000000000000000L;// Warning this is for signed bits
-    
-    public static final long patternEdges = (sq01flag
-            |sq00flag
-            |sq02flag
-            |sq03flag
-            |sq04flag
-            |sq05flag
-            |sq06flag
-            |sq07flag
-            |sq70flag
-            |sq71flag
-            |sq72flag
-            |sq73flag
-            |sq74flag
-            |sq75flag
-            |sq76flag
-            |sq77flag
-            |sq10flag
-            |sq20flag
-            |sq30flag
-            |sq40flag
-            |sq50flag
-            |sq60flag
-            |sq67flag
-            |sq57flag
-            |sq47flag
-            |sq37flag
-            |sq27flag
-            |sq17flag
-            );
+    public static final long sq00flag = 0b1000000000000000000000000000000000000000000000000000000000000000L;// Warning this is for sign bit
+  
 
+    //###################
+    //# O O O O O O O O #
+    //# O X X X X X X O #
+    //# O X X X X X X O #
+    //# O X X X X X X O #
+    //# O X X X X X X O #
+    //# O X X X X X X O #
+    //# O X X X X X X O #
+    //# O O O O O O O O #
+    //###################
+      public static final long patternEdges;
+//      = (sq01flag
+//              |sq00flag
+//              |sq02flag
+//              |sq03flag
+//              |sq04flag
+//              |sq05flag
+//              |sq06flag
+//              |sq07flag
+//              |sq70flag
+//              |sq71flag
+//              |sq72flag
+//              |sq73flag
+//              |sq74flag
+//              |sq75flag
+//              |sq76flag
+//              |sq77flag
+//              |sq10flag
+//              |sq20flag
+//              |sq30flag
+//              |sq40flag
+//              |sq50flag
+//              |sq60flag
+//              |sq67flag
+//              |sq57flag
+//              |sq47flag
+//              |sq37flag
+//              |sq27flag
+//              |sq17flag
+//              );
+      
+      static {
+          Long temp = 0b11111111L | 0b11111111L<<(56);
+          for(int i = 1 ; i < 7; i++){
+              temp = temp | 0b10000001L<<(8*i);
+          }
+          patternEdges = temp;
+      }
+
+      public static final long positionArray[];
+      static{
+          positionArray = new long[64];
+          for(int i = 0; i<64; i++){
+              positionArray[i]= 0b1L<<i;
+          }
+      }    
+      
+      public static final long ajacentArray[];
+      
+      static {
+          ajacentArray = new long[64];
+          for(int i = 0; i < 64; i++){
+              if((0b1L<<i & patternEdges) == 0){ //if its not on the edge get all 8 surounding positions
+                  ajacentArray[i] = 0b1L<<(i+1) | 0b1L<<(i-1)| 0b111L<<(i+7) | 0b111L<<(i-9);
+              }else if(i==0){//corner
+                  ajacentArray[i]= 0b1<<(1+i) | 0b11L<<(8+i);
+              }else if(i==7){//corner
+                  ajacentArray[i]= 0b1<<(i-1) | 0b11L<<(6+i);
+              }else if(i==63){//corner
+                  ajacentArray[i]= 0b1<<(i-1) | 0b11L<<(i-9);
+              }else if(i==56){//corner
+                  ajacentArray[i]= 0b1<<(1+i) | 0b11L<<(8+i);
+              }else if((i+1)%8 ==0){//left most column - corners
+                  ajacentArray[i]= 0b1L<<(i-1)| 0b11L<<(i+6) | 0b11L<<(i-9);
+              }else {//right most column - corners
+                  ajacentArray[i]= 0b1L<<(i+1)| 0b11L<<(i+7) | 0b11L<<(i-7);
+              }
+          }
+          
+      }
 }
