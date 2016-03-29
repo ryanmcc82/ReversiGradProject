@@ -46,19 +46,23 @@ public class BitBoardNode {
                 ajacentArray[i] = 0b1L << (i + 1) | 0b1L << (i - 1)
                         | 0b111L << (i + 7) | 0b111L << (i - 9);
             } else if (i == 0) {// corner
-                ajacentArray[i] = 0b1 << (1 + i) | 0b11L << (8 + i);
+                ajacentArray[i] = 0b1L << (1 + i) | 0b11L << (8 + i);
             } else if (i == 7) {// corner
-                ajacentArray[i] = 0b1 << (i - 1) | 0b11L << (6 + i);
+                ajacentArray[i] = 0b1L << (i - 1) | 0b11L << (7 + i);
             } else if (i == 63) {// corner
-                ajacentArray[i] = 0b1 << (i - 1) | 0b11L << (i - 9);
+                ajacentArray[i] = (0b1L << (i - 1)) | 0b11L << (i - 9);
             } else if (i == 56) {// corner
-                ajacentArray[i] = 0b1 << (1 + i) | 0b11L << (8 + i);
-            } else if ((i + 1) % 8 == 0) {// left most column - corners
-                ajacentArray[i] = 0b1L << (i - 1) | 0b11L << (i + 6)
+                ajacentArray[i] = 0b1L << (1 + i) | 0b11L << ( i - 8);
+            }else if(i>56){//top Row - corners
+                ajacentArray[i] = 0b101L << (i-1) | 0b111L << (i - 9);
+            }else if (i< 7){// Bottom Row - corners
+                ajacentArray[i] = 0b101L << (i-1) | 0b111L << (i + 7);
+            }else if ((i + 1) % 8 == 0) {// left most column - corners
+                ajacentArray[i] = 0b1L << (i - 1) | 0b11L << (i + 7)
                         | 0b11L << (i - 9);
             } else {// right most column - corners
-                ajacentArray[i] = 0b1L << (i + 1) | 0b11L << (i + 7)
-                        | 0b11L << (i - 7);
+                ajacentArray[i] = 0b1L << (i + 1) | 0b11L << (i + 8)
+                        | 0b11L << (i - 8);
             }
         }
     }
@@ -201,38 +205,40 @@ public class BitBoardNode {
 
     }
 
-    public static void printwhole(long wBoard, long bBoard, int cornerFlags) {
+    public static void printwhole(long wBoard, long bBoard, long moves) {
         if (TPRINT) {
             StringBuffer sb = new StringBuffer();
             char tchar;
 
-            sb.append("###################\n#");
             for (int i = 0; i < 8; i++) {
+                sb.insert(0, "//#");
+                sb.insert(0, "\n");
+                sb.insert(0, " #");
                 for (int j = 0; j < 8; j++) {
 
-                    tchar = ((bitmask & wBoard) == bitmask) ? 'W'
-                            : (((bitmask & bBoard) == bitmask) ? 'B' : 'X');
+                    tchar = ((bitmask & wBoard) == bitmask) ? 'O'
+                            : (((bitmask & bBoard) == bitmask) ? 'X' 
+                                    :(((bitmask & moves) == bitmask) ? '*' : '-'));
                     // ^bitwise and test for 1 in right most bit
-                    sb.append(' ');
-                    sb.append(tchar);
+                    sb.insert(0, tchar);
+                    sb.insert(0, ' ');
                     wBoard = wBoard >>> 1; // bit shift right fill with 0
                     bBoard = bBoard >>> 1; // bit shift right fill with 0
+                    moves = moves >>> 1;
                 }
-                sb.append(" #");
-                sb.append("\n");
-                sb.append("#");
+
             }
+            sb.insert(0, "//###################\n//#");
             sb.append("##################");
             System.out.println(sb.toString());
         }
-
     }
 
     public void moveResult(long move, long opponent, long movers) {
 
     }
 
-    public long getLegalMoves(long opponent, long movers) {
+    public long getLegalMoves( long movers, long opponent) {
         // Later in game its faster to look at just empty spaces.
         // Early in game might be faster to look at it from occupied spaces. or
         // weed out based on boarder squares
@@ -265,7 +271,10 @@ public class BitBoardNode {
                 squareIndex = Long.numberOfTrailingZeros(searchBit);
                 searchDirDiff = Long.numberOfTrailingZeros(searchDirBit)
                         - squareIndex;// This diff lets us search in a diretion using bitshift.
-
+                printSBoard(searchDirBit|searchBit);
+                System.out.println("surrounding: " + squareIndex);
+                printSBoard(surrounding);
+                System.out.println(searchDirDiff + 9);
                 searchDirRay = rayArray[squareIndex][translationArray[searchDirDiff + 9]];
                 moverRayIntersect = searchDirRay & movers;
                 if(moverRayIntersect!= 0L){// if mover has no pieces in ray path its not valid move.
@@ -293,13 +302,18 @@ public class BitBoardNode {
 
     public static void main(String args[]) {
         BitBoardNode  searcher= new BitBoardNode();
+        long movers = (sq23flag | sq54flag |sq77flag);
+        long opp = (sq34flag | sq42flag );
+        long moves = searcher.getLegalMoves(movers,opp);
         long tMax = -1L;
         long tMin = Long.MIN_VALUE;
-        long test[] = {
+        long test[] =
+        {
                 tMax,
-                (sq33flag | sq44flag ), (sq34flag | sq43flag ), searcher.getLegalMoves((sq33flag | sq44flag ),(sq34flag | sq43flag ))};
+                movers, opp, moves , sq77flag};
         int count = 0;
 
+        
         for (long sq : test) {
             count++;
             System.out
@@ -310,6 +324,8 @@ public class BitBoardNode {
             printBinary(sq);
             printSBoard(sq);
         }
+        System.out.println("\n*********************************************************\n" + Long.bitCount(test[3]));
+        printwhole(test[1], test[2], test[3]);
     }
 
     // ###################
