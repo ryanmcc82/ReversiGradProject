@@ -6,7 +6,6 @@ public class BitBoardNode {
     long boardBlack;
     int flagBottomRightCorner;
     static final long bitmask = 1;
-    public static final boolean TPRINT = true;
 
     /* Static References */
     /*********************************************************************************************************************************/
@@ -161,79 +160,6 @@ public class BitBoardNode {
 
     /*********************************************************************************************************************************/
 
-    public static void printBinary(long board) {
-        if (TPRINT) {
-            // String s = String.format("%063d", Long.toBinaryString(board));
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < Long.numberOfLeadingZeros(board); i++) {
-                sb.append('0');
-            }
-
-            sb.append(Long.toBinaryString(board));
-            for (int i = 7; i >= 1; i--) {
-                sb.insert(i * 8, ' ');
-            }
-            System.out.println(sb.toString());
-            // System.out.println(s);
-        }
-    }
-
-    public static void printSBoard(long board) {
-        if (TPRINT) {
-            long tboard = board;
-            StringBuffer sb = new StringBuffer();
-            char tchar;
-
-            for (int i = 0; i < 8; i++) {
-                sb.insert(0, "//#");
-                sb.insert(0, "\n");
-                sb.insert(0, " #");
-                for (int j = 0; j < 8; j++) {
-
-                    tchar = ((bitmask & tboard) == 0) ? 'X' : 'O';
-                    // ^bitwise and test for 1 in right most bit
-                    sb.insert(0, tchar);
-                    sb.insert(0, ' ');
-                    tboard = tboard >>> 1; // bit shift right fill with 0
-                }
-
-            }
-            sb.insert(0, "//###################\n//#");
-            sb.append("##################");
-            System.out.println(sb.toString());
-        }
-
-    }
-
-    public static void printwhole(long wBoard, long bBoard, long moves) {
-        if (TPRINT) {
-            StringBuffer sb = new StringBuffer();
-            char tchar;
-
-            for (int i = 0; i < 8; i++) {
-                sb.insert(0, "//#");
-                sb.insert(0, "\n");
-                sb.insert(0, " #");
-                for (int j = 0; j < 8; j++) {
-
-                    tchar = ((bitmask & wBoard) == bitmask) ? 'O'
-                            : (((bitmask & bBoard) == bitmask) ? 'X' 
-                                    :(((bitmask & moves) == bitmask) ? '*' : '-'));
-                    // ^bitwise and test for 1 in right most bit
-                    sb.insert(0, tchar);
-                    sb.insert(0, ' ');
-                    wBoard = wBoard >>> 1; // bit shift right fill with 0
-                    bBoard = bBoard >>> 1; // bit shift right fill with 0
-                    moves = moves >>> 1;
-                }
-
-            }
-            sb.insert(0, "//###################\n//#");
-            sb.append("##################");
-            System.out.println(sb.toString());
-        }
-    }
-
     public void moveResult(long move, long opponent, long movers) {
 
     }
@@ -271,21 +197,23 @@ public class BitBoardNode {
                 squareIndex = Long.numberOfTrailingZeros(searchBit);
                 searchDirDiff = Long.numberOfTrailingZeros(searchDirBit)
                         - squareIndex;// This diff lets us search in a diretion using bitshift.
-                printSBoard(searchDirBit|searchBit);
-                System.out.println("surrounding: " + squareIndex);
-                printSBoard(surrounding);
-                System.out.println(searchDirDiff + 9);
                 searchDirRay = rayArray[squareIndex][translationArray[searchDirDiff + 9]];
                 moverRayIntersect = searchDirRay & movers;
                 if(moverRayIntersect!= 0L){// if mover has no pieces in ray path its not valid move.
                     if(searchDirDiff > 0){
                         moverIndex = Long.numberOfTrailingZeros(moverRayIntersect);
                         emptyIndex = Long.numberOfTrailingZeros(searchDirRay & unoccupied);
-                        if(moverIndex < emptyIndex) moves = moves |searchBit;//add square to valid Moves
+                        if(moverIndex < emptyIndex){
+                            moves = moves |searchBit;//add square to valid Moves
+                            break;//end search if found
+                        }
                     }else{
                         moverIndex = Long.numberOfLeadingZeros(moverRayIntersect);
                         emptyIndex = Long.numberOfLeadingZeros(searchDirRay & unoccupied);
-                        if(moverIndex < emptyIndex) moves = moves |searchBit;//add square to valid Moves
+                        if(moverIndex < emptyIndex) {
+                            moves = moves |searchBit;//add square to valid Moves
+                            break;//end search if found
+                        }
                     }
                 }
 
@@ -300,33 +228,33 @@ public class BitBoardNode {
         return moves;
     }
 
-    public static void main(String args[]) {
-        BitBoardNode  searcher= new BitBoardNode();
-        long movers = (sq23flag | sq54flag |sq77flag);
-        long opp = (sq34flag | sq42flag );
-        long moves = searcher.getLegalMoves(movers,opp);
-        long tMax = -1L;
-        long tMin = Long.MIN_VALUE;
-        long test[] =
-        {
-                tMax,
-                movers, opp, moves , sq77flag};
-        int count = 0;
-
-        
-        for (long sq : test) {
-            count++;
-            System.out
-                    .println("\n*********************************************************\n"
-                            + count
-                            + "\nNumber Of Bits Set: "
-                            + Long.bitCount(sq));
-            printBinary(sq);
-            printSBoard(sq);
-        }
-        System.out.println("\n*********************************************************\n" + Long.bitCount(test[3]));
-        printwhole(test[1], test[2], test[3]);
-    }
+//    public static void main(String args[]) {
+//        BitBoardNode  searcher= new BitBoardNode();
+//        long movers = (sq23flag | sq54flag |sq77flag);
+//        long opp = (sq34flag | sq42flag );
+//        long moves = searcher.getLegalMoves(movers,opp);
+//        long tMax = -1L;
+//        long tMin = Long.MIN_VALUE;
+//        long test[] =
+//        {
+//                tMax,
+//                movers, opp, moves , sq77flag};
+//        int count = 0;
+//
+//        
+//        for (long sq : test) {
+//            count++;
+//            System.out
+//                    .println("\n*********************************************************\n"
+//                            + count
+//                            + "\nNumber Of Bits Set: "
+//                            + Long.bitCount(sq));
+//            printBinary(sq);
+//            printSBoard(sq);
+//        }
+//        System.out.println("\n*********************************************************\n" + Long.bitCount(test[3]));
+//        printwhole(test[1], test[2], test[3]);
+//    }
 
     // ###################
     // # X X X X X X X X #
