@@ -22,13 +22,29 @@ public class BitBoardDriver {
             printSBoard(sq);
         }
     }
+    
+    private static void printRayArray(int i) {
+        long test[] = BitBoardNode.rayArray[i];
+        int count = 0;
+
+        for (long sq : test) {
+            count++;
+            System.out
+                    .println("\n*********************************************************\n"
+                            + count
+                            + "\nNumber Of Bits Set: "
+                            + Long.bitCount(sq));
+            printBinary(sq);
+            printSBoard(sq);
+        }
+    }
 
     private static void searchMoves() {
         BitBoardNode searcher = new BitBoardNode();
-        long movers = (BitBoardNode.sq23flag | BitBoardNode.sq44flag
-                | BitBoardNode.sq34flag | BitBoardNode.sq45flag);
-        long opp = (BitBoardNode.sq33flag | BitBoardNode.sq32flag
-                | BitBoardNode.sq35flag | BitBoardNode.sq54flag | BitBoardNode.sq43flag);
+        long movers = (sq23flag | sq44flag
+                | sq34flag | sq45flag);
+        long opp = (sq33flag | sq32flag
+                | sq35flag | sq54flag | sq43flag);
         long moves = searcher.getLegalMoves(movers, opp);
         long expected = 0b0000000000000000001001100100001001100000001100000001100000000000L;
         if (TPRINT) {
@@ -128,8 +144,101 @@ public class BitBoardDriver {
     }
 
     public static void main(String[] args) {
-        // printAgg();
-        searchMoves();
+        printRayArray(12);
+//        printAgg();
+//        searchMoves();
     }
+    
+  // ###################
+  // # X X X X X X X X #
+  // # X X X X X X X X #
+  // # X X X X X X X X #
+  // # X X X X X X X X #
+  // # X X X X X X X X #
+  // # X X X X X X X X #
+  // # X X X X X X X X #
+  // # X X X X X X X O #
+  // ###################
+  public static final long sq77flag = 1;
+
+  // ###################
+  // # X X X X X X X X #
+  // # X X X X X X X X #
+  // # X X X X X X X X #
+  // # X X X X X X X X #
+  // # X X X X X X X X #
+  // # X X X X X X X X #
+  // # X X X X X X X X #
+  // # X X X X X X O X #
+  // ###################
+  public static final long sq76flag = 0b10L;
+  public static final long sq75flag = 0b100L;
+  public static final long sq74flag = 0b1000L;
+  public static final long sq73flag = 0b10000L;
+  public static final long sq72flag = 0b100000L;
+  public static final long sq71flag = 0b1000000L;
+  public static final long sq70flag = 0b10000000L;
+  public static final long sq67flag = 0b100000000L;
+  public static final long sq66flag = 0b1000000000L;
+  public static final long sq65flag = 0b10000000000L;
+  public static final long sq64flag = 0b100000000000L;
+  public static final long sq63flag = 0b1000000000000L;
+  public static final long sq62flag = 0b10000000000000L;
+  public static final long sq61flag = 0b100000000000000L;
+  public static final long sq60flag = 0b1000000000000000L;
+  public static final long sq57flag = 0b10000000000000000L;
+  public static final long sq56flag = 0b100000000000000000L;
+  public static final long sq55flag = 0b1000000000000000000L;
+  public static final long sq54flag = 0b10000000000000000000L;
+  public static final long sq53flag = 0b100000000000000000000L;
+  public static final long sq52flag = 0b1000000000000000000000L;
+  public static final long sq51flag = 0b10000000000000000000000L;
+  public static final long sq50flag = 0b100000000000000000000000L;
+  public static final long sq47flag = 0b1000000000000000000000000L;
+  public static final long sq46flag = 0b10000000000000000000000000L;
+  public static final long sq45flag = 0b100000000000000000000000000L;
+  public static final long sq44flag = 0b1000000000000000000000000000L;
+  public static final long sq43flag = 0b10000000000000000000000000000L;
+  public static final long sq42flag = 0b100000000000000000000000000000L;
+  public static final long sq41flag = 0b1000000000000000000000000000000L;
+  public static final long sq40flag = 0b10000000000000000000000000000000L;
+  public static final long sq37flag = 0b100000000000000000000000000000000L;
+  public static final long sq36flag = 0b1000000000000000000000000000000000L;
+  public static final long sq35flag = 0b10000000000000000000000000000000000L;
+  public static final long sq34flag = 0b100000000000000000000000000000000000L;
+  public static final long sq33flag = 0b1000000000000000000000000000000000000L;
+  public static final long sq32flag = 0b10000000000000000000000000000000000000L;
+  public static final long sq31flag = 0b100000000000000000000000000000000000000L;
+  public static final long sq30flag = 0b1000000000000000000000000000000000000000L;
+  public static final long sq27flag = 0b10000000000000000000000000000000000000000L;
+  public static final long sq26flag = 0b100000000000000000000000000000000000000000L;
+  public static final long sq25flag = 0b1000000000000000000000000000000000000000000L;
+  public static final long sq24flag = 0b10000000000000000000000000000000000000000000L;
+  public static final long sq23flag = 0b100000000000000000000000000000000000000000000L;
+  public static final long sq22flag = 0b1000000000000000000000000000000000000000000000L;
+  public static final long sq21flag = 0b10000000000000000000000000000000000000000000000L;
+  public static final long sq20flag = 0b100000000000000000000000000000000000000000000000L;
+  public static final long sq17flag = 0b1000000000000000000000000000000000000000000000000L;
+  public static final long sq16flag = 0b10000000000000000000000000000000000000000000000000L;
+  public static final long sq15flag = 0b100000000000000000000000000000000000000000000000000L;
+  public static final long sq14flag = 0b1000000000000000000000000000000000000000000000000000L;
+  public static final long sq13flag = 0b10000000000000000000000000000000000000000000000000000L;
+  public static final long sq12flag = 0b100000000000000000000000000000000000000000000000000000L;
+  public static final long sq11flag = 0b1000000000000000000000000000000000000000000000000000000L;
+  public static final long sq10flag = 0b10000000000000000000000000000000000000000000000000000000L;
+  public static final long sq07flag = 0b100000000000000000000000000000000000000000000000000000000L;
+  public static final long sq06flag = 0b1000000000000000000000000000000000000000000000000000000000L;
+  public static final long sq05flag = 0b10000000000000000000000000000000000000000000000000000000000L;
+  public static final long sq04flag = 0b100000000000000000000000000000000000000000000000000000000000L;
+  public static final long sq03flag = 0b1000000000000000000000000000000000000000000000000000000000000L;
+  public static final long sq02flag = 0b10000000000000000000000000000000000000000000000000000000000000L;
+  public static final long sq01flag = 0b100000000000000000000000000000000000000000000000000000000000000L;
+  public static final long sq00flag = 0b1000000000000000000000000000000000000000000000000000000000000000L;
+//Warning
+  // this
+  // is
+  // for
+  // sign
+  // bit
 
 }

@@ -1,10 +1,12 @@
 package edu.uab.cis.reversi;
 
+import java.util.List;
+import java.util.ArrayList;
+
 public class BitBoardNode {
 
-    long boardWhite;
-    long boardBlack;
-    int flagBottomRightCorner;
+    long moverPieces;
+    long opponentPieces;
     static final long bitmask = 1;
 
     /* Static References */
@@ -121,9 +123,17 @@ public class BitBoardNode {
         return tempH;
     }
 
+    /**
+     * Translates the offset of each of the bits around a square
+     * to the corresponding directional Ray array. 
+     **/
     public static int translationArray[] = { 0, 1, 2, -1, -1, -1, -1, -1, 3,
             -1, 4, -1, -1, -1, -1, -1, 5, 6, 7 };
 
+    /** 
+     * Static array of rays from each ray in each direction.
+     * Used to find Legal moves and what tiles to flip. 
+     **/
     public static final long rayArray[][];
     static {
         rayArray = new long[64][8];
@@ -160,8 +170,60 @@ public class BitBoardNode {
 
     /*********************************************************************************************************************************/
 
+    public BitBoardNode(long moverPieces, long opponentPieces){
+        this.moverPieces = moverPieces;
+        this.opponentPieces = opponentPieces;
+        
+    }
+    
+    public BitBoardNode(long moverPieces, long opponentPieces, long move){
+        //TODO
+        this.moverPieces = moverPieces;
+        this.opponentPieces = opponentPieces;
+    }
+    
+    
     public void moveResult(long move, long opponent, long movers) {
 
+    }
+    
+    public List<BitBoardNode> getMovesAndResults(){
+        ArrayList<BitBoardNode> moves = new ArrayList<BitBoardNode>();
+//        TODO combine get legal moves and getMoveResult into one operation.
+//        Note it may be best to have both methods available to us.
+        return moves;
+    }
+    
+    public long getMoveResult(long movers, long opponent, long move){
+       long result = movers | move;
+       long surroundingOpp = opponent & ajacentArray[Long.numberOfTrailingZeros(move)];
+       long searchDirBit;
+       long searchDirRay;
+       long moverRayIntersect;
+       
+       /**searchDirDiff is a number between -9 and 9 its input into the translation 
+        * Array returns a number 1-8 for the 8 directions next to a square that number
+        * can then be used to get the group of squares(called searchDirRay) proceeding away from the search 
+        * in that given direction */
+       int searchDirDiff;
+       int moveSquareIndex = Long.numberOfTrailingZeros(move);
+       
+       while (surroundingOpp != 0L) {
+           
+           searchDirBit = Long.lowestOneBit(surroundingOpp);
+           
+           searchDirDiff = Long.numberOfTrailingZeros(searchDirBit)
+                   - moveSquareIndex;// This diff lets us search in a diretion using bitshift.
+           searchDirRay = rayArray[moveSquareIndex][translationArray[searchDirDiff + 9]];
+           moverRayIntersect = searchDirRay & movers;
+            
+           
+           
+           surroundingOpp = surroundingOpp & ~searchDirBit;// zero's search
+           // Direction
+       }
+       
+       return result;
     }
 
     public long getLegalMoves( long movers, long opponent) {
@@ -180,37 +242,37 @@ public class BitBoardNode {
         long searchDirBit;
         int searchDirDiff;
         int squareIndex;
-        int emptyIndex;
-        int moverIndex;
+        int closestEmptyIndex;
+        int closestMoverIndex;
         long searchDirRay;
         long moverRayIntersect;
 
         // if(Long.bitCount(occupied) < 32){//Note May should skip this
         // comparison and just default to one or the other
         while (searchBit != 0L) {
-            surrounding = ajacentArray[Long.numberOfTrailingZeros(searchBit)];// gets surrounding squares from static table
+            squareIndex = Long.numberOfTrailingZeros(searchBit);
+            surrounding = ajacentArray[squareIndex];// gets surrounding squares from static table
             surroundingOpp = surrounding & opponent;
 
             while (surroundingOpp != 0L) {// if none of the surrounding squares are an opponent then its not a valid move
 
                 searchDirBit = Long.lowestOneBit(surroundingOpp);
-                squareIndex = Long.numberOfTrailingZeros(searchBit);
                 searchDirDiff = Long.numberOfTrailingZeros(searchDirBit)
                         - squareIndex;// This diff lets us search in a diretion using bitshift.
                 searchDirRay = rayArray[squareIndex][translationArray[searchDirDiff + 9]];
                 moverRayIntersect = searchDirRay & movers;
                 if(moverRayIntersect!= 0L){// if mover has no pieces in ray path its not valid move.
                     if(searchDirDiff > 0){
-                        moverIndex = Long.numberOfTrailingZeros(moverRayIntersect);
-                        emptyIndex = Long.numberOfTrailingZeros(searchDirRay & unoccupied);
-                        if(moverIndex < emptyIndex){
+                        closestMoverIndex = Long.numberOfTrailingZeros(moverRayIntersect);
+                        closestEmptyIndex = Long.numberOfTrailingZeros(searchDirRay & unoccupied);
+                        if(closestMoverIndex < closestEmptyIndex){
                             moves = moves |searchBit;//add square to valid Moves
                             break;//end search if found
                         }
                     }else{
-                        moverIndex = Long.numberOfLeadingZeros(moverRayIntersect);
-                        emptyIndex = Long.numberOfLeadingZeros(searchDirRay & unoccupied);
-                        if(moverIndex < emptyIndex) {
+                        closestMoverIndex = Long.numberOfLeadingZeros(moverRayIntersect);
+                        closestEmptyIndex = Long.numberOfLeadingZeros(searchDirRay & unoccupied);
+                        if(closestMoverIndex < closestEmptyIndex) {
                             moves = moves |searchBit;//add square to valid Moves
                             break;//end search if found
                         }
@@ -227,124 +289,5 @@ public class BitBoardNode {
         }
         return moves;
     }
-
-//    public static void main(String args[]) {
-//        BitBoardNode  searcher= new BitBoardNode();
-//        long movers = (sq23flag | sq54flag |sq77flag);
-//        long opp = (sq34flag | sq42flag );
-//        long moves = searcher.getLegalMoves(movers,opp);
-//        long tMax = -1L;
-//        long tMin = Long.MIN_VALUE;
-//        long test[] =
-//        {
-//                tMax,
-//                movers, opp, moves , sq77flag};
-//        int count = 0;
-//
-//        
-//        for (long sq : test) {
-//            count++;
-//            System.out
-//                    .println("\n*********************************************************\n"
-//                            + count
-//                            + "\nNumber Of Bits Set: "
-//                            + Long.bitCount(sq));
-//            printBinary(sq);
-//            printSBoard(sq);
-//        }
-//        System.out.println("\n*********************************************************\n" + Long.bitCount(test[3]));
-//        printwhole(test[1], test[2], test[3]);
-//    }
-
-    // ###################
-    // # X X X X X X X X #
-    // # X X X X X X X X #
-    // # X X X X X X X X #
-    // # X X X X X X X X #
-    // # X X X X X X X X #
-    // # X X X X X X X X #
-    // # X X X X X X X X #
-    // # X X X X X X X O #
-    // ###################
-    public static final long sq77flag = 1;
-
-    // ###################
-    // # X X X X X X X X #
-    // # X X X X X X X X #
-    // # X X X X X X X X #
-    // # X X X X X X X X #
-    // # X X X X X X X X #
-    // # X X X X X X X X #
-    // # X X X X X X X X #
-    // # X X X X X X O X #
-    // ###################
-    public static final long sq76flag = 0b10L;
-    public static final long sq75flag = 0b100L;
-    public static final long sq74flag = 0b1000L;
-    public static final long sq73flag = 0b10000L;
-    public static final long sq72flag = 0b100000L;
-    public static final long sq71flag = 0b1000000L;
-    public static final long sq70flag = 0b10000000L;
-    public static final long sq67flag = 0b100000000L;
-    public static final long sq66flag = 0b1000000000L;
-    public static final long sq65flag = 0b10000000000L;
-    public static final long sq64flag = 0b100000000000L;
-    public static final long sq63flag = 0b1000000000000L;
-    public static final long sq62flag = 0b10000000000000L;
-    public static final long sq61flag = 0b100000000000000L;
-    public static final long sq60flag = 0b1000000000000000L;
-    public static final long sq57flag = 0b10000000000000000L;
-    public static final long sq56flag = 0b100000000000000000L;
-    public static final long sq55flag = 0b1000000000000000000L;
-    public static final long sq54flag = 0b10000000000000000000L;
-    public static final long sq53flag = 0b100000000000000000000L;
-    public static final long sq52flag = 0b1000000000000000000000L;
-    public static final long sq51flag = 0b10000000000000000000000L;
-    public static final long sq50flag = 0b100000000000000000000000L;
-    public static final long sq47flag = 0b1000000000000000000000000L;
-    public static final long sq46flag = 0b10000000000000000000000000L;
-    public static final long sq45flag = 0b100000000000000000000000000L;
-    public static final long sq44flag = 0b1000000000000000000000000000L;
-    public static final long sq43flag = 0b10000000000000000000000000000L;
-    public static final long sq42flag = 0b100000000000000000000000000000L;
-    public static final long sq41flag = 0b1000000000000000000000000000000L;
-    public static final long sq40flag = 0b10000000000000000000000000000000L;
-    public static final long sq37flag = 0b100000000000000000000000000000000L;
-    public static final long sq36flag = 0b1000000000000000000000000000000000L;
-    public static final long sq35flag = 0b10000000000000000000000000000000000L;
-    public static final long sq34flag = 0b100000000000000000000000000000000000L;
-    public static final long sq33flag = 0b1000000000000000000000000000000000000L;
-    public static final long sq32flag = 0b10000000000000000000000000000000000000L;
-    public static final long sq31flag = 0b100000000000000000000000000000000000000L;
-    public static final long sq30flag = 0b1000000000000000000000000000000000000000L;
-    public static final long sq27flag = 0b10000000000000000000000000000000000000000L;
-    public static final long sq26flag = 0b100000000000000000000000000000000000000000L;
-    public static final long sq25flag = 0b1000000000000000000000000000000000000000000L;
-    public static final long sq24flag = 0b10000000000000000000000000000000000000000000L;
-    public static final long sq23flag = 0b100000000000000000000000000000000000000000000L;
-    public static final long sq22flag = 0b1000000000000000000000000000000000000000000000L;
-    public static final long sq21flag = 0b10000000000000000000000000000000000000000000000L;
-    public static final long sq20flag = 0b100000000000000000000000000000000000000000000000L;
-    public static final long sq17flag = 0b1000000000000000000000000000000000000000000000000L;
-    public static final long sq16flag = 0b10000000000000000000000000000000000000000000000000L;
-    public static final long sq15flag = 0b100000000000000000000000000000000000000000000000000L;
-    public static final long sq14flag = 0b1000000000000000000000000000000000000000000000000000L;
-    public static final long sq13flag = 0b10000000000000000000000000000000000000000000000000000L;
-    public static final long sq12flag = 0b100000000000000000000000000000000000000000000000000000L;
-    public static final long sq11flag = 0b1000000000000000000000000000000000000000000000000000000L;
-    public static final long sq10flag = 0b10000000000000000000000000000000000000000000000000000000L;
-    public static final long sq07flag = 0b100000000000000000000000000000000000000000000000000000000L;
-    public static final long sq06flag = 0b1000000000000000000000000000000000000000000000000000000000L;
-    public static final long sq05flag = 0b10000000000000000000000000000000000000000000000000000000000L;
-    public static final long sq04flag = 0b100000000000000000000000000000000000000000000000000000000000L;
-    public static final long sq03flag = 0b1000000000000000000000000000000000000000000000000000000000000L;
-    public static final long sq02flag = 0b10000000000000000000000000000000000000000000000000000000000000L;
-    public static final long sq01flag = 0b100000000000000000000000000000000000000000000000000000000000000L;
-    public static final long sq00flag = 0b1000000000000000000000000000000000000000000000000000000000000000L;// Warning
-                                                                                                            // this
-                                                                                                            // is
-                                                                                                            // for
-                                                                                                            // sign
-                                                                                                            // bit
 
 }
