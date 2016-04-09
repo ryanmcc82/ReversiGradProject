@@ -182,6 +182,10 @@ public class BitBoardNode {
         this.opponentPieces = opponentPieces;
     }
     
+    public BitBoardNode(Board boardObject){
+//        TODO
+    }
+    
     
     public void moveResult(long move, long opponent, long movers) {
 
