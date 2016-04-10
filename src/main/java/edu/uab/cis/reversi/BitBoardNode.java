@@ -2,11 +2,17 @@ package edu.uab.cis.reversi;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.LongStream;
+
+import testdrivers.BitBoardDriver;
 
 public class BitBoardNode {
 
     long moverPieces;
     long opponentPieces;
+    long moves;
     static final long bitmask = 1;
 
     /* Static References */
@@ -177,13 +183,24 @@ public class BitBoardNode {
     }
     
     public BitBoardNode(long moverPieces, long opponentPieces, long move){
-        //TODO
+        //TODO Make constructor
         this.moverPieces = moverPieces;
         this.opponentPieces = opponentPieces;
     }
     
     public BitBoardNode(Board boardObject){
-//        TODO
+        Map<Square, Player> owners = boardObject.getSquareOwners();
+        this.moverPieces = owners.entrySet().stream().filter( e -> e.getValue().equals(boardObject.getCurrentPlayer()))
+        .mapToLong(e -> squareToLong(e.getKey())).reduce(0b0L, (r, v) -> r | v);
+        this.opponentPieces  = owners.entrySet().stream().filter( e -> !e.getValue().equals(boardObject.getCurrentPlayer()))
+                .mapToLong(e -> squareToLong(e.getKey())).reduce(0b0L, (r, v) -> r | v);
+        this.moves = getLegalMoves(moverPieces, opponentPieces);
+    }
+    
+    private long squareToLong(Square square){
+        int index = square.getColumn() + (8 * (square.getRow()));
+        long lindex = 0b1L << index;
+        return lindex;
     }
     
     
@@ -292,6 +309,39 @@ public class BitBoardNode {
                                                      // search.
         }
         return moves;
+    }
+    
+    public String toString(){
+        StringBuffer sb = new StringBuffer();
+        char tchar;
+        
+        long wBoard = this.moverPieces;
+        BitBoardDriver.printSBoard(moverPieces);
+        long bBoard = this.opponentPieces;
+        long tMoves = this.moves;
+
+        for (int i = 0; i < 8; i++) {
+            sb.insert(0, "//#");
+            sb.insert(0, "\n");
+            sb.insert(0, " #");
+            for (int j = 0; j < 8; j++) {
+
+                tchar = ((bitmask & wBoard) == bitmask) ? 'O'
+                        : (((bitmask & bBoard) == bitmask) ? 'X'
+                                : (((bitmask & tMoves) == bitmask) ? '*'
+                                        : '-'));
+                // ^bitwise and test for 1 in right most bit
+                sb.insert(0, tchar);
+                sb.insert(0, ' ');
+                wBoard = wBoard >>> 1; // bit shift right fill with 0
+                bBoard = bBoard >>> 1; // bit shift right fill with 0
+                tMoves = tMoves >>> 1;
+            }
+
+        }
+        sb.insert(0, "//###################\n//#");
+        sb.append("##################");
+        return sb.toString();
     }
 
 }

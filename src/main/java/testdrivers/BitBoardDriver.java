@@ -1,6 +1,7 @@
 package testdrivers;
 
 import edu.uab.cis.reversi.BitBoardNode;
+import edu.uab.cis.reversi.Board;
 
 public class BitBoardDriver {
 
@@ -40,11 +41,11 @@ public class BitBoardDriver {
     }
 
     private static void searchMoves() {
-        BitBoardNode searcher = new BitBoardNode();
         long movers = (sq23flag | sq44flag
                 | sq34flag | sq45flag);
         long opp = (sq33flag | sq32flag
                 | sq35flag | sq54flag | sq43flag);
+        BitBoardNode searcher = new BitBoardNode(movers, opp);
         long moves = searcher.getLegalMoves(movers, opp);
         long expected = 0b0000000000000000001001100100001001100000001100000001100000000000L;
         if (TPRINT) {
@@ -112,6 +113,13 @@ public class BitBoardDriver {
         }
 
     }
+    
+    public static void testBoardToBit(){
+        Board board = new Board();
+        BitBoardNode bitBoard = new BitBoardNode(board);
+        System.out.println(bitBoard);
+        System.out.println(board);
+    }
 
     public static void printwhole(long wBoard, long bBoard, long moves) {
         if (TPRINT) {
@@ -144,7 +152,8 @@ public class BitBoardDriver {
     }
 
     public static void main(String[] args) {
-        printRayArray(12);
+        testBoardToBit();
+//        printRayArray(12);
 //        printAgg();
 //        searchMoves();
     }

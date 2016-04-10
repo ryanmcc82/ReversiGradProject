@@ -1,5 +1,6 @@
 package edu.uab.cis.reversi;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class FirstStratagy implements Strategy {
@@ -7,6 +8,11 @@ public class FirstStratagy implements Strategy {
     long timelimit;
     @Override
     public Square chooseSquare(Board board) {
+        Set<Square> moves = board.getCurrentPossibleSquares();
+        
+        moves.parallelStream().forEach((square) -> {
+            
+        });
         // TODO Auto-generated method stub
         return null;
     }
