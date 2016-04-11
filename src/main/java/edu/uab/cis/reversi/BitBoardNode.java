@@ -203,11 +203,6 @@ public class BitBoardNode {
         return lindex;
     }
     
-    
-    public void moveResult(long move, long opponent, long movers) {
-
-    }
-    
     public List<BitBoardNode> getMovesAndResults(){
         ArrayList<BitBoardNode> moves = new ArrayList<BitBoardNode>();
 //        TODO combine get legal moves and getMoveResult into one operation.
@@ -216,11 +211,12 @@ public class BitBoardNode {
     }
     
     public long getMoveResult(long movers, long opponent, long move){
-       long result = movers | move;
+       long moverResult = movers | move;
        long surroundingOpp = opponent & ajacentArray[Long.numberOfTrailingZeros(move)];
        long searchDirBit;
        long searchDirRay;
        long moverRayIntersect;
+       long cancleDirRay;/**used to clear bits in SearchDirRay that occer after closestMoverBit */
        
        /**searchDirDiff is a number between -9 and 9 its input into the translation 
         * Array returns a number 1-8 for the 8 directions next to a square that number
@@ -237,6 +233,24 @@ public class BitBoardNode {
                    - moveSquareIndex;// This diff lets us search in a diretion using bitshift.
            searchDirRay = rayArray[moveSquareIndex][translationArray[searchDirDiff + 9]];
            moverRayIntersect = searchDirRay & movers;
+           
+            if(moverRayIntersect!= 0L){// if mover has no pieces in ray path its not valid move.
+                    if(searchDirDiff > 0){
+                        closestMoverIndex = Long.numberOfTrailingZeros(moverRayIntersect);
+                        closestEmptyIndex = Long.numberOfTrailingZeros(searchDirRay & unoccupied);
+                        if(closestMoverIndex < closestEmptyIndex){
+                            cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
+                            moverResult = moverResult | (searchDirRay ^ cancleDirRay);//
+                        }
+                    }else{
+                        closestMoverIndex = Long.numberOfLeadingZeros(moverRayIntersect);
+                        closestEmptyIndex = Long.numberOfLeadingZeros(searchDirRay & unoccupied);
+                        if(closestMoverIndex < closestEmptyIndex) {
+                            cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
+                            moverResult = moverResult | (searchDirRay ^ cancleDirRay);//
+                        }
+                    }
+                }
             
            
            
@@ -244,7 +258,7 @@ public class BitBoardNode {
            // Direction
        }
        
-       return result;
+       return  moverResult;
     }
 
     public long getLegalMoves( long movers, long opponent) {
