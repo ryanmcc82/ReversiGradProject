@@ -1,7 +1,7 @@
 package testdrivers;
 
-import edu.uab.cis.reversi.BitBoardNode;
 import edu.uab.cis.reversi.Board;
+import edu.uab.cis.reversi.strategy.group3.BitBoardNode;
 
 public class BitBoardDriver {
 

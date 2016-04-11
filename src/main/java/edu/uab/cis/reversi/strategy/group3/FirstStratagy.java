@@ -1,7 +1,11 @@
-package edu.uab.cis.reversi;
+package edu.uab.cis.reversi.strategy.group3;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import edu.uab.cis.reversi.Board;
+import edu.uab.cis.reversi.Square;
+import edu.uab.cis.reversi.Strategy;
 
 public class FirstStratagy implements Strategy {
 

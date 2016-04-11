@@ -1,4 +1,4 @@
-package edu.uab.cis.reversi;
+package edu.uab.cis.reversi.strategy.group3;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.LongStream;
 
+import edu.uab.cis.reversi.Board;
+import edu.uab.cis.reversi.Player;
+import edu.uab.cis.reversi.Square;
 import testdrivers.BitBoardDriver;
 
 public class BitBoardNode {
