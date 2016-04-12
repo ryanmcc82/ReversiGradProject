@@ -12,7 +12,9 @@ import edu.uab.cis.reversi.Strategy;
 public class BitFirstStratagy implements Strategy {
     private long timeLimit;
     private TimeUnit timeunit;
+    private Book openingBook;
 
+    
     long timelimit;
     @Override
     public Square chooseSquare(Board board) {

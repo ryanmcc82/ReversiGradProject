@@ -11,11 +11,25 @@ import edu.uab.cis.reversi.Strategy;
 public class FirstStratagy implements Strategy {
     private long timeLimit;
     private TimeUnit timeunit;
+    private Book openingBook;
+    private boolean inBook = true;
 
-    long timelimit;
+    public FirstStratagy() {
+        openingBook = new Book();
+    }
     @Override
     public Square chooseSquare(Board board) {
-        Square move = Square.PASS;
+
+        Square move;
+        if (inBook) {
+            move = openingBook.checkBook(board.getMoves());
+            if (move == null) {
+                inBook = false;
+            } else
+                return move;
+
+        }
+        move = Square.PASS;
         
         int minMobility =  Integer.MAX_VALUE;
         Set<Square> moves = board.getCurrentPossibleSquares();
