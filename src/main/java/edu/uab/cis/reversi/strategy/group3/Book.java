@@ -28,9 +28,10 @@ public class Book {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        printBook();
+       // printBook();
     }
     private void printBook(){
+        //map = new HashMap<List<Move>, Square> map;
         for( Entry<List<Move>, Square> entry: map.entrySet()){
             if (entry.getKey().size() < 4)
             System.out.println(entry);
@@ -50,7 +51,7 @@ public class Book {
                         Integer.parseInt(split[0]),
                         Integer.parseInt(split[1])), player1);
                 seq.add(move1);
-                for (int i = 1; i <= ((split.length - 1) / 2); i++) {
+                for (int i = 1; i <= ((split.length - 1) / 2 ); i++) {
 
                         if (i % 2 == 1) {
                             Square thisMove = new Square(
