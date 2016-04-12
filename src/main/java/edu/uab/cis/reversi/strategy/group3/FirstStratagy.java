@@ -2,30 +2,40 @@ package edu.uab.cis.reversi.strategy.group3;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.uab.cis.reversi.Board;
 import edu.uab.cis.reversi.Square;
 import edu.uab.cis.reversi.Strategy;
 
 public class FirstStratagy implements Strategy {
+    private long timeLimit;
+    private TimeUnit timeunit;
 
     long timelimit;
     @Override
     public Square chooseSquare(Board board) {
-        Set<Square> moves = board.getCurrentPossibleSquares();
+        Square move;
         
-        moves.parallelStream().forEach((square) -> {
-            
-        });
-        // TODO Auto-generated method stub
+        int minMobility =  Integer.MAX_VALUE;
+        Set<Square> moves = board.getCurrentPossibleSquares();
+        for(Square moveP : moves){
+            int mobility = board.play(moveP).getMoves().size();
+            if (mobility < minMobility) {
+                move = moveP;
+                minMobility = mobility ;
+            }
+        }
+       
+        
         return null;
     }
     
     @Override
     public void setChooseSquareTimeLimit(long time, TimeUnit unit) {
-        timelimit = time;
-        // by default, do nothing
-      }
+        this.timeLimit = time;
+        this.timeunit = unit;
+    }
     
     
 
