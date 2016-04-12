@@ -90,7 +90,10 @@ public class Book {
 
     public Square checkBook(List<Move> history) {
 
-        if (loaded && map.containsKey(history)) {
+        if(history.length == 0){
+    		return new Square(3,2);
+    	}
+    	else if (loaded && map.containsKey(history)) {
             System.out.println(history + " : " + map.get(history));
             return map.get(history);
         } else
