@@ -85,4 +85,15 @@ class ReadBoardState implements Runnable
 		
 	}
 }
+
+
+//public void setMoves(PSequence<Move> M){
+//    this.moves = M;
+//}
+
+//public void setSquareOwners(PMap<Square, Player> M)
+//{
+//    this.owners = M;
+//}
+
 }
