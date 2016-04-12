@@ -32,9 +32,11 @@ public class Book {
     }
     private void printBook(){
         for( Entry<List<Move>, Square> entry: map.entrySet()){
+            if (entry.getKey().size() < 4)
             System.out.println(entry);
         }
     }
+ 
 
     private void readData() throws IOException {
         try {

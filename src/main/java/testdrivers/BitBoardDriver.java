@@ -7,6 +7,8 @@ import edu.uab.cis.reversi.Board;
 import edu.uab.cis.reversi.Square;
 import edu.uab.cis.reversi.strategy.group3.BitBoardNode;
 import edu.uab.cis.reversi.strategy.group3.BitFirstStratagy;
+import edu.uab.cis.reversi.strategy.group3.BoardBook;
+import edu.uab.cis.reversi.strategy.group3.Book;
 
 public class BitBoardDriver {
 
@@ -207,6 +209,29 @@ public class BitBoardDriver {
             System.out.println(sb.toString());
         }
     }
+    
+    public static void roatation(){
+        Book books  = new Book();
+        Board[] boards = new Board[4];
+        for(int i = 0; i< 4; i++){
+            boards[i] = new Board();
+        }
+        BoardBook book = new BoardBook();
+        boards = book.translateMoves(boards, 5, 4);
+        int count = 0;
+        for(Board bookl : boards){
+            System.out.println(++count);
+            System.out.println(bookl);
+        }
+        
+        boards = book.translateMoves(boards, 3, 5);
+        count = 0;
+        for(Board bookl : boards){
+            System.out.println(++count);
+            System.out.println(bookl);
+        }
+        
+    }
 
     public static void main(String[] args) {
 //        testBoardToBit();
@@ -216,7 +241,8 @@ public class BitBoardDriver {
 //        bitBoardhashTable();
 //        printMovesResutls();
 //        printMoveResutls();
-        bitFirstStratagyTest();
+//        bitFirstStratagyTest();
+        roatation();
     }
     
   // ###################
