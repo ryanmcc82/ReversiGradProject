@@ -15,24 +15,39 @@ public class FirstStratagy implements Strategy {
     private TimeUnit timeunit;
     private Book openingBook;
     private boolean inBook = true;
+    private static int id = 0;
+    private int thisID;
     int testcount = 0;
 
     public FirstStratagy() {
         openingBook = new Book();
+        this.thisID = uniqueID();
+        System.out.println("Done Loading: " + thisID);
+    }
+    
+    public static int uniqueID(){
+        int temp = id;
+        ++id;
+        return temp;
     }
     @Override
     public Square chooseSquare(Board board) {
         List<Move> movesList = board.getMoves();
-        if(movesList.size() < 1)inBook = true;
+        if(movesList.size() < 3){
+            inBook = true;
+        }
+        testcount  = movesList.size();
+        
 
         Square move;
         if (inBook) {
             move = openingBook.checkBook(movesList);
             if (move == null) {
-                System.out.println("BookDepth: " + testcount);
+                System.out.println("BookDepth: " + testcount + " : Fail " + thisID);
+                System.out.println(movesList);
                 inBook = false;
             } else {
-                testcount++;
+                System.out.println("BookDepth: " + testcount + " : " + move + " : " + thisID);
                 return move;
             }
         }
