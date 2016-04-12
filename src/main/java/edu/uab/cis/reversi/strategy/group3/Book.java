@@ -8,15 +8,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import org.pcollections.PSequence;
-
 import edu.uab.cis.reversi.Move;
 import edu.uab.cis.reversi.Player;
 import edu.uab.cis.reversi.Square;
+
+
+
 public class Book {
 
-	private HashMap<PSequence<Move>,Square> map;
+	private HashMap<List<Move>,Square> map;
 	private Player player1 = Player.BLACK;
     private Player player2 = Player.WHITE;
 	public Book(){
@@ -47,14 +47,14 @@ public class Book {
                     		Square thisMove = new Square(Integer.parseInt(split[i*2-1]),Integer.parseInt(split[i*2]) );
                     		Move move1 = new Move( thisMove,player2);
                     		if(!map.containsKey((PSequence<Move>) seq)){
-                        		map.put((PSequence<Move>) seq, thisMove);	
+                        		map.put(seq, thisMove);	
                         		}
                             	seq.add(move1);
                     	}else{
                     			Square thisMove = new Square(Integer.parseInt(split[i*2-1]),Integer.parseInt(split[i*2+1]) );
                         		Move move1 = new Move(thisMove,player1);
                         		if(!map.containsKey((PSequence<Move>) seq)){
-                        		map.put((PSequence<Move>) seq, thisMove);	
+                        		map.put(seq, thisMove);	
                         		}
                         		seq.add(move1);
                     	}
@@ -76,7 +76,7 @@ public class Book {
 		 
 	}
 
-public Square checkBook(PSequence<Move> history){
+public Square checkBook(List<Move> history){
 	if(map.containsKey(history)){
 		return map.get(history);
 	}else return null;
