@@ -22,6 +22,9 @@ public class BitBoardNode {
     final long occupied; 
     final long unoccupied;
     long moves;
+    int mobility;
+    int score;
+    boolean movesSearched = false;
     static final long bitmask = 1;
 
     /* Static References */
@@ -193,24 +196,24 @@ public class BitBoardNode {
         
     }
     
-    public BitBoardNode(long moverPieces, long opponentPieces, long move){
-        //TODO Make constructor
-        this.moverPieces = moverPieces;
-        this.opponentPieces = opponentPieces;
-        this.moves = moves;
-        this.occupied = opponentPieces | moverPieces;
-        this.unoccupied = ~occupied;
-    }
+//    private BitBoardNode(long moverPieces, long opponentPieces, long move){
+//        //TODO Make constructor
+//        this.moverPieces = moverPieces;
+//        this.opponentPieces = opponentPieces;
+//        this.moves = moves;
+//        this.occupied = opponentPieces | moverPieces;
+//        this.unoccupied = ~occupied;
+//    }
     
     public BitBoardNode(Board boardObject){
         Map<Square, Player> owners = boardObject.getSquareOwners();
         this.moverPieces = owners.entrySet().stream().filter( e -> e.getValue().equals(boardObject.getCurrentPlayer()))
         .mapToLong(e -> squareToLong(e.getKey())).reduce(0b0L, (r, v) -> r | v);
         this.opponentPieces  = owners.entrySet().stream().filter( e -> !e.getValue().equals(boardObject.getCurrentPlayer()))
-                .mapToLong(e -> squareToLong(e.getKey())).reduce(0b0L, (r, v) -> r | v);
-        this.moves = getLegalMoves(moverPieces, opponentPieces);
+                .mapToLong(e -> squareToLong(e.getKey())).reduce(0b0L, (r, v) -> r | v);        
         this.occupied = opponentPieces | moverPieces;
         this.unoccupied = ~occupied;
+        this.moves = getLegalMoves();
     }
     
     private long squareToLong(Square square){
@@ -221,11 +224,11 @@ public class BitBoardNode {
     
     public ArrayList<BitBoardNode> getMovesAndResults(){
         if (children == null) {
+
             children = new ArrayList<BitBoardNode>();
-            // Later in game its faster to look at just empty spaces.
-            // Early in game might be faster to look at it from occupied spaces.
-            // or
-            // weed out based on boarder squares
+            if(movesSearched){
+                return populateMoves();
+            }
 
             long tempUnOcc = unoccupied;
             long searchBit = Long.lowestOneBit(tempUnOcc);
@@ -252,7 +255,7 @@ public class BitBoardNode {
                 squareIndex = Long.numberOfTrailingZeros(searchBit);
                 surrounding = ajacentArray[squareIndex];// gets surrounding squares from static table
                 surroundingOpp = surrounding & opponentPieces;
-                long moverResult = 0L;
+                long moverResult = moverPieces;
                 while (surroundingOpp != 0L) {// if none of the surrounding squares are an opponent then its not a valid move
 
                     searchDirBit = Long.lowestOneBit(surroundingOpp);
@@ -271,6 +274,7 @@ public class BitBoardNode {
                                 cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
                                 moverResult = moverResult | searchBit
                                         | (searchDirRay ^ cancleDirRay);
+                                moves = moves |searchBit;//add square to valid Moves
                             }
                         } else {
                             closestMoverIndex = Long
@@ -279,14 +283,15 @@ public class BitBoardNode {
                                     .numberOfLeadingZeros(searchDirRay
                                             & unoccupied);
                             if (closestMoverIndex < closestEmptyIndex) {
-                                cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
+                                cancleDirRay = rayArray[63 - closestMoverIndex][translationArray[searchDirDiff + 9]];
                                 moverResult = moverResult | searchBit
                                         | (searchDirRay ^ cancleDirRay);
+                                moves = moves |searchBit;//add square to valid Moves
                             }
                         }
                     }
 
-                    if (moverResult != 0L) {
+                    if (moverResult != moverPieces) {
                         long newOpponent = moverResult;
                         long newMover = (opponentPieces & moverResult)
                                 ^ opponentPieces;
@@ -303,10 +308,24 @@ public class BitBoardNode {
                                                          // search.
             }
         }
+        movesSearched = true;
+        mobility = Long.bitCount(moves);
         return children;
     }
     
-    public BitBoardNode getMoveResult(long movers, long opponent, long move){
+    private ArrayList<BitBoardNode> populateMoves(){
+        long tempMoves = this.moves;
+        while(tempMoves != 0L){
+            long tempMove = Long.highestOneBit(tempMoves);
+            children.add(play(tempMove));
+            tempMoves = tempMoves ^ tempMove;
+        }
+        return children;
+    }
+    
+    public BitBoardNode play(long move){
+       long movers = this.moverPieces;
+       long opponent = this.opponentPieces; 
        long moverResult = movers | move;
        long surroundingOpp = opponent & ajacentArray[Long.numberOfTrailingZeros(move)];
        long searchDirBit;
@@ -340,12 +359,21 @@ public class BitBoardNode {
                         if(closestMoverIndex < closestEmptyIndex){
                             cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
                             moverResult = moverResult | (searchDirRay ^ cancleDirRay);
+                            System.out.println("\nSearchDirBit;Ray;CancelRay\n");
+                            BitBoardDriver.printSBoard(searchDirBit);
+                            BitBoardDriver.printSBoard(searchDirRay);
+                            BitBoardDriver.printSBoard(cancleDirRay);
                         }
                     }else{
                         closestMoverIndex = Long.numberOfLeadingZeros(moverRayIntersect);
                         closestEmptyIndex = Long.numberOfLeadingZeros(searchDirRay & unoccupied);
                         if(closestMoverIndex < closestEmptyIndex) {
-                            cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
+                            cancleDirRay = rayArray[63- closestMoverIndex][translationArray[searchDirDiff + 9]];
+
+                            System.out.println("\nElse:SearchDirBit;Ray;CancelRay\n");
+                            BitBoardDriver.printSBoard(searchDirBit|move);
+                            BitBoardDriver.printSBoard(searchDirRay);
+                            BitBoardDriver.printSBoard(cancleDirRay);
                             moverResult = moverResult | (searchDirRay ^ cancleDirRay);//
                         }
                     }
@@ -358,15 +386,22 @@ public class BitBoardNode {
        }
        long newOpponent = moverResult;
        long newMover = (opponent & moverResult) ^ opponent;
+       System.out.println("\nNewOpponent\n");
+       BitBoardDriver.printSBoard(newOpponent);
+       System.out.println("\nNewMover\n");
+       BitBoardDriver.printSBoard(newMover);
        return  new BitBoardNode(newMover, newOpponent);
     }
 
-    public long getLegalMoves( long movers, long opponent) {
+    public long getLegalMoves() {
         // Later in game its faster to look at just empty spaces.
         // Early in game might be faster to look at it from occupied spaces. or
         // weed out based on boarder squares
-        long occupied = opponent | movers; // keep this allocated
-        long unoccupied = ~occupied;
+        if(!movesSearched){
+        long movers = this.moverPieces;
+        long opponent = this.opponentPieces;
+        long occupied = this.occupied; // keep this allocated
+        long unoccupied = this.unoccupied;
 
         long tempUnOcc = unoccupied;
         long searchBit = Long.lowestOneBit(tempUnOcc);
@@ -422,7 +457,15 @@ public class BitBoardNode {
             searchBit = Long.lowestOneBit(tempUnOcc);// finds new bit(square) to
                                                      // search.
         }
+        
+        }
+        movesSearched = true;
+        mobility = Long.bitCount(moves);
         return moves;
+    }
+    
+    public int getMobility(){
+        return mobility;
     }
     
     public String toString(){

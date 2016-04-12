@@ -20,7 +20,7 @@ public class FirstStratagy implements Strategy {
         int minMobility =  Integer.MAX_VALUE;
         Set<Square> moves = board.getCurrentPossibleSquares();
         for(Square moveP : moves){
-            int mobility = board.play(moveP).getMoves().size();
+            int mobility = board.play(moveP).getCurrentPossibleSquares().size();
             if (mobility < minMobility) {
                 move = moveP;
                 minMobility = mobility ;

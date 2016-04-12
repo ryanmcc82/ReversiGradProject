@@ -10,7 +10,7 @@ public class BitBoardDriver {
     public static final boolean TPRINT = true;
     static final long bitmask = 1;
     
-    private static void printMoveResutls(){
+    private static void printMovesResutls(){
         Board board = new Board();
         BitBoardNode bitBoard = new BitBoardNode(board);
         System.out.println(bitBoard);
@@ -18,10 +18,24 @@ public class BitBoardDriver {
         ArrayList<BitBoardNode> moves = bitBoard.getMovesAndResults();
         int count = 0;
         for(BitBoardNode move: moves){
-            System.out.println("************************************************\n" + count);
+            System.out.println("************************************************\n" + count + " of " + moves.size());
             System.out.println(move.toString());
             count++;
         }
+    }
+    
+    private static void printMoveResutls(){
+        Board board = new Board();
+        BitBoardNode bitBoard = new BitBoardNode(board);
+        System.out.println(bitBoard);
+        System.out.println(board);
+        long moves = bitBoard.getLegalMoves();
+        
+        long move = Long.highestOneBit(moves);
+        BitBoardNode result = bitBoard.play(move);
+        printSBoard(move);
+        System.out.println("\nResult:\n********************************************************");
+        System.out.println(result);
     }
 
     private static void printAgg() {
@@ -62,7 +76,7 @@ public class BitBoardDriver {
         long opp = (sq33flag | sq32flag
                 | sq35flag | sq54flag | sq43flag);
         BitBoardNode searcher = new BitBoardNode(movers, opp);
-        long moves = searcher.getLegalMoves(movers, opp);
+        long moves = searcher.getLegalMoves();
         long expected = 0b0000000000000000001001100100001001100000001100000001100000000000L;
         if (TPRINT) {
             long test[] = { movers, opp, moves };
@@ -172,7 +186,8 @@ public class BitBoardDriver {
 //        printRayArray(12);
 //        printAgg();
 //        searchMoves();
-        printMoveResutls();
+        printMovesResutls();
+//        printMoveResutls();
     }
     
   // ###################
