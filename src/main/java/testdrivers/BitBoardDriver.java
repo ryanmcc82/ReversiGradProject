@@ -1,14 +1,37 @@
 package testdrivers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import edu.uab.cis.reversi.Board;
+import edu.uab.cis.reversi.Square;
 import edu.uab.cis.reversi.strategy.group3.BitBoardNode;
+import edu.uab.cis.reversi.strategy.group3.BitFirstStratagy;
 
 public class BitBoardDriver {
 
     public static final boolean TPRINT = true;
     static final long bitmask = 1;
+    
+    
+    private static void bitBoardhashTable(){
+        Board board = new Board();
+        BitBoardNode bitBoard = new BitBoardNode(board);
+        HashMap<BitBoardNode, Square> moveTable =  BitBoardNode.moveToSquare(board);
+        ArrayList<BitBoardNode> moves = bitBoard.getMovesAndResults();
+        System.out.println(moveTable);
+        
+        
+    }
+    
+    private static void bitFirstStratagyTest(){
+        Board board = new Board();
+        BitFirstStratagy strategy = new BitFirstStratagy();
+        Square  s = strategy.chooseSquare(board);
+//        System.out.println(s);
+        
+        
+    }
     
     private static void printMovesResutls(){
         Board board = new Board();
@@ -186,8 +209,10 @@ public class BitBoardDriver {
 //        printRayArray(12);
 //        printAgg();
 //        searchMoves();
-        printMovesResutls();
+//        bitBoardhashTable();
+//        printMovesResutls();
 //        printMoveResutls();
+        bitFirstStratagyTest();
     }
     
   // ###################

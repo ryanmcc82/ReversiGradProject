@@ -1,10 +1,13 @@
 
 package edu.uab.cis.reversi.strategy.group3;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
 import edu.uab.cis.reversi.Board;
@@ -213,7 +216,7 @@ public class BitBoardNode {
                 .mapToLong(e -> squareToLong(e.getKey())).reduce(0b0L, (r, v) -> r | v);        
         this.occupied = opponentPieces | moverPieces;
         this.unoccupied = ~occupied;
-        this.moves = getLegalMoves();
+        getLegalMoves();
     }
     
     private long squareToLong(Square square){
@@ -274,7 +277,7 @@ public class BitBoardNode {
                                 cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
                                 moverResult = moverResult | searchBit
                                         | (searchDirRay ^ cancleDirRay);
-                                moves = moves |searchBit;//add square to valid Moves
+                                this.moves = this.moves |searchBit;//add square to valid Moves
                             }
                         } else {
                             closestMoverIndex = Long
@@ -286,7 +289,7 @@ public class BitBoardNode {
                                 cancleDirRay = rayArray[63 - closestMoverIndex][translationArray[searchDirDiff + 9]];
                                 moverResult = moverResult | searchBit
                                         | (searchDirRay ^ cancleDirRay);
-                                moves = moves |searchBit;//add square to valid Moves
+                                this.moves = this.moves |searchBit;//add square to valid Moves
                             }
                         }
                     }
@@ -327,6 +330,7 @@ public class BitBoardNode {
        long movers = this.moverPieces;
        long opponent = this.opponentPieces; 
        long moverResult = movers | move;
+       if(move == 0L) return this;
        long surroundingOpp = opponent & ajacentArray[Long.numberOfTrailingZeros(move)];
        long searchDirBit;
        long searchDirRay;
@@ -359,22 +363,23 @@ public class BitBoardNode {
                         if(closestMoverIndex < closestEmptyIndex){
                             cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
                             moverResult = moverResult | (searchDirRay ^ cancleDirRay);
-                            System.out.println("\nSearchDirBit;Ray;CancelRay\n");
-                            BitBoardDriver.printSBoard(searchDirBit);
-                            BitBoardDriver.printSBoard(searchDirRay);
-                            BitBoardDriver.printSBoard(cancleDirRay);
+//                            System.out.println("\nSearchDirBit;Ray;CancelRay\n");
+//                            BitBoardDriver.printSBoard(searchDirBit);
+//                            BitBoardDriver.printSBoard(searchDirRay);
+//                            BitBoardDriver.printSBoard(cancleDirRay);
                         }
                     }else{
                         closestMoverIndex = Long.numberOfLeadingZeros(moverRayIntersect);
                         closestEmptyIndex = Long.numberOfLeadingZeros(searchDirRay & unoccupied);
                         if(closestMoverIndex < closestEmptyIndex) {
                             cancleDirRay = rayArray[63- closestMoverIndex][translationArray[searchDirDiff + 9]];
-
-                            System.out.println("\nElse:SearchDirBit;Ray;CancelRay\n");
-                            BitBoardDriver.printSBoard(searchDirBit|move);
-                            BitBoardDriver.printSBoard(searchDirRay);
-                            BitBoardDriver.printSBoard(cancleDirRay);
                             moverResult = moverResult | (searchDirRay ^ cancleDirRay);//
+
+//                            System.out.println("\nElse:SearchDirBit;Ray;CancelRay\n");
+//                            BitBoardDriver.printSBoard(searchDirBit|move);
+//                            BitBoardDriver.printSBoard(searchDirRay);
+//                            BitBoardDriver.printSBoard(cancleDirRay);
+                            
                         }
                     }
                 }
@@ -386,10 +391,10 @@ public class BitBoardNode {
        }
        long newOpponent = moverResult;
        long newMover = (opponent & moverResult) ^ opponent;
-       System.out.println("\nNewOpponent\n");
-       BitBoardDriver.printSBoard(newOpponent);
-       System.out.println("\nNewMover\n");
-       BitBoardDriver.printSBoard(newMover);
+//       System.out.println("\nNewOpponent\n");
+//       BitBoardDriver.printSBoard(newOpponent);
+//       System.out.println("\nNewMover\n");
+//       BitBoardDriver.printSBoard(newMover);
        return  new BitBoardNode(newMover, newOpponent);
     }
 
@@ -436,14 +441,14 @@ public class BitBoardNode {
                         closestMoverIndex = Long.numberOfTrailingZeros(moverRayIntersect);
                         closestEmptyIndex = Long.numberOfTrailingZeros(searchDirRay & unoccupied);
                         if(closestMoverIndex < closestEmptyIndex){
-                            moves = moves |searchBit;//add square to valid Moves
+                            this.moves = this.moves |searchBit;//add square to valid Moves
                             break;//end search if found
                         }
                     }else{
                         closestMoverIndex = Long.numberOfLeadingZeros(moverRayIntersect);
                         closestEmptyIndex = Long.numberOfLeadingZeros(searchDirRay & unoccupied);
                         if(closestMoverIndex < closestEmptyIndex) {
-                            moves = moves |searchBit;//add square to valid Moves
+                            this.moves = this.moves |searchBit;//add square to valid Moves
                             break;//end search if found
                         }
                     }
@@ -468,6 +473,119 @@ public class BitBoardNode {
         return mobility;
     }
     
+    public static HashMap<BitBoardNode, Square> moveToSquare(Board boardparent){
+        return 
+        (HashMap<BitBoardNode, Square>) boardparent.getPossibleSquares().keySet().stream()
+        .collect( Collectors.toMap( (Square square) -> new BitBoardNode(boardparent.play(square)),(Square square) -> square ));
+    }
+    
+    public static HashMap<BitBoardNode, Square> moveToSquare7(Board boardparent){
+        HashMap<BitBoardNode, Square> map = new HashMap<BitBoardNode, Square>();
+        for(Square square: boardparent.getCurrentPossibleSquares()){
+            map.put(new BitBoardNode(boardparent.play(square)), square);
+        }
+       
+        return map;
+    }
+    
+    public static BitBoardNode getBestDoubleMobility(
+            ArrayList<BitBoardNode> moveList, BitBoardNode currentstate) {
+        
+        BitBoardNode bestMove = currentstate;
+        int bestscore = Integer.MIN_VALUE;
+
+        ArrayList<BitBoardNode> tiedBest = new ArrayList<BitBoardNode>(moveList.size());
+
+        for (BitBoardNode bitBoard : moveList) {
+            int mobilityScore = //Long.bitCount(bitBoard.play(0L).getLegalMoves())
+                    - bitBoard.getMobility();
+
+            if (mobilityScore > bestscore) {
+                bestMove = bitBoard;
+                bestscore = mobilityScore;
+                tiedBest.clear();
+            } else if (mobilityScore == bestscore) {
+                tiedBest.add(bitBoard);
+            }
+        }
+        if (tiedBest.isEmpty()) {
+            return bestMove;
+        }
+        tiedBest.add(bestMove);
+        return tiedBest.get((int) (tiedBest.size() * Math.random()));
+    }
+    
+    public BitBoardNode getBestDoubleMobility() {
+        BitBoardNode currentstate = this;
+        ArrayList<BitBoardNode> moveList = this.getMovesAndResults();
+        BitBoardNode bestMove = currentstate;
+        int bestscore = Integer.MIN_VALUE;
+
+        ArrayList<BitBoardNode> tiedBest = new ArrayList<BitBoardNode>(moveList.size());
+
+        for (BitBoardNode bitBoard : moveList) {
+            bitBoard.getLegalMoves();
+//            System.out.println(bitBoard);
+            int mobility = Long.bitCount(bitBoard.play(0L).getLegalMoves())
+                    - bitBoard.getMobility();
+
+            if (mobility > bestscore) {
+                bestMove = bitBoard;
+                bestscore = mobility;
+                tiedBest.clear();
+            } else if (mobility == bestscore) {
+                tiedBest.add(bitBoard);
+            }
+        }
+        if (tiedBest.isEmpty()) {
+            return bestMove;
+        }
+        tiedBest.add(bestMove);
+        return tiedBest.get((int) (tiedBest.size() * Math.random()));
+    }
+    
+//    public static BitBoardNode getBestShallow(ArrayList<BitBoardNode> moveList, BitBoardNode currentstate ){
+//        BitBoardNode bestMove = currentstate;
+//        int bestscore = 
+//        
+//        for(Square BitBoardNode : moveList){
+//            int mobility = board.play(moveP).getCurrentPossibleSquares().size();
+//            if (mobility < minMobility) {
+//                move = moveP;
+//                minMobility = mobility ;
+//            }
+//        }
+//    }
+//    
+//    public static BitBoardNode getNextLevelMin(ArrayList<BitBoardNode> moveList, BitBoardNode currentstate ){
+//        BitBoardNode bestMove = currentstate;
+//        int bestscore = 
+//        
+//        for(Square BitBoardNode : moveList){
+//            int mobility = board.play(moveP).getCurrentPossibleSquares().size();
+//            if (mobility < minMobility) {
+//                move = moveP;
+//                minMobility = mobility ;
+//            }
+//        }
+//    }
+    
+    @Override
+    public int hashCode(){
+        int hashCode = (int)(this.moverPieces ^(this.moverPieces>>>32));
+        hashCode = 31 * hashCode + (int)(this.opponentPieces ^(this.opponentPieces>>>32));
+        return hashCode;
+    }
+    
+    @Override
+    public boolean equals(Object other){
+        if ( this == other ) return true;
+        if ( !(other instanceof BitBoardNode) ) return false;
+        BitBoardNode node = (BitBoardNode)other;
+        return
+                (this.opponentPieces == node.opponentPieces) && (this.moverPieces == node.moverPieces);
+    }
+    
     public String toString(){
         StringBuffer sb = new StringBuffer();
         char tchar;
@@ -476,6 +594,7 @@ public class BitBoardNode {
 //        BitBoardDriver.printSBoard(moverPieces);
         long bBoard = this.opponentPieces;
         long tMoves = this.moves;
+        System.out.println("\n!!:"+ moves);
 
         for (int i = 0; i < 8; i++) {
             sb.insert(0, "//#");
