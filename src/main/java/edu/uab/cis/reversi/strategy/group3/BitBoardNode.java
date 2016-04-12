@@ -14,8 +14,13 @@ import testdrivers.BitBoardDriver;
 
 public class BitBoardNode {
 
-    long moverPieces;
-    long opponentPieces;
+    BitBoardNode parent;
+    ArrayList<BitBoardNode> parents;//note if using hashTable to cut down on searching could have multiple parents.
+    ArrayList<BitBoardNode> children;
+    final long moverPieces;
+    final long opponentPieces;
+    final long occupied; 
+    final long unoccupied;
     long moves;
     static final long bitmask = 1;
 
@@ -183,6 +188,8 @@ public class BitBoardNode {
     public BitBoardNode(long moverPieces, long opponentPieces){
         this.moverPieces = moverPieces;
         this.opponentPieces = opponentPieces;
+        this.occupied = opponentPieces | moverPieces;
+        this.unoccupied = ~occupied;
         
     }
     
@@ -190,6 +197,9 @@ public class BitBoardNode {
         //TODO Make constructor
         this.moverPieces = moverPieces;
         this.opponentPieces = opponentPieces;
+        this.moves = moves;
+        this.occupied = opponentPieces | moverPieces;
+        this.unoccupied = ~occupied;
     }
     
     public BitBoardNode(Board boardObject){
@@ -199,6 +209,8 @@ public class BitBoardNode {
         this.opponentPieces  = owners.entrySet().stream().filter( e -> !e.getValue().equals(boardObject.getCurrentPlayer()))
                 .mapToLong(e -> squareToLong(e.getKey())).reduce(0b0L, (r, v) -> r | v);
         this.moves = getLegalMoves(moverPieces, opponentPieces);
+        this.occupied = opponentPieces | moverPieces;
+        this.unoccupied = ~occupied;
     }
     
     private long squareToLong(Square square){
@@ -207,62 +219,146 @@ public class BitBoardNode {
         return lindex;
     }
     
-    public List<BitBoardNode> getMovesAndResults(){
-        ArrayList<BitBoardNode> moves = new ArrayList<BitBoardNode>();
-//        TODO combine get legal moves and getMoveResult into one operation.
-//        Note it may be best to have both methods available to us.
-        return moves;
+    public ArrayList<BitBoardNode> getMovesAndResults(){
+        if (children == null) {
+            children = new ArrayList<BitBoardNode>();
+            // Later in game its faster to look at just empty spaces.
+            // Early in game might be faster to look at it from occupied spaces.
+            // or
+            // weed out based on boarder squares
+
+            long tempUnOcc = unoccupied;
+            long searchBit = Long.lowestOneBit(tempUnOcc);
+            long surrounding;
+            long surroundingOpp;
+            this.moves = 0L;
+
+            long searchDirBit;
+            int searchDirDiff;
+            int squareIndex;
+            int closestEmptyIndex;
+            int closestMoverIndex;
+            long searchDirRay;
+            long moverRayIntersect;
+            long cancleDirRay;
+            /**
+             * used to clear bits in SearchDirRay that occer after
+             * closestMoverBit
+             */
+
+            // if(Long.bitCount(occupied) < 32){//Note May should skip this
+            // comparison and just default to one or the other
+            while (searchBit != 0L) {
+                squareIndex = Long.numberOfTrailingZeros(searchBit);
+                surrounding = ajacentArray[squareIndex];// gets surrounding squares from static table
+                surroundingOpp = surrounding & opponentPieces;
+                long moverResult = 0L;
+                while (surroundingOpp != 0L) {// if none of the surrounding squares are an opponent then its not a valid move
+
+                    searchDirBit = Long.lowestOneBit(surroundingOpp);
+                    searchDirDiff = Long.numberOfTrailingZeros(searchDirBit)
+                            - squareIndex;// This diff lets us search in a diretion using bitshift.
+                    searchDirRay = rayArray[squareIndex][translationArray[searchDirDiff + 9]];
+                    moverRayIntersect = searchDirRay & moverPieces;
+                    if (moverRayIntersect != 0L) {// if mover has no pieces in ray path its not valid move.
+                        if (searchDirDiff > 0) {
+                            closestMoverIndex = Long
+                                    .numberOfTrailingZeros(moverRayIntersect);
+                            closestEmptyIndex = Long
+                                    .numberOfTrailingZeros(searchDirRay
+                                            & unoccupied);
+                            if (closestMoverIndex < closestEmptyIndex) {
+                                cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
+                                moverResult = moverResult | searchBit
+                                        | (searchDirRay ^ cancleDirRay);
+                            }
+                        } else {
+                            closestMoverIndex = Long
+                                    .numberOfLeadingZeros(moverRayIntersect);
+                            closestEmptyIndex = Long
+                                    .numberOfLeadingZeros(searchDirRay
+                                            & unoccupied);
+                            if (closestMoverIndex < closestEmptyIndex) {
+                                cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
+                                moverResult = moverResult | searchBit
+                                        | (searchDirRay ^ cancleDirRay);
+                            }
+                        }
+                    }
+
+                    if (moverResult != 0L) {
+                        long newOpponent = moverResult;
+                        long newMover = (opponentPieces & moverResult)
+                                ^ opponentPieces;
+                        children.add(new BitBoardNode(newMover, newOpponent));
+                    }
+                    surroundingOpp = surroundingOpp & ~searchDirBit;// zero's
+                                                                    // search
+                                                                    // Direction
+                }
+
+                tempUnOcc = tempUnOcc ^ searchBit;// sets searched bit to zero
+                searchBit = Long.lowestOneBit(tempUnOcc);// finds new
+                                                         // bit(square) to
+                                                         // search.
+            }
+        }
+        return children;
     }
     
-    public long getMoveResult(long movers, long opponent, long move){
+    public BitBoardNode getMoveResult(long movers, long opponent, long move){
        long moverResult = movers | move;
-//       long surroundingOpp = opponent & ajacentArray[Long.numberOfTrailingZeros(move)];
-//       long searchDirBit;
-//       long searchDirRay;
-//       long moverRayIntersect;
-//       long cancleDirRay;/**used to clear bits in SearchDirRay that occer after closestMoverBit */
-//       
-//       /**searchDirDiff is a number between -9 and 9 its input into the translation 
-//        * Array returns a number 1-8 for the 8 directions next to a square that number
-//        * can then be used to get the group of squares(called searchDirRay) proceeding away from the search 
-//        * in that given direction */
-//       int searchDirDiff;
-//       int moveSquareIndex = Long.numberOfTrailingZeros(move);
-//       
-//       while (surroundingOpp != 0L) {
-//           
-//           searchDirBit = Long.lowestOneBit(surroundingOpp);
-//           
-//           searchDirDiff = Long.numberOfTrailingZeros(searchDirBit)
-//                   - moveSquareIndex;// This diff lets us search in a diretion using bitshift.
-//           searchDirRay = rayArray[moveSquareIndex][translationArray[searchDirDiff + 9]];
-//           moverRayIntersect = searchDirRay & movers;
-//           
-//            if(moverRayIntersect!= 0L){// if mover has no pieces in ray path its not valid move.
-//                    if(searchDirDiff > 0){
-//                        closestMoverIndex = Long.numberOfTrailingZeros(moverRayIntersect);
-//                        closestEmptyIndex = Long.numberOfTrailingZeros(searchDirRay & unoccupied);
-//                        if(closestMoverIndex < closestEmptyIndex){
-//                            cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
-//                            moverResult = moverResult | (searchDirRay ^ cancleDirRay);//
-//                        }
-//                    }else{
-//                        closestMoverIndex = Long.numberOfLeadingZeros(moverRayIntersect);
-//                        closestEmptyIndex = Long.numberOfLeadingZeros(searchDirRay & unoccupied);
-//                        if(closestMoverIndex < closestEmptyIndex) {
-//                            cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
-//                            moverResult = moverResult | (searchDirRay ^ cancleDirRay);//
-//                        }
-//                    }
-//                }
-//            
-//           
-//           
-//           surroundingOpp = surroundingOpp & ~searchDirBit;// zero's search
-//           // Direction
-//       }
+       long surroundingOpp = opponent & ajacentArray[Long.numberOfTrailingZeros(move)];
+       long searchDirBit;
+       long searchDirRay;
+       long moverRayIntersect;
+       long cancleDirRay;/**used to clear bits in SearchDirRay that occer after closestMoverBit */
        
-       return  moverResult;
+       int closestEmptyIndex;
+       int closestMoverIndex;
+       
+       /**searchDirDiff is a number between -9 and 9 its input into the translation 
+        * Array returns a number 1-8 for the 8 directions next to a square that number
+        * can then be used to get the group of squares(called searchDirRay) proceeding away from the search 
+        * in that given direction */
+       int searchDirDiff;
+       int moveSquareIndex = Long.numberOfTrailingZeros(move);
+       
+       while (surroundingOpp != 0L) {
+           
+           searchDirBit = Long.lowestOneBit(surroundingOpp);
+           
+           searchDirDiff = Long.numberOfTrailingZeros(searchDirBit)
+                   - moveSquareIndex;// This diff lets us search in a diretion using bitshift.
+           searchDirRay = rayArray[moveSquareIndex][translationArray[searchDirDiff + 9]];
+           moverRayIntersect = searchDirRay & movers;
+           
+            if(moverRayIntersect!= 0L){// if mover has no pieces in ray path its not valid move.
+                    if(searchDirDiff > 0){
+                        closestMoverIndex = Long.numberOfTrailingZeros(moverRayIntersect);
+                        closestEmptyIndex = Long.numberOfTrailingZeros(searchDirRay & unoccupied);
+                        if(closestMoverIndex < closestEmptyIndex){
+                            cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
+                            moverResult = moverResult | (searchDirRay ^ cancleDirRay);
+                        }
+                    }else{
+                        closestMoverIndex = Long.numberOfLeadingZeros(moverRayIntersect);
+                        closestEmptyIndex = Long.numberOfLeadingZeros(searchDirRay & unoccupied);
+                        if(closestMoverIndex < closestEmptyIndex) {
+                            cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
+                            moverResult = moverResult | (searchDirRay ^ cancleDirRay);//
+                        }
+                    }
+                }
+            
+           
+           
+           surroundingOpp = surroundingOpp & ~searchDirBit;// zero's search
+           // Direction
+       }
+       long newOpponent = moverResult;
+       long newMover = (opponent & moverResult) ^ opponent;
+       return  new BitBoardNode(newMover, newOpponent);
     }
 
     public long getLegalMoves( long movers, long opponent) {
@@ -334,7 +430,7 @@ public class BitBoardNode {
         char tchar;
         
         long wBoard = this.moverPieces;
-        BitBoardDriver.printSBoard(moverPieces);
+//        BitBoardDriver.printSBoard(moverPieces);
         long bBoard = this.opponentPieces;
         long tMoves = this.moves;
 

@@ -8,14 +8,15 @@ import edu.uab.cis.reversi.Board;
 import edu.uab.cis.reversi.Square;
 import edu.uab.cis.reversi.Strategy;
 
-public class FirstStratagy implements Strategy {
+public class BitFirstStratagy implements Strategy {
     private long timeLimit;
     private TimeUnit timeunit;
 
     long timelimit;
     @Override
     public Square chooseSquare(Board board) {
-        Square move = Square.PASS;
+        
+        Square move;
         
         int minMobility =  Integer.MAX_VALUE;
         Set<Square> moves = board.getCurrentPossibleSquares();
@@ -28,7 +29,7 @@ public class FirstStratagy implements Strategy {
         }
        
         
-        return move;
+        return null;
     }
     
     @Override

@@ -1,5 +1,7 @@
 package testdrivers;
 
+import java.util.ArrayList;
+
 import edu.uab.cis.reversi.Board;
 import edu.uab.cis.reversi.strategy.group3.BitBoardNode;
 
@@ -7,6 +9,20 @@ public class BitBoardDriver {
 
     public static final boolean TPRINT = true;
     static final long bitmask = 1;
+    
+    private static void printMoveResutls(){
+        Board board = new Board();
+        BitBoardNode bitBoard = new BitBoardNode(board);
+        System.out.println(bitBoard);
+        System.out.println(board);
+        ArrayList<BitBoardNode> moves = bitBoard.getMovesAndResults();
+        int count = 0;
+        for(BitBoardNode move: moves){
+            System.out.println("************************************************\n" + count);
+            System.out.println(move.toString());
+            count++;
+        }
+    }
 
     private static void printAgg() {
         long test[] = BitBoardNode.ajacentArray;
@@ -152,10 +168,11 @@ public class BitBoardDriver {
     }
 
     public static void main(String[] args) {
-        testBoardToBit();
+//        testBoardToBit();
 //        printRayArray(12);
 //        printAgg();
 //        searchMoves();
+        printMoveResutls();
     }
     
   // ###################

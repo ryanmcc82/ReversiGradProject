@@ -59,9 +59,9 @@ public class WorkSheet {
 	    newPlayerSquareCounts = newPlayerSquareCounts.plus(board.getCurrentPlayer(), playerSquareCount);
 	    newPlayerSquareCounts = newPlayerSquareCounts.plus(Opponent, opponentSquareCount);
 		
-	    board.setMoves(newMoves);
-		board.setSquareOwners(newOwners);
-	    board.setPlayerSquareCounts(newPlayerSquareCounts);
+//	    board.setMoves(newMoves);
+//		board.setSquareOwners(newOwners);
+//	    board.setPlayerSquareCounts(newPlayerSquareCounts);
 			
 	}
 }
