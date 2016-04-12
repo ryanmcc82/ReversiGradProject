@@ -38,8 +38,7 @@ public class Book {
 
     private void readData() throws IOException {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(
-                    "book.txt"));
+            BufferedReader reader = new BufferedReader(new FileReader("book.txt"));
             String temp = reader.readLine();
             while (temp != null) {
                 String[] split = temp.split(" ");
