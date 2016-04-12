@@ -20,7 +20,12 @@ public class Book {
 	private Player player1 = Player.BLACK;
     private Player player2 = Player.WHITE;
 	public Book(){
-		
+		try {
+			readData();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	
