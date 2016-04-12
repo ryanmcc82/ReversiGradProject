@@ -184,6 +184,10 @@ public class Board {
   public List<Move> getMoves() {
     return this.moves;
   }
+  
+  public void setMoves(PSequence<Move> M){
+	  this.moves = M;
+  }
 
   /**
    * @return A mapping from squares to the players currently occupying them.
@@ -191,12 +195,21 @@ public class Board {
   public Map<Square, Player> getSquareOwners() {
     return this.owners;
   }
+  
+  public void setSquareOwners(PMap<Square, Player> M)
+  {
+	  this.owners = M;
+  }
 
   /**
    * @return The count of squares currently occupied by each player.
    */
   public Map<Player, Integer> getPlayerSquareCounts() {
     return this.playerSquareCounts;
+  }
+  
+  public void setPlayerSquareCounts(PMap<Player, Integer> M){
+	  this.playerSquareCounts = M;
   }
 
   /**
@@ -234,6 +247,11 @@ public class Board {
    */
   public Set<Square> getCurrentPossibleSquares() {
     return this.possibleSquares.keySet();
+  }
+  
+  public PMap<Square, PSet<Square>> getPossibleSquares()
+  {
+	  return this.possibleSquares;
   }
 
   /**
