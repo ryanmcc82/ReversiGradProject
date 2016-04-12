@@ -20,14 +20,14 @@ public class BitFirstStratagy implements Strategy {
     public Square chooseSquare(Board board) {
         Square move;
         BitBoardNode currentState = new BitBoardNode(board);
-        System.out.println("\nCurrent\n" + currentState);
-        System.out.println(currentState.moverPieces + ":" + currentState.opponentPieces);
+//        System.out.println("\nCurrent\n" + currentState);
+//        System.out.println(currentState.moverPieces + ":" + currentState.opponentPieces);
         HashMap<BitBoardNode, Square>  moveMap = BitBoardNode.moveToSquare7(board);
         
         BitBoardNode choiceState = currentState.getBestDoubleMobility();
         move = moveMap.get(choiceState);
-        System.out.println(moveMap);
-        System.out.println("\nchoice\n" + choiceState + "\n" + move);
+//        System.out.println(moveMap);
+//        System.out.println("\nchoice\n" + choiceState + "\n" + move);
         if(move == null) return Square.PASS;
        
         return move;

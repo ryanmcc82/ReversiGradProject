@@ -84,18 +84,19 @@ public class BitBoardDriver {
     }
     
     private static void printRayArray(int i) {
+        long origin = BitBoardNode.positionArray[i];
         long test[] = BitBoardNode.rayArray[i];
         int count = 0;
 
-        for (long sq : test) {
-            count++;
+        for (int j= 0; j < 8 ;j++) {
+            long sq = test[j];
             System.out
                     .println("\n*********************************************************\n"
-                            + count
+                            + j
                             + "\nNumber Of Bits Set: "
                             + Long.bitCount(sq));
             printBinary(sq);
-            printSBoard(sq);
+            printwhole(sq, 0L, origin);
         }
     }
 
@@ -235,14 +236,19 @@ public class BitBoardDriver {
 
     public static void main(String[] args) {
 //        testBoardToBit();
-//        printRayArray(12);
+//        printRayArray(63-8);
+        
+        for(int i =54; i< 55; i++){
+            System.out.println("**********************************************\nRays["+ i+"]\n");
+            printRayArray(i);
+        }
 //        printAgg();
 //        searchMoves();
 //        bitBoardhashTable();
 //        printMovesResutls();
 //        printMoveResutls();
 //        bitFirstStratagyTest();
-        roatation();
+//        roatation();
     }
     
   // ###################

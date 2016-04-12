@@ -91,7 +91,7 @@ public class BitBoardNode {
 
     public static long getforwardSlantRay(int length) {
         long temp = 0b1L;
-        long tempH = 0;
+        long tempH = 0L;
         for (int i = 0; i < length; i++) {
             tempH = tempH | (temp << (9 * i));
         }
@@ -100,7 +100,7 @@ public class BitBoardNode {
 
     public static long getTopforwardSlantRay(int length) {
         long temp = 0b1L;
-        long tempH = 0;
+        long tempH = 0L;
         for (int i = 1; i < length + 1; i++) {
             tempH = tempH | (temp << (63 - (9 * i)));
         }
@@ -109,7 +109,7 @@ public class BitBoardNode {
 
     public static long getBackSlantRay(int length) {
         long temp = 0b1L;
-        long tempH = 0;
+        long tempH = 0b0L;
         for (int i = 0; i < (length); i++) {
             tempH = tempH | (temp << (7 * i));
         }
@@ -118,7 +118,7 @@ public class BitBoardNode {
 
     public static long getTopBackSlantRay(int length) {
         long temp = 0b1L;
-        long tempH = 0;
+        long tempH = 0b0L;
         for (int i = 0; i < (length); i++) {
             tempH = tempH | (temp << (56 - (7 * i)));
         }
@@ -128,7 +128,7 @@ public class BitBoardNode {
     public static final long vertRay;
     static {
         long temp = 0b1L;
-        long tempH = 0;
+        long tempH = 0b0L;
         for (int i = 0; i < 8; i++) {
             tempH = tempH | (temp << (8 * i));
         }
@@ -137,7 +137,7 @@ public class BitBoardNode {
 
     public static long horizontalRay(int length) {
         long temp = 0b1L;
-        long tempH = 0;
+        long tempH = 0b0L;
         for (int i = 1; i < (length + 1); i++) {
             tempH = tempH | (temp << i);
         }
@@ -162,28 +162,33 @@ public class BitBoardNode {
             int leftRayLength = 7 - (i % 8);
             int rightRayLength = (i % 8);
             long leftUp = getforwardSlantRay(leftRayLength) << (i + 9);
+            if(i + 9 > 63 )leftUp = 0b0L;
             rayArray[i][7] = leftUp;
 
             long up = vertRay << (i + 8);
+            if(i > 63-8)up = 0b0L;
             rayArray[i][6] = up;
 
             long rightUp = getBackSlantRay(rightRayLength) << (i + 7);
+            if(i + 7 > 62 )rightUp = 0b0L;
             rayArray[i][5] = rightUp;
 
             long left = horizontalRay(leftRayLength) << i;
             rayArray[i][4] = left;
 
-            long right = horizontalRay(rightRayLength) << i
-                    - (rightRayLength + 1);
+            long right = horizontalRay(rightRayLength) << (i
+                    - (rightRayLength + 1));
+            if(i<8){right = horizontalRay(rightRayLength)>>>1;}
             rayArray[i][3] = right;
 
-            long leftDown = getTopBackSlantRay(leftRayLength) >>> 63 - i;
+            long leftDown = getTopBackSlantRay(leftRayLength) >>> (63 - i);
             rayArray[i][2] = leftDown;
 
-            long down = vertRay >>> 64 - i;
+            long down = vertRay >>> (64 - i);
+            if(i==0)down = 0b0L;
             rayArray[i][1] = down;
 
-            long rightDown = getTopforwardSlantRay(rightRayLength) >>> 63 - i;
+            long rightDown = getTopforwardSlantRay(rightRayLength) >>> (63 - i);
             rayArray[i][0] = rightDown;
         }
 
@@ -526,7 +531,7 @@ public class BitBoardNode {
         for (BitBoardNode bitBoard : moveList) {
             bitBoard.getLegalMoves();
 //            System.out.println(bitBoard);
-            int mobility = Long.bitCount(bitBoard.play(0L).getLegalMoves())
+            int mobility = //Long.bitCount(bitBoard.play(0L).getLegalMoves())
                     - bitBoard.getMobility();
 
             if (mobility > bestscore) {
@@ -591,10 +596,8 @@ public class BitBoardNode {
         char tchar;
         
         long wBoard = this.moverPieces;
-//        BitBoardDriver.printSBoard(moverPieces);
         long bBoard = this.opponentPieces;
         long tMoves = this.moves;
-        System.out.println("\n!!:"+ moves);
 
         for (int i = 0; i < 8; i++) {
             sb.insert(0, "//#");
