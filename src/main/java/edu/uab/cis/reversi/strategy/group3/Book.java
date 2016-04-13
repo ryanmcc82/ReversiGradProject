@@ -28,52 +28,51 @@ public class Book {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-       // printBook();
+
     }
-    private void printBook(){
-        //map = new HashMap<List<Move>, Square> map;
-        for( Entry<List<Move>, Square> entry: map.entrySet()){
+
+    private void printBook() {
+        for (Entry<List<Move>, Square> entry : map.entrySet()) {
             if (entry.getKey().size() < 4)
-            System.out.println(entry);
+                System.out.println(entry);
         }
     }
- 
 
     private void readData() throws IOException {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("book.txt"));
+            BufferedReader reader = new BufferedReader(new FileReader(
+                    "book.txt"));
             String temp = reader.readLine();
             while (temp != null) {
                 String[] split = temp.split(" ");
                 temp = reader.readLine();
                 ArrayList<Move> seq = new ArrayList<Move>();
-                Move move1 = new Move(new Square(
-                        Integer.parseInt(split[0]),
+                Move move1 = new Move(new Square(Integer.parseInt(split[0]),
                         Integer.parseInt(split[1])), player1);
                 seq.add(move1);
-                for (int i = 1; i <= ((split.length - 1) / 2 ); i++) {
+                for (int i = 1; i <= ((split.length - 1) / 2); i++) {
 
-                        if (i % 2 == 1) {
-                            Square thisMove = new Square(
-                                    Integer.parseInt(split[i * 2]),
-                                    Integer.parseInt(split[i * 2 + 1]));
-                            Move moveP2 = new Move(thisMove, player2);
-                            
-                            if (!map.containsKey(seq)) {
-                                map.put(new ArrayList<Move>(seq), thisMove);
-                            }
-                            seq.add(moveP2);
-                        } else {
-                            Square thisMove = new Square(
-                                    
-                                    Integer.parseInt(split[i * 2]),
-                                    Integer.parseInt(split[i * 2 + 1]));
-                            Move moveP1 = new Move(thisMove, player1);
-                            if (!map.containsKey(seq)) {
-                                map.put(new ArrayList<Move>(seq), thisMove);
-                            }
-                            seq.add(moveP1);
-                        }    
+                    if (i % 2 == 1) {
+                        Square thisMove = new Square(
+                                Integer.parseInt(split[i * 2]),
+                                Integer.parseInt(split[i * 2 + 1]));
+                        Move moveP2 = new Move(thisMove, player2);
+
+                        if (!map.containsKey(seq)) {
+                            map.put(new ArrayList<Move>(seq), thisMove);
+                        }
+                        seq.add(moveP2);
+                    } else {
+                        Square thisMove = new Square(
+
+                        Integer.parseInt(split[i * 2]),
+                                Integer.parseInt(split[i * 2 + 1]));
+                        Move moveP1 = new Move(thisMove, player1);
+                        if (!map.containsKey(seq)) {
+                            map.put(new ArrayList<Move>(seq), thisMove);
+                        }
+                        seq.add(moveP1);
+                    }
 
                 }
                 temp = reader.readLine();
@@ -90,11 +89,9 @@ public class Book {
 
     public Square checkBook(List<Move> history) {
 
-        if(history.length == 0){
-    		return new Square(3,2);
-    	}
-    	else if (loaded && map.containsKey(history)) {
-            System.out.println(history + " : " + map.get(history));
+        if (history.size() == 0) {
+            return new Square(3, 2);
+        } else if (loaded && map.containsKey(history)) {
             return map.get(history);
         } else
             return null;

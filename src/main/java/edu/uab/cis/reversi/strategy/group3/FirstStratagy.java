@@ -22,7 +22,7 @@ public class FirstStratagy implements Strategy {
     public FirstStratagy() {
         openingBook = new Book();
         this.thisID = uniqueID();
-        System.out.println("Done Loading: " + thisID);
+//        System.out.println("Done Loading: " + thisID);
     }
     
     public static int uniqueID(){
@@ -43,11 +43,11 @@ public class FirstStratagy implements Strategy {
         if (inBook) {
             move = openingBook.checkBook(movesList);
             if (move == null) {
-                System.out.println("BookDepth: " + testcount + " : Fail " + thisID);
-                System.out.println(movesList);
+//                System.out.println("BookDepth: " + testcount + " : Fail " + thisID);
+//                System.out.println(movesList);
                 inBook = false;
             } else {
-                System.out.println("BookDepth: " + testcount + " : " + move + " : " + thisID);
+//                System.out.println("BookDepth: " + testcount + " : " + move + " : " + thisID);
                 return move;
             }
         }
