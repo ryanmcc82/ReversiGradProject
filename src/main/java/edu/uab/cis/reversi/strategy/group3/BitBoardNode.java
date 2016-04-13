@@ -10,6 +10,8 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
+import org.hamcrest.CoreMatchers;
+
 import edu.uab.cis.reversi.Board;
 import edu.uab.cis.reversi.Player;
 import edu.uab.cis.reversi.Square;
@@ -49,6 +51,12 @@ public class BitBoardNode {
             temp = temp | 0b10000001L << (8 * i);
         }
         patternEdges = temp;
+    }
+    
+    public static final long patternCorners;
+    static{
+        Long temp = 0b10000001L| 0b10000001L <<(56);
+        patternCorners = temp;
     }
 
     public static final long positionArray[];
@@ -539,6 +547,53 @@ public class BitBoardNode {
                 bestscore = mobility;
                 tiedBest.clear();
             } else if (mobility == bestscore) {
+                tiedBest.add(bitBoard);
+            }
+        }
+        if (tiedBest.isEmpty()) {
+            return bestMove;
+        }
+        tiedBest.add(bestMove);
+        return tiedBest.get((int) (tiedBest.size() * Math.random()));
+    }
+    
+    public int getCornerScore(){
+        long emptyCorners = patternCorners & unoccupied;
+        long dangerZones = 0L;
+        long cornerBit;
+        while(emptyCorners != 0b0L){
+            cornerBit = Long.highestOneBit(emptyCorners);
+            dangerZones = dangerZones | ajacentArray[Long.numberOfTrailingZeros(cornerBit)];
+            emptyCorners = emptyCorners ^ cornerBit;
+        }
+        
+        int moverscore = 25 * Long.bitCount(moverPieces & patternCorners) 
+                - (15 * Long.bitCount(moverPieces & dangerZones)) ;
+        
+        int opponentscore = 25 * Long.bitCount(opponentPieces & patternCorners)-
+                (15 * Long.bitCount(moverPieces & dangerZones));
+        return moverscore - opponentscore;
+    }
+    
+    public BitBoardNode getBestMobilityCorners() {
+        BitBoardNode currentstate = this;
+        ArrayList<BitBoardNode> moveList = this.getMovesAndResults();
+        BitBoardNode bestMove = currentstate;
+        int bestscore = Integer.MIN_VALUE;
+
+        ArrayList<BitBoardNode> tiedBest = new ArrayList<BitBoardNode>(moveList.size());
+
+        for (BitBoardNode bitBoard : moveList) {
+            bitBoard.getLegalMoves();
+//            System.out.println(bitBoard);
+            int moveScore = - bitBoard.getCornerScore()
+                    - bitBoard.getMobility();
+
+            if (moveScore > bestscore) {
+                bestMove = bitBoard;
+                bestscore = moveScore;
+                tiedBest.clear();
+            } else if (moveScore == bestscore) {
                 tiedBest.add(bitBoard);
             }
         }

@@ -1,5 +1,6 @@
 package edu.uab.cis.reversi.strategy.group3;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -14,54 +15,37 @@ public class Group3Strategy implements Strategy {
     private TimeUnit timeunit;
     private Book openingBook;
     private boolean inBook = true;
-    private static int id = 0;
-    private int thisID;
-    int testcount = 0;
 
-    public Group3Strategy() {
-        openingBook = new Book();
-        this.thisID = uniqueID();
-//        System.out.println("Done Loading: " + thisID);
+    public Group3Strategy(){
+        this.openingBook = new Book();
     }
+
     
-    public static int uniqueID(){
-        int temp = id;
-        ++id;
-        return temp;
-    }
+    long timelimit;
     @Override
     public Square chooseSquare(Board board) {
         List<Move> movesList = board.getMoves();
         if(movesList.size() < 3){
             inBook = true;
         }
-        testcount  = movesList.size();
-        
 
         Square move;
         if (inBook) {
             move = openingBook.checkBook(movesList);
             if (move == null) {
-//                System.out.println("BookDepth: " + testcount + " : Fail " + thisID);
-//                System.out.println(movesList);
                 inBook = false;
             } else {
-//                System.out.println("BookDepth: " + testcount + " : " + move + " : " + thisID);
                 return move;
             }
         }
-        move = Square.PASS;
-
-        int minMobility = Integer.MAX_VALUE;
-        Set<Square> moves = board.getCurrentPossibleSquares();
-        for (Square moveP : moves) {
-            int mobility = board.play(moveP).getCurrentPossibleSquares().size();
-            if (mobility < minMobility) {
-                move = moveP;
-                minMobility = mobility;
-            }
-        }
-
+        
+        BitBoardNode currentState = new BitBoardNode(board);
+        HashMap<BitBoardNode, Square>  moveMap = BitBoardNode.moveToSquare7(board);
+        
+        BitBoardNode choiceState = currentState.getBestMobilityCorners();
+        move = moveMap.get(choiceState);
+        if(move == null) return Square.PASS;
+       
         return move;
     }
     
@@ -70,8 +54,4 @@ public class Group3Strategy implements Strategy {
         this.timeLimit = time;
         this.timeunit = unit;
     }
-    
-    
-
-
 }

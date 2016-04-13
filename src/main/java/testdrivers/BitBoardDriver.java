@@ -238,10 +238,10 @@ public class BitBoardDriver {
 //        testBoardToBit();
 //        printRayArray(63-8);
         
-        for(int i =54; i< 55; i++){
-            System.out.println("**********************************************\nRays["+ i+"]\n");
-            printRayArray(i);
-        }
+//        for(int i =54; i< 55; i++){
+//            System.out.println("**********************************************\nRays["+ i+"]\n");
+//            printRayArray(i);
+//        }
 //        printAgg();
 //        searchMoves();
 //        bitBoardhashTable();
@@ -249,6 +249,7 @@ public class BitBoardDriver {
 //        printMoveResutls();
 //        bitFirstStratagyTest();
 //        roatation();
+        printSBoard(BitBoardNode.patternCorners);
     }
     
   // ###################

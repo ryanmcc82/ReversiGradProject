@@ -43,7 +43,7 @@ public class BitFirstStratagy implements Strategy {
         BitBoardNode currentState = new BitBoardNode(board);
         HashMap<BitBoardNode, Square>  moveMap = BitBoardNode.moveToSquare7(board);
         
-        BitBoardNode choiceState = currentState.getBestDoubleMobility();
+        BitBoardNode choiceState = currentState.getBestMobilityCorners();
         move = moveMap.get(choiceState);
         if(move == null) return Square.PASS;
        
