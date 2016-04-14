@@ -1,9 +1,12 @@
 package edu.uab.cis.reversi.strategy.group3;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,8 +43,12 @@ public class Book {
 
     private void readData() throws IOException {
         try {
+            URL url = getClass().getResource("book.txt");
+            File file = new File(url.toURI());
             BufferedReader reader = new BufferedReader(new FileReader(
-                    "book.txt"));
+                    file));
+//            BufferedReader reader = new BufferedReader(new FileReader(
+//                    "book.txt"));
             String temp = reader.readLine();
             while (temp != null) {
                 String[] split = temp.split(" ");
@@ -83,6 +90,9 @@ public class Book {
             this.loaded = false;
             e.printStackTrace();
 
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
 
     }

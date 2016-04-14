@@ -488,7 +488,7 @@ public class BitBoardNode {
     
     public static HashMap<BitBoardNode, Square> moveToSquare(Board boardparent){
         return 
-        (HashMap<BitBoardNode, Square>) boardparent.getPossibleSquares().keySet().stream()
+        (HashMap<BitBoardNode, Square>) boardparent.getCurrentPossibleSquares().stream()
         .collect( Collectors.toMap( (Square square) -> new BitBoardNode(boardparent.play(square)),(Square square) -> square ));
     }
     

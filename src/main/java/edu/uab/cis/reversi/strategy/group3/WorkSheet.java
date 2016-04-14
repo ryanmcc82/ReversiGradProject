@@ -2,6 +2,7 @@ package edu.uab.cis.reversi.strategy.group3;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.pcollections.PMap;
 import org.pcollections.PSequence;
@@ -30,34 +31,34 @@ public class WorkSheet {
 
 	public void run() {
 		// TODO Auto-generated method stub
-		List<Move> moves = board.getMoves();
-		
-		PSequence<Move> newMoves = ((PSequence<Move>) moves).plus(move);
-		
-		Square square = move.getSquare();
-		Player player = move.getPlayer();
-		
-		Player Opponent = board.getCurrentPlayer().opponent();
-		
-		PMap<Square, Player> newOwners = (PMap<Square, Player>) board.getSquareOwners();
-			
-		newOwners.plus(square, player);
-		PMap<Square, PSet<Square>> possiblesquares = board.getPossibleSquares();
-				
-		PSet<Square> captures = possiblesquares.get(square);
-	    for (Square capture : captures) {
-	      newOwners = newOwners.plus(capture, player);
-	    }
-	    
-	    Map<Player, Integer> playerSquareCounts = board.getPlayerSquareCounts();
-	    
-	    
-	    int playerSquareCount = playerSquareCounts.get(player) + captures.size() + 1;
-	    int opponentSquareCount = playerSquareCounts.get(Opponent) - captures.size();
-	    
-	    PMap<Player, Integer> newPlayerSquareCounts = (PMap<Player, Integer>) board.getPlayerSquareCounts();
-	    newPlayerSquareCounts = newPlayerSquareCounts.plus(board.getCurrentPlayer(), playerSquareCount);
-	    newPlayerSquareCounts = newPlayerSquareCounts.plus(Opponent, opponentSquareCount);
+//		List<Move> moves = board.getMoves();
+//		
+//		PSequence<Move> newMoves = ((PSequence<Move>) moves).plus(move);
+//		
+//		Square square = move.getSquare();
+//		Player player = move.getPlayer();
+//		
+//		Player Opponent = board.getCurrentPlayer().opponent();
+//		
+//		PMap<Square, Player> newOwners = (PMap<Square, Player>) board.getSquareOwners();
+//			
+//		newOwners.plus(square, player);
+//		Set<Square> possiblesquares = board.getCurrentPossibleSquares();
+//				
+//		PSet<Square> captures = possiblesquares.get(square);
+//	    for (Square capture : captures) {
+//	      newOwners = newOwners.plus(capture, player);
+//	    }
+//	    
+//	    Map<Player, Integer> playerSquareCounts = board.getPlayerSquareCounts();
+//	    
+//	    
+//	    int playerSquareCount = playerSquareCounts.get(player) + captures.size() + 1;
+//	    int opponentSquareCount = playerSquareCounts.get(Opponent) - captures.size();
+//	    
+//	    PMap<Player, Integer> newPlayerSquareCounts = (PMap<Player, Integer>) board.getPlayerSquareCounts();
+//	    newPlayerSquareCounts = newPlayerSquareCounts.plus(board.getCurrentPlayer(), playerSquareCount);
+//	    newPlayerSquareCounts = newPlayerSquareCounts.plus(Opponent, opponentSquareCount);
 		
 //	    board.setMoves(newMoves);
 //		board.setSquareOwners(newOwners);
