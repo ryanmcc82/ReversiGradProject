@@ -185,6 +185,10 @@ public class Board {
     return this.moves;
   }
   
+  public void setMoves(PSequence<Move> M){
+	  this.moves = M;
+  }
+
   /**
    * @return A mapping from squares to the players currently occupying them.
    */
@@ -192,6 +196,11 @@ public class Board {
     return this.owners;
   }
   
+  public void setSquareOwners(PMap<Square, Player> M)
+  {
+	  this.owners = M;
+  }
+
   /**
    * @return The count of squares currently occupied by each player.
    */
