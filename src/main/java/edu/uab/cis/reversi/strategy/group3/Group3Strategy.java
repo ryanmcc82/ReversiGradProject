@@ -54,4 +54,16 @@ public class Group3Strategy implements Strategy {
         this.timeLimit = time;
         this.timeunit = unit;
     }
+
+    @Override
+    public String toString() {
+        return "bookOn: " +  true +
+                "\tcornerWeight: " + BitBoardNode.CORNERW+
+                "\txSquareWeight: " + BitBoardNode.XSQUAREW +
+                "\tcSquareWeight: " + BitBoardNode.CSQUAREW +
+                "\taSquareWeight: " + BitBoardNode.ASQUAREW +
+                "\tmobilityWeight: " + BitBoardNode.MOBILITYW+
+                "\tstabilityWeight: " + BitBoardNode.SABILITYW+
+                "\tparityWeight: " ;
+    }
 }

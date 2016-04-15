@@ -1,0 +1,10 @@
+ win	loss	 tie	fail
+1879	1291	  30	   0	VariableStrategy	bookOn: true	cornerWeight: 80	xSquareWeight: 35	cSquareWeight: 4	aSquareWeight: 1	mobilityWeight: 1	stabilityWeight: 0	parityWeight: 0
+1814	1364	  22	   0	VariableStrategy	bookOn: true	cornerWeight: 80	xSquareWeight: 40	cSquareWeight: 4	aSquareWeight: 1	mobilityWeight: 1	stabilityWeight: 0	parityWeight: 0
+1785	1386	  29	   0	VariableStrategy	bookOn: true	cornerWeight: 80	xSquareWeight: 15	cSquareWeight: 4	aSquareWeight: 1	mobilityWeight: 1	stabilityWeight: 0	parityWeight: 0
+1783	1391	  24	   2	VariableStrategy	bookOn: true	cornerWeight: 80	xSquareWeight: 25	cSquareWeight: 4	aSquareWeight: 1	mobilityWeight: 1	stabilityWeight: 0	parityWeight: 0
+1757	1411	  32	   0	VariableStrategy	bookOn: true	cornerWeight: 80	xSquareWeight: 45	cSquareWeight: 4	aSquareWeight: 1	mobilityWeight: 1	stabilityWeight: 0	parityWeight: 0
+1754	1412	  34	   0	VariableStrategy	bookOn: true	cornerWeight: 80	xSquareWeight: 30	cSquareWeight: 4	aSquareWeight: 1	mobilityWeight: 1	stabilityWeight: 0	parityWeight: 0
+1752	1425	  23	   0	Group3Strategy	bookOn: true	cornerWeight: 80	xSquareWeight: 25	cSquareWeight: 4	aSquareWeight: 1	mobilityWeight: 1	stabilityWeight: 0	parityWeight:
+1728	1443	  27	   2	VariableStrategy	bookOn: true	cornerWeight: 80	xSquareWeight: 20	cSquareWeight: 4	aSquareWeight: 1	mobilityWeight: 1	stabilityWeight: 0	parityWeight: 0
+  30	3155	  15	   0	RandomStrategy	edu.uab.cis.reversi.strategy.baseline.RandomStrategy@58ceff1

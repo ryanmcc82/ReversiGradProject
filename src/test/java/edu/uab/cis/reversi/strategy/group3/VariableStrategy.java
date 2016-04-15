@@ -130,6 +130,7 @@ public class VariableStrategy implements Strategy {
                 "\txSquareWeight: " + xSqWeight +
                 "\tcSquareWeight: " + cSqWeight +
                 "\taSquareWeight: " + aSqWeight +
+                "\tmobilityWeight: " + moblitlityWeight+
                 "\tstabilityWeight: " + stabilityWeight+
                 "\tparityWeight: " + parityWeight;
     }

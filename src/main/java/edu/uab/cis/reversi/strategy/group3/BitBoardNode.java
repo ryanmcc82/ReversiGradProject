@@ -25,6 +25,13 @@ public class BitBoardNode {
     boolean movesSearched = false;
     static final long bitmask = 1;
 
+    public static final int CORNERW = 80;
+    public static final int XSQUAREW = 25;
+    public static final int ASQUAREW = 1;
+    public static final int CSQUAREW = 4;
+    public static final int MOBILITYW = 1;
+    public static final int SABILITYW = 0;
+
     /* Static References */
     /*********************************************************************************************************************************/
     // ###################
@@ -636,10 +643,36 @@ public class BitBoardNode {
                 - (xSquareW * Long.bitCount(moverPieces & xSquares))
                 - (cSquareW * Long.bitCount(moverPieces & cSquares));
 
-        int opponentscore = CornerW * Long.bitCount(opponentPieces & patternCorners)-
+        int opponentscore = CornerW * Long.bitCount(opponentPieces & patternCorners)
                 + (aSquareW * Long.bitCount(opponentPieces & aSquares))
                 - (xSquareW * Long.bitCount(opponentPieces & xSquares))
                 - (cSquareW * Long.bitCount(opponentPieces & cSquares));
+        return moverscore - opponentscore;
+    }
+
+    public int getPositionalScore(){
+        long emptyCorners = patternCorners & unoccupied;
+        long xSquares = 0L;
+        long cSquares = 0L;
+        long aSquares = 0L;
+        long cornerBit;
+        while(emptyCorners != 0b0L){
+            cornerBit = Long.highestOneBit(emptyCorners);
+            xSquares = xSquares | xSquaresArray[Long.numberOfTrailingZeros(cornerBit)];
+            cSquares = cSquares | cSquaresArray[Long.numberOfTrailingZeros(cornerBit)];
+            aSquares = aSquares | aSquaresArray[Long.numberOfTrailingZeros(cornerBit)];
+            emptyCorners = emptyCorners ^ cornerBit;
+        }
+
+        int moverscore = CORNERW * Long.bitCount(moverPieces & patternCorners)
+                + (ASQUAREW  * Long.bitCount(moverPieces & aSquares))
+                - (XSQUAREW * Long.bitCount(moverPieces & xSquares))
+                - (CSQUAREW  * Long.bitCount(moverPieces & cSquares));
+
+        int opponentscore = CORNERW * Long.bitCount(opponentPieces & patternCorners)
+                + (ASQUAREW  * Long.bitCount(opponentPieces & aSquares))
+                - (XSQUAREW * Long.bitCount(opponentPieces & xSquares))
+                - (CSQUAREW  * Long.bitCount(opponentPieces & cSquares));
         return moverscore - opponentscore;
     }
 
@@ -660,7 +693,7 @@ public class BitBoardNode {
         for (BitBoardNode bitBoard : moveList) {
             bitBoard.getLegalMoves();
 //            System.out.println(bitBoard);
-            int moveScore = - bitBoard.getCornerScore()
+            int moveScore = - bitBoard.getPositionalScore()
                     - bitBoard.getMobility();
 
             if (moveScore > bestscore) {

@@ -8,6 +8,8 @@ import edu.uab.cis.reversi.Player;
 import edu.uab.cis.reversi.Square;
 import edu.uab.cis.reversi.Strategy;
 
+import java.io.*;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,23 +73,29 @@ public class Reversi {
       strategy.setChooseSquareTimeLimit(timeout, timeoutUnit);
       strategies.add(strategy);
     }
-//    int mobWeight, int cornerW, int xSquareWeight, int cSquareWeight, int aSquareWeight,
-    for(int mobWeight = 0; mobWeight < 10; mobWeight += 2){
-      for(int cornerW = 0; cornerW < 100; cornerW += 10){
-        for(int xSquare = 0; xSquare < 60; xSquare += 10){
-          for(int cSquare = 0; cSquare < 20; cSquare += 2){
-            for(int aSquare = 0; aSquare < 20; aSquare += 2){
+//    Warning expands exponentially and can cause program to exceed java heep should vary 2 vars at most
+    boolean bookon = true; int mobWeight = 1; int cornerW = 80; int xSquare = 20; int cSquare = 4;int aSquare = 1;
+    for(mobWeight = 1; mobWeight < 2; mobWeight += 1){//init est: 1
+      for(cornerW = 80; cornerW < 90; cornerW += 20){
+        for(xSquare = 15; xSquare < 46; xSquare += 5){
+          for(cSquare = 4; cSquare < 5; cSquare += 1){//init est: 4
+            for(aSquare = 1; aSquare < 2; aSquare += 1){//init est 1
               VariableStrategy test = new VariableStrategy(true,mobWeight,cornerW,xSquare,cSquare,aSquare,0,0,0);
               test.setChooseSquareTimeLimit(timeout, timeoutUnit);
-              VariableStrategy test2 = new VariableStrategy(false,mobWeight,cornerW,xSquare,cSquare,aSquare,0,0,0);
-              test2.setChooseSquareTimeLimit(timeout, timeoutUnit);
+
               strategies.add(test);
-              strategies.add(test2);
+//              VariableStrategy test2 = new VariableStrategy(false,mobWeight,cornerW,xSquare,cSquare,aSquare,0,0,0);
+//              test2.setChooseSquareTimeLimit(timeout, timeoutUnit);
+//              strategies.add(test2);
             }
           }
         }
       }
     }
+
+//    VariableStrategy test2 = new VariableStrategy(false,1,40,20,4,1,0,0,0);
+//    test2.setChooseSquareTimeLimit(timeout, timeoutUnit);
+//    strategies.add(test2);
 
     // keep track of number of wins for each strategy
     final Map<Strategy, Multiset<Result>> results = Maps.newHashMap();
@@ -145,6 +153,15 @@ public class Reversi {
           strategy.getClass().getSimpleName(),
           strategy.toString());
     }
+
+//    URL url = getClass().getResource("book.txt");
+//    File file = new File(url.toURI());
+//    File newDest = new File((dest.getPath().endsWith(File.separator) ? dest.getPath() : dest.getPath() + File.separator) + "VarStTournamentResutls.txt");
+//    try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+//            new FileOutputStream("filename.txt"), "utf-8"))) {
+//      writer.write("something");
+//    }
+
   }
 
   private Map<Player, Strategy> strategies;
