@@ -73,11 +73,11 @@ public class Reversi {
       strategy.setChooseSquareTimeLimit(timeout, timeoutUnit);
       strategies.add(strategy);
     }
-//    Warning expands exponentially and can cause program to exceed java heep should vary 2 vars at most
-    boolean bookon = true; int mobWeight = 1; int cornerW = 80; int xSquare = 20; int cSquare = 4;int aSquare = 1;
+//    Warning expands exponentially and can cause program to exceed java heap should vary 2 vars at most
+    boolean bookon = true; int mobWeight = 1; int cornerW = 80; int xSquare = 30; int cSquare = 4;int aSquare = 1;
     for(mobWeight = 1; mobWeight < 2; mobWeight += 1){//init est: 1
-      for(cornerW = 80; cornerW < 90; cornerW += 20){
-        for(xSquare = 25; xSquare < 36; xSquare += 2){
+      for(cornerW = 65; cornerW < 90; cornerW += 10){
+        for(xSquare = 30; xSquare < 31; xSquare += 1){//init est: 31 or 30 NOTE performance is very close 20 - 35
           for(cSquare = 4; cSquare < 5; cSquare += 1){//init est: 4
             for(aSquare = 1; aSquare < 2; aSquare += 1){//init est 1
               VariableStrategy test = new VariableStrategy(true,mobWeight,cornerW,xSquare,cSquare,aSquare,0,0,0);
