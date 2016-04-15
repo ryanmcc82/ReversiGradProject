@@ -1,14 +1,10 @@
-package testdrivers;
+package edu.uab.cis.reversi.strategy.group3;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import edu.uab.cis.reversi.Board;
 import edu.uab.cis.reversi.Square;
-import edu.uab.cis.reversi.strategy.group3.BitBoardNode;
-import edu.uab.cis.reversi.strategy.group3.BitFirstStratagy;
-import edu.uab.cis.reversi.strategy.group3.BoardBook;
-import edu.uab.cis.reversi.strategy.group3.Book;
 
 public class BitBoardDriver {
 
@@ -90,6 +86,57 @@ public class BitBoardDriver {
 
         for (int j= 0; j < 8 ;j++) {
             long sq = test[j];
+            System.out
+                    .println("\n*********************************************************\n"
+                            + j
+                            + "\nNumber Of Bits Set: "
+                            + Long.bitCount(sq));
+            printBinary(sq);
+            printwhole(sq, 0L, origin);
+        }
+    }
+
+    private static void printCArray() {
+        int corner[] = {0,7,56,63};
+
+        for (int j= 0; j < 4 ;j++) {
+            int i = corner[j];
+            long sq = BitBoardNode.cSquaresArray[i] ;
+            long origin = BitBoardNode.positionArray[i];
+            System.out
+                    .println("\n*********************************************************\n"
+                            + j
+                            + "\nNumber Of Bits Set: "
+                            + Long.bitCount(sq));
+            printBinary(sq);
+            printwhole(sq, 0L, origin);
+        }
+    }
+
+    private static void printAArray() {
+        int corner[] = {0,7,56,63};
+
+        for (int j= 0; j < 4 ;j++) {
+            int i = corner[j];
+            long sq = BitBoardNode.aSquaresArray[i] ;
+            long origin = BitBoardNode.positionArray[i];
+            System.out
+                    .println("\n*********************************************************\n"
+                            + j
+                            + "\nNumber Of Bits Set: "
+                            + Long.bitCount(sq));
+            printBinary(sq);
+            printwhole(sq, 0L, origin);
+        }
+    }
+
+    private static void printXArray() {
+        int corner[] = {0,7,56,63};
+
+        for (int j= 0; j < 4 ;j++) {
+            int i = corner[j];
+            long sq = BitBoardNode.xSquaresArray[i] ;
+            long origin = BitBoardNode.positionArray[i];
             System.out
                     .println("\n*********************************************************\n"
                             + j
@@ -249,7 +296,10 @@ public class BitBoardDriver {
 //        printMoveResutls();
 //        bitFirstStratagyTest();
 //        roatation();
-        printSBoard(BitBoardNode.patternCorners);
+//        printSBoard(BitBoardNode.patternCorners);
+        printAArray();
+        printCArray();
+        printXArray();
     }
     
   // ###################

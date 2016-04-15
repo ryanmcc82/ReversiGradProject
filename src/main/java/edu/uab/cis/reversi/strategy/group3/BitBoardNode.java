@@ -2,7 +2,6 @@
 package edu.uab.cis.reversi.strategy.group3;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -90,6 +89,55 @@ public class BitBoardNode {
             }
         }
     }
+
+    public static final long xSquaresArray[];
+    static {
+        xSquaresArray = new long[64];
+        for (int i = 0; i < 64; i++) {
+            if (i == 0) {// corner
+                xSquaresArray [i] = 0b10L << (8 + i);
+            } else if (i == 7) {// corner
+                xSquaresArray [i] = 0b1L << (7 + i);
+            } else if (i == 63) {// corner
+                xSquaresArray [i] =  0b1L << (i - 9);
+            } else if (i == 56) {// corner
+                xSquaresArray [i] = 0b10L << (i - 8);
+            }else{
+                xSquaresArray [i] = 0b0L;
+            }
+        }
+    }
+
+    public static final long cSquaresArray[];
+    static {
+        cSquaresArray = new long[64];
+        for (int i = 0; i < 64; i++) {
+            if (i == 0 |i == 7 | i == 63 | i == 56) {// corner
+                cSquaresArray [i] = ajacentArray[i] ^ xSquaresArray [i];
+            }else{
+                cSquaresArray [i] = 0b0L;
+            }
+        }
+    }
+
+    public static final long aSquaresArray[];
+    static {
+        aSquaresArray = new long[64];
+        for (int i = 0; i < 64; i++) {
+            if (i == 0) {// corner
+                aSquaresArray[i] = 0b1L << (2 + i) | 0b01L << (16 + i);
+            } else if (i == 7) {// corner
+                aSquaresArray[i] = 0b1L << (i - 2) | 0b01L << (16 + i);
+            } else if (i == 63) {// corner
+                aSquaresArray[i] = (0b1L << (i - 2)) | 0b1L << (i - 16);
+            } else if (i == 56) {// corner
+                aSquaresArray[i] = 0b1L << (2 + i) | 0b01L << ( i - 16);
+            }else{
+                aSquaresArray[i] = 0b0L;
+            }
+        }
+    }
+
 
     public static long getforwardSlantRay(int length) {
         long temp = 0b1L;
@@ -568,6 +616,38 @@ public class BitBoardNode {
                 (15 * Long.bitCount(moverPieces & dangerZones));
         return moverscore - opponentscore;
     }
+
+    public int getVarCornerScore(int CornerW, int xSquareW, int aSquareW,  int cSquareW){
+        long emptyCorners = patternCorners & unoccupied;
+        long xSquares = 0L;
+        long cSquares = 0L;
+        long aSquares = 0L;
+        long cornerBit;
+        while(emptyCorners != 0b0L){
+            cornerBit = Long.highestOneBit(emptyCorners);
+            xSquares = xSquares | xSquaresArray[Long.numberOfTrailingZeros(cornerBit)];
+            cSquares = cSquares | cSquaresArray[Long.numberOfTrailingZeros(cornerBit)];
+            aSquares = aSquares | aSquaresArray[Long.numberOfTrailingZeros(cornerBit)];
+            emptyCorners = emptyCorners ^ cornerBit;
+        }
+
+        int moverscore = CornerW * Long.bitCount(moverPieces & patternCorners)
+                + (aSquareW * Long.bitCount(moverPieces & aSquares))
+                - (xSquareW * Long.bitCount(moverPieces & xSquares))
+                - (cSquareW * Long.bitCount(moverPieces & cSquares));
+
+        int opponentscore = CornerW * Long.bitCount(opponentPieces & patternCorners)-
+                + (aSquareW * Long.bitCount(opponentPieces & aSquares))
+                - (xSquareW * Long.bitCount(opponentPieces & xSquares))
+                - (cSquareW * Long.bitCount(opponentPieces & cSquares));
+        return moverscore - opponentscore;
+    }
+
+    public int getStabilityScore(){
+        long occupiedCorners = patternCorners & occupied;
+
+        return 0;
+    }
     
     public BitBoardNode getBestMobilityCorners() {
         BitBoardNode currentstate = this;
@@ -597,32 +677,6 @@ public class BitBoardNode {
         tiedBest.add(bestMove);
         return tiedBest.get((int) (tiedBest.size() * Math.random()));
     }
-    
-//    public static BitBoardNode getBestShallow(ArrayList<BitBoardNode> moveList, BitBoardNode currentstate ){
-//        BitBoardNode bestMove = currentstate;
-//        int bestscore = 
-//        
-//        for(Square BitBoardNode : moveList){
-//            int mobility = board.play(moveP).getCurrentPossibleSquares().size();
-//            if (mobility < minMobility) {
-//                move = moveP;
-//                minMobility = mobility ;
-//            }
-//        }
-//    }
-//    
-//    public static BitBoardNode getNextLevelMin(ArrayList<BitBoardNode> moveList, BitBoardNode currentstate ){
-//        BitBoardNode bestMove = currentstate;
-//        int bestscore = 
-//        
-//        for(Square BitBoardNode : moveList){
-//            int mobility = board.play(moveP).getCurrentPossibleSquares().size();
-//            if (mobility < minMobility) {
-//                move = moveP;
-//                minMobility = mobility ;
-//            }
-//        }
-//    }
     
     @Override
     public int hashCode(){

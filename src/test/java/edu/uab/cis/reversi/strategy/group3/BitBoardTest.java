@@ -1,4 +1,4 @@
-package testdrivers;
+package edu.uab.cis.reversi.strategy.group3;
 
 import org.junit.Assert;
 import org.junit.Test;
