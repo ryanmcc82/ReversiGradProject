@@ -72,26 +72,26 @@ public class Group3Reversi {
       strategies.add(strategy);
     }
 //    Warning expands exponentially and can cause program to exceed java heap should vary 2 vars at most
-    boolean bookon = true; int mobWeight = 100; int cornerW = 8100; int xSquare = 3000; int cSquare = 400;int aSquare = 100;
+    boolean bookon = true; int mobWeight = 100; int cornerW = 8300; int xSquare = 3000; int cSquare = 400;int aSquare = 100;
     VariableStrategy testA = new VariableStrategy(true,mobWeight,cornerW,xSquare,cSquare,aSquare,0,0,0);
     testA.setChooseSquareTimeLimit(timeout, timeoutUnit);
     strategies.add(testA);
-    for(mobWeight = 1; mobWeight < 2; mobWeight += 1){//init est: 1
-      for(cornerW = 79; cornerW < 84; cornerW += 2){
-        for(xSquare = 30; xSquare < 31; xSquare += 1){//init est: 31 or 30 NOTE performance is very close 20 - 35
-          for(cSquare = 4; cSquare < 5; cSquare += 1){//init est: 4
-            for(aSquare = 1; aSquare < 2; aSquare += 1){//init est 1
-              VariableStrategy test = new VariableStrategy(true,mobWeight,cornerW,xSquare,cSquare,aSquare,0,0,0);
-              test.setChooseSquareTimeLimit(timeout, timeoutUnit);
-              strategies.add(test);
-//              VariableStrategy test2 = new VariableStrategy(false,mobWeight,cornerW,xSquare,cSquare,aSquare,0,0,0);
-//              test2.setChooseSquareTimeLimit(timeout, timeoutUnit);
-//              strategies.add(test2);
-            }
-          }
-        }
-      }
-    }
+//    for(mobWeight = 1; mobWeight < 2; mobWeight += 1){//init est: 1
+//      for(cornerW = 80; cornerW < 84; cornerW += 1){
+//        for(xSquare = 30; xSquare < 31; xSquare += 1){//init est: 31 or 30 NOTE performance is very close 20 - 35
+//          for(cSquare = 4; cSquare < 5; cSquare += 1){//init est: 4
+//            for(aSquare = 1; aSquare < 2; aSquare += 1){//init est 1
+//              VariableStrategy test = new VariableStrategy(true,mobWeight,cornerW,xSquare,cSquare,aSquare,0,0,0);
+//              test.setChooseSquareTimeLimit(timeout, timeoutUnit);
+//              strategies.add(test);
+////              VariableStrategy test2 = new VariableStrategy(false,mobWeight,cornerW,xSquare,cSquare,aSquare,0,0,0);
+////              test2.setChooseSquareTimeLimit(timeout, timeoutUnit);
+////              strategies.add(test2);
+//            }
+//          }
+//        }
+//      }
+//    }
 
     // keep track of number of wins for each strategy
     final Map<Strategy, Multiset<Result>> results = Maps.newHashMap();

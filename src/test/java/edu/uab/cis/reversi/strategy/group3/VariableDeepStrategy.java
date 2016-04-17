@@ -14,6 +14,14 @@ import java.util.concurrent.TimeUnit;
  * Created by Ryan on 4/15/2016.
  */
 public class VariableDeepStrategy implements Strategy {
+
+    public enum State {
+        SEARCHING,
+        NEWROOT,
+        NEWGAME,
+        WAITING,
+        END
+    }
     private long timeLimit;
     private TimeUnit timeunit;
     private Book openingBook;
@@ -135,5 +143,92 @@ public class VariableDeepStrategy implements Strategy {
                 "\tparityWeight: " + parityWeight;
     }
 
-    
+    class SearchTree implements Runnable
+    {
+        BitBoardNode requestedsSearchRoot;
+        BitBoardNode searchRoot;
+        BitBoardNode bestMove;
+        BitBoardNode searchNode;
+        private volatile State searchState;
+
+
+        /**
+         * When an object implementing interface <code>Runnable</code> is used
+         * to create a thread, starting the thread causes the object's
+         * <code>run</code> method to be called in that separately executing
+         * thread.
+         * <p>
+         * The general contract of the method <code>run</code> is that it may
+         * take any action whatsoever.
+         *
+         * @see Thread#run()
+         */
+        @Override
+        public void run() {
+            while ( searchState!=State.END){
+                 if(searchState == State.NEWROOT){
+                    restartSearch();
+                    search();
+                 }else if(searchState == State.NEWGAME){
+                     bestMove = null;
+                     searchRoot = null;
+                     //TODO clear any HashMaps
+                     searchRoot = new BitBoardNode(new Board());
+                     searchState = State.WAITING;
+                 } else if(searchState == State.SEARCHING) {
+                     search();
+                 }
+            }
+        }
+
+        private void search(){
+            while(searchState == State.SEARCHING){
+
+            }
+        }
+
+      /**
+       * Called by Master thread to notify when a new search is to be started
+       * @param newRoot new root
+       * @return
+       */
+        public synchronized BitBoardNode resetSearch(BitBoardNode newRoot){
+            requestedsSearchRoot = newRoot;
+            searchState = State.NEWROOT;
+            return bestMove;
+        }
+
+        public synchronized void clearSearch(){
+            requestedsSearchRoot = null;
+            searchState = State.NEWGAME;
+        }
+
+        public synchronized void clearSearchDone(){
+            searchState = State.WAITING;
+        }
+
+        private synchronized void restartSearch(){
+            searchRoot = requestedsSearchRoot;
+            searchState = State.SEARCHING;
+        }
+
+        public synchronized BitBoardNode getBestMove(){
+            return bestMove;
+        }
+
+        public synchronized void setBestMove(BitBoardNode best){
+            bestMove = best;
+        }
+
+        public State getState(){
+            return searchState;
+        }
+
+
+
+
+
+    }
+
 }
+
