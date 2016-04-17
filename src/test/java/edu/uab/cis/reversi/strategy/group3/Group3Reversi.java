@@ -8,8 +8,6 @@ import edu.uab.cis.reversi.Player;
 import edu.uab.cis.reversi.Square;
 import edu.uab.cis.reversi.Strategy;
 
-import java.io.*;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,10 +19,10 @@ import java.util.concurrent.TimeUnit;
 /**
  * A game of Reversi, played by two strategies.
  */
-public class Reversi {
+public class Group3Reversi {
 
   /**
-   * The command-line options for the {@link Reversi#main(String...)} method.
+   * The command-line options for the {@link Group3Reversi#main(String...)} method.
    */
   public interface Options {
     @Option(longName = "strategies",
@@ -74,15 +72,17 @@ public class Reversi {
       strategies.add(strategy);
     }
 //    Warning expands exponentially and can cause program to exceed java heap should vary 2 vars at most
-    boolean bookon = true; int mobWeight = 1; int cornerW = 80; int xSquare = 30; int cSquare = 4;int aSquare = 1;
+    boolean bookon = true; int mobWeight = 100; int cornerW = 8100; int xSquare = 3000; int cSquare = 400;int aSquare = 100;
+    VariableStrategy testA = new VariableStrategy(true,mobWeight,cornerW,xSquare,cSquare,aSquare,0,0,0);
+    testA.setChooseSquareTimeLimit(timeout, timeoutUnit);
+    strategies.add(testA);
     for(mobWeight = 1; mobWeight < 2; mobWeight += 1){//init est: 1
-      for(cornerW = 65; cornerW < 90; cornerW += 10){
+      for(cornerW = 79; cornerW < 84; cornerW += 2){
         for(xSquare = 30; xSquare < 31; xSquare += 1){//init est: 31 or 30 NOTE performance is very close 20 - 35
           for(cSquare = 4; cSquare < 5; cSquare += 1){//init est: 4
             for(aSquare = 1; aSquare < 2; aSquare += 1){//init est 1
               VariableStrategy test = new VariableStrategy(true,mobWeight,cornerW,xSquare,cSquare,aSquare,0,0,0);
               test.setChooseSquareTimeLimit(timeout, timeoutUnit);
-
               strategies.add(test);
 //              VariableStrategy test2 = new VariableStrategy(false,mobWeight,cornerW,xSquare,cSquare,aSquare,0,0,0);
 //              test2.setChooseSquareTimeLimit(timeout, timeoutUnit);
@@ -92,10 +92,6 @@ public class Reversi {
         }
       }
     }
-
-//    VariableStrategy test2 = new VariableStrategy(false,1,40,20,4,1,0,0,0);
-//    test2.setChooseSquareTimeLimit(timeout, timeoutUnit);
-//    strategies.add(test2);
 
     // keep track of number of wins for each strategy
     final Map<Strategy, Multiset<Result>> results = Maps.newHashMap();
@@ -110,20 +106,20 @@ public class Reversi {
       for (int i = 0; i < strategies.size(); ++i) {
         for (int j = 0; j < strategies.size(); ++j) {
           if (i != j) {
-            Reversi reversi = new Reversi(strategies.get(i), strategies.get(j), timeout, timeoutUnit);
+            Group3Reversi group3Reversi = new Group3Reversi(strategies.get(i), strategies.get(j), timeout, timeoutUnit);
 
             Strategy winner;
             try {
-              winner = reversi.getWinner(reversi.play(board));
+              winner = group3Reversi.getWinner(group3Reversi.play(board));
               if (winner != null) {
                 results.get(winner).add(Result.WIN);
-                for (Strategy strategy : reversi.strategies.values()) {
+                for (Strategy strategy : group3Reversi.strategies.values()) {
                   if (strategy != winner) {
                     results.get(strategy).add(Result.LOSS);
                   }
                 }
               } else {
-                for (Strategy strategy : reversi.strategies.values()) {
+                for (Strategy strategy : group3Reversi.strategies.values()) {
                   results.get(strategy).add(Result.TIE);
                 }
               }
@@ -178,7 +174,7 @@ public class Reversi {
    * @param whiteStrategy
    *          The strategy used to play the white pieces.
    */
-  public Reversi(Strategy blackStrategy, Strategy whiteStrategy) {
+  public Group3Reversi(Strategy blackStrategy, Strategy whiteStrategy) {
     this(blackStrategy, whiteStrategy, 100, TimeUnit.MILLISECONDS);
   }
 
@@ -194,7 +190,7 @@ public class Reversi {
    * @param timeoutUnit
    *          The unit of the timeout, e.g. {@link TimeUnit#MILLISECONDS}
    */
-  public Reversi(Strategy blackStrategy, Strategy whiteStrategy, long timeout, TimeUnit timeoutUnit) {
+  public Group3Reversi(Strategy blackStrategy, Strategy whiteStrategy, long timeout, TimeUnit timeoutUnit) {
     this.strategies = new HashMap<>();
     this.strategies.put(Player.BLACK, blackStrategy);
     this.strategies.put(Player.WHITE, whiteStrategy);
@@ -203,7 +199,7 @@ public class Reversi {
   }
 
   /**
-   * Plays the strategies on the given Reversi board.
+   * Plays the strategies on the given Group3Reversi board.
    * 
    * @param board
    *          The board in its initial state.
@@ -239,10 +235,10 @@ public class Reversi {
    * Gets the winning strategy from a board.
    * 
    * This maps from the {@link Player}s of the board to the {@link Strategy}s of
-   * the Reversi game.
+   * the Group3Reversi game.
    * 
    * @param board
-   *          A Reversi board, after the game is complete.
+   *          A Group3Reversi board, after the game is complete.
    * @return The winning strategy.
    */
   public Strategy getWinner(Board board) {
