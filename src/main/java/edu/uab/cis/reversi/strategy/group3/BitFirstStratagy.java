@@ -2,9 +2,7 @@ package edu.uab.cis.reversi.strategy.group3;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.uab.cis.reversi.Board;
 import edu.uab.cis.reversi.Move;
@@ -43,7 +41,7 @@ public class BitFirstStratagy implements Strategy {
         BitBoardNode currentState = new BitBoardNode(board);
         HashMap<BitBoardNode, Square>  moveMap = BitBoardNode.moveToSquare7(board);
         
-        BitBoardNode choiceState = currentState.getBestMobilityCorners();
+        BitBoardNode choiceState = currentState.getBestNewState();
         move = moveMap.get(choiceState);
         if(move == null) return Square.PASS;
        

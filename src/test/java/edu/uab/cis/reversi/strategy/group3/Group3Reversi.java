@@ -72,18 +72,20 @@ public class Group3Reversi {
       strategies.add(strategy);
     }
 //    Warning expands exponentially and can cause program to exceed java heap should vary 2 vars at most
-    boolean bookon = true; int mobWeight = 100; int cornerW = 8100; int xSquare = 3000; int cSquare = 400;int aSquare = 100;
+    boolean bookon = true; int mobWeight = 10; int cornerW = 810; int xSquare = 300; int cSquare = 40;int aSquare = 10; int parity = 0;
     VariableStrategy testA = new VariableStrategy(true,mobWeight,cornerW,xSquare,cSquare,aSquare,0,0,0);
     testA.setChooseSquareTimeLimit(timeout, timeoutUnit);
     strategies.add(testA);
     for(mobWeight = 100; mobWeight < 101; mobWeight += 1){//init est: 1
-      for(cornerW = 8050; cornerW < 8151; cornerW += 50){
+      for(cornerW = 8100; cornerW < 8101; cornerW += 50){
         for(xSquare = 3000; xSquare < 3001; xSquare += 1){//init est: 31 or 30 NOTE performance is very close 20 - 35
           for(cSquare = 400; cSquare < 401; cSquare += 1){//init est: 4
             for(aSquare = 100; aSquare < 101; aSquare += 1){//init est 1
-              VariableStrategy test = new VariableStrategy(true,mobWeight,cornerW,xSquare,cSquare,aSquare,0,0,0);
-              test.setChooseSquareTimeLimit(timeout, timeoutUnit);
-              strategies.add(test);
+              for(parity = 10; parity<20; parity+=20 ) {
+                VariableStrategy test = new VariableStrategy(true, mobWeight, cornerW, xSquare, cSquare, aSquare, 0, parity, 0);
+                test.setChooseSquareTimeLimit(timeout, timeoutUnit);
+                strategies.add(test);
+              }
 //              VariableStrategy test2 = new VariableStrategy(false,mobWeight,cornerW,xSquare,cSquare,aSquare,0,0,0);
 //              test2.setChooseSquareTimeLimit(timeout, timeoutUnit);
 //              strategies.add(test2);

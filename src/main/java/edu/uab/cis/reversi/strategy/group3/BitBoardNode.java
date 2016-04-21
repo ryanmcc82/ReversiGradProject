@@ -25,12 +25,13 @@ public class BitBoardNode {
     boolean movesSearched = false;
     static final long bitmask = 1;
 
-    public static final int CORNERW = 81;
-    public static final int XSQUAREW = 30;
-    public static final int ASQUAREW = 1;
-    public static final int CSQUAREW = 4;
-    public static final int MOBILITYW = 1;
+    public static final int CORNERW = 810;
+    public static final int XSQUAREW = 300;
+    public static final int ASQUAREW = 10;
+    public static final int CSQUAREW = 40;
+    public static final int MOBILITYW = 10;
     public static final int SABILITYW = 0;
+    public static final int PARITY = 1;
 
     /* Static References */
     /*********************************************************************************************************************************/
@@ -530,9 +531,17 @@ public class BitBoardNode {
         mobility = Long.bitCount(moves);
         return moves;
     }
+
+    public int getVarMobility(int w){
+        return mobility * w;
+    }
     
     public int getMobility(){
-        return mobility;
+        return (MOBILITYW * mobility);
+    }
+
+    public int getParity(){
+        return (Long.bitCount(moverPieces) - Long.bitCount(opponentPieces));
     }
     
     public static HashMap<BitBoardNode, Square> moveToSquare(Board boardparent){
@@ -682,7 +691,7 @@ public class BitBoardNode {
         return 0;
     }
     
-    public BitBoardNode getBestMobilityCorners() {
+    public BitBoardNode getBestNewState() {
         BitBoardNode currentstate = this;
         ArrayList<BitBoardNode> moveList = this.getMovesAndResults();
         BitBoardNode bestMove = currentstate;
@@ -694,7 +703,7 @@ public class BitBoardNode {
             bitBoard.getLegalMoves();
 //            System.out.println(bitBoard);
             int moveScore = - bitBoard.getPositionalScore()
-                    - bitBoard.getMobility();
+                    - bitBoard.getMobility() + PARITY * bitBoard.getParity();
 
             if (moveScore > bestscore) {
                 bestMove = bitBoard;
