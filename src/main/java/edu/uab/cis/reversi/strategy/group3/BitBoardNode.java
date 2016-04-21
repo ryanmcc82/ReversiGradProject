@@ -25,8 +25,8 @@ public class BitBoardNode {
     boolean movesSearched = false;
     static final long bitmask = 1;
 
-    public static final int CORNERW = 80;
-    public static final int XSQUAREW = 25;
+    public static final int CORNERW = 81;
+    public static final int XSQUAREW = 30;
     public static final int ASQUAREW = 1;
     public static final int CSQUAREW = 4;
     public static final int MOBILITYW = 1;
