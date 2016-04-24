@@ -30,7 +30,7 @@ public class BitBoardNode {
     public static final int ASQUAREW = 100;
     public static final int CSQUAREW = 400;
     public static final int MOBILITYW = 100;
-    public static final int DMOBILITYW = 35;
+    public static final int DMOBILITYW = 33;
     public static final int SABILITYW = 0;
     public static final int PARITY = 30;
 

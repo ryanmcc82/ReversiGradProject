@@ -29,14 +29,14 @@ public class Group3Strategy implements Strategy {
         }
 
         Square move;
-        if (inBook) {
-            move = openingBook.checkBook(movesList);
-            if (move == null) {
-                inBook = false;
-            } else {
-                return move;
-            }
-        }
+//        if (inBook) {
+//            move = openingBook.checkBook(movesList);
+//            if (move == null) {
+//                inBook = false;
+//            } else {
+//                return move;
+//            }
+//        }
         
         BitBoardNode currentState = new BitBoardNode(board);
         HashMap<BitBoardNode, Square>  moveMap = BitBoardNode.moveToSquare7(board);
@@ -56,12 +56,12 @@ public class Group3Strategy implements Strategy {
 
     @Override
     public String toString() {
-        return "bookOn: " +  true +
+        return "bookOn: " +  false +
                 "\tcornerWeight: " + BitBoardNode.CORNERW+
                 "\txSquareWeight: " + BitBoardNode.XSQUAREW +
                 "\tcSquareWeight: " + BitBoardNode.CSQUAREW +
                 "\taSquareWeight: " + BitBoardNode.ASQUAREW +
-                "\tmobilityWeight: " + BitBoardNode.MOBILITYW+
+                "\tmobilityWeight: " + 0+
                 "\tDoubleMobWeight: " + BitBoardNode.DMOBILITYW +
                 "\tstabilityWeight: " + BitBoardNode.SABILITYW+
                 "\tparityWeight: " + BitBoardNode.PARITY;
