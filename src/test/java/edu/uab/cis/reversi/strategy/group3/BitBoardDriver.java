@@ -300,6 +300,14 @@ public class BitBoardDriver {
         printAArray();
         printCArray();
         printXArray();
+      BitBoardNode board = new BitBoardNode(2179300500046876928L,72358576150015742L);
+      System.out.println(board);
+      printSBoard(board.getStabilityScore());
+
+//      2179300500046876928:72358576150015742
+//      22024594131968:-22033203200000
+//      17695333816320:-17695350709246
+//      -17695552039874:17695535147072
     }
     
   // ###################

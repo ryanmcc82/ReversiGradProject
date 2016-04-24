@@ -61,24 +61,24 @@ public class VariableStrategy implements Strategy {
      */
     @Override
     public Square chooseSquare(Board board) {
-        List<Move> movesList = board.getMoves();
+//        List<Move> movesList = board.getMoves();
         if(board.getCurrentPossibleSquares().size()==0){
             System.out.println("skip!!!!!!!");
         }
-        if(movesList.size() < 3){
-            inBook = true;
-        }
+//        if(movesList.size() < 3){
+//            inBook = true;
+//        }
 
         Square move;
-        if (inBook && bookON) {
-            move = openingBook.checkBook(movesList);
-            if (move == null) {
-                inBook = false;
-//                System.out.println(board.getCurrentPlayer().name()+ " : " + board.getMoves() );
-            } else {
-                return move;
-            }
-        }
+//        if (inBook && bookON) {
+//            move = openingBook.checkBook(movesList);
+//            if (move == null) {
+//                inBook = false;
+////                System.out.println(board.getCurrentPlayer().name()+ " : " + board.getMoves() );
+//            } else {
+//                return move;
+//            }
+//        }
 
         BitBoardNode currentState = new BitBoardNode(board);
         HashMap<BitBoardNode, Square> moveMap = BitBoardNode.moveToSquare7(board);
@@ -96,8 +96,8 @@ public class VariableStrategy implements Strategy {
         int bestscore = Integer.MIN_VALUE;
 
         int multiplier = 1;
-        if(Long.bitCount(currentstate.occupied)>extrWeight) {
-            multiplier = 400;
+        if(Long.bitCount(currentstate.occupied)>60) {
+            multiplier = extrWeight;
         }
 
         ArrayList<BitBoardNode> tiedBest = new ArrayList<BitBoardNode>(moveList.size());

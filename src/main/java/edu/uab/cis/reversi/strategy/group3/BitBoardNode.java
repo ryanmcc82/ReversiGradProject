@@ -16,6 +16,11 @@ public class BitBoardNode {
     ArrayList<BitBoardNode> parents;//note if using hashTable to cut down on searching could have multiple parents.
     ArrayList<BitBoardNode> children;
 
+    public ArrayList<BitBoardNode> getParents() {return parents;}
+    public void setParents(ArrayList<BitBoardNode> parents) {this.parents = parents;}
+    public BitBoardNode getParent() {return parent;}
+    public void setParent(BitBoardNode parent) {this.parent = parent;}
+
     public BitBoardNode getBestChild() {
         return bestChild;
     }
@@ -675,7 +680,7 @@ public class BitBoardNode {
         return (moverscore - opponentscore - moveAndParityScore);
     }
 
-    public int getStabilityScore(){
+    public long getStabilityScore(){
         long occupiedCorners = patternCorners & occupied;
         long currentStable = occupiedCorners; // | passed in
         if(currentStable == 0L){return 0;}
@@ -691,7 +696,7 @@ public class BitBoardNode {
             temp = temp ^ workingSquare;
         }
 
-        return 0;
+        return neighborsToExplore;
     }
     
     public BitBoardNode getBestNewState() {
@@ -733,7 +738,6 @@ public class BitBoardNode {
 
         for (BitBoardNode bitBoard : moveList) {
             bitBoard.getLegalMoves();
-//            System.out.println(bitBoard);
             int moveScore = - bitBoard.getBoardScore();
 
             if (moveScore > bestscore) {
