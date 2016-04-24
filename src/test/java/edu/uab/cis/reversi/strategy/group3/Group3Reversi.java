@@ -73,17 +73,18 @@ public class Group3Reversi {
       strategies.add(strategy);
     }
 //    Warning expands exponentially and can cause program to exceed java heap should vary 2 vars at most
-    boolean bookon = true; int mobWeight = 33; int cornerW = 8100; int xSquare = 3000; int cSquare = 400;int aSquare = 100; int parity = 30;
-    VariableStrategy testA = new VariableStrategy(true,0,cornerW,xSquare,cSquare,aSquare,0,parity,mobWeight);
+    boolean bookon = false; int mobWeight = 33; int cornerW = 8100; int xSquare = 3000; int cSquare = 400;int aSquare = 100;
+    int parity = 30; int parityThreashHold = 65;
+    VariableStrategy testA = new VariableStrategy(bookon,mobWeight,cornerW,xSquare,cSquare,aSquare,0,parity,parityThreashHold);
     testA.setChooseSquareTimeLimit(timeout, timeoutUnit);
     strategies.add(testA);
-    for(mobWeight = 33; mobWeight < 34; mobWeight += 1){//init est: 1
+    for(parityThreashHold = 54; parityThreashHold < 65; parityThreashHold += 5){//init est: 1
       for(cornerW = 8100; cornerW < 8101; cornerW += 50){
         for(xSquare = 3000; xSquare < 3001; xSquare += 1){//init est: 31 or 30 NOTE performance is very close 20 - 35
           for(cSquare = 400; cSquare < 401; cSquare += 1){//init est: 4
             for(aSquare = 100; aSquare < 101; aSquare += 1){//init est 1
               for(parity = 30; parity<40; parity+=20 ) {
-                VariableStrategy test = new VariableStrategy(false, 0, cornerW, xSquare, cSquare, aSquare, 0, parity, mobWeight);
+                VariableStrategy test = new VariableStrategy(false, mobWeight, cornerW, xSquare, cSquare, aSquare, 0, parity, parityThreashHold);
                 test.setChooseSquareTimeLimit(timeout, timeoutUnit);
                 strategies.add(test);
               }

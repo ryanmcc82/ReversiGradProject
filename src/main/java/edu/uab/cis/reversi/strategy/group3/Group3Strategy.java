@@ -15,6 +15,7 @@ public class Group3Strategy implements Strategy {
     private Book openingBook;
     private boolean inBook = true;
 
+
     public Group3Strategy(){
         this.openingBook = new Book();
     }
@@ -23,10 +24,10 @@ public class Group3Strategy implements Strategy {
     long timelimit;
     @Override
     public Square chooseSquare(Board board) {
-        List<Move> movesList = board.getMoves();
-        if(movesList.size() < 3){
-            inBook = true;
-        }
+//        List<Move> movesList = board.getMoves();
+//        if(movesList.size() < 3){
+//            inBook = true;
+//        }
 
         Square move;
 //        if (inBook) {

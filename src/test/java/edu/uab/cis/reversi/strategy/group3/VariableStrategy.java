@@ -28,6 +28,7 @@ public class VariableStrategy implements Strategy {
     private int stabilityWeight;
     private int parityWeight;
     private int extrWeight;
+    private StringBuilder s;
     
     public VariableStrategy(boolean bookOn, int mobWeight, int cornerW, int xSquareWeight, int cSquareWeight, int aSquareWeight, int stableW, int parityW, int undeterminedW ){
         moblitlityWeight = mobWeight;
@@ -40,6 +41,8 @@ public class VariableStrategy implements Strategy {
         parityWeight = parityW;
         extrWeight =  undeterminedW;
         this.openingBook = new Book();
+        s = new StringBuilder();
+
     }
     
     
@@ -59,6 +62,9 @@ public class VariableStrategy implements Strategy {
     @Override
     public Square chooseSquare(Board board) {
         List<Move> movesList = board.getMoves();
+        if(board.getCurrentPossibleSquares().size()==0){
+            System.out.println("skip!!!!!!!");
+        }
         if(movesList.size() < 3){
             inBook = true;
         }
@@ -68,6 +74,7 @@ public class VariableStrategy implements Strategy {
             move = openingBook.checkBook(movesList);
             if (move == null) {
                 inBook = false;
+//                System.out.println(board.getCurrentPlayer().name()+ " : " + board.getMoves() );
             } else {
                 return move;
             }
@@ -88,12 +95,17 @@ public class VariableStrategy implements Strategy {
         BitBoardNode bestMove = currentstate;
         int bestscore = Integer.MIN_VALUE;
 
+        int multiplier = 1;
+        if(Long.bitCount(currentstate.occupied)>extrWeight) {
+            multiplier = 400;
+        }
+
         ArrayList<BitBoardNode> tiedBest = new ArrayList<BitBoardNode>(moveList.size());
 
         for (BitBoardNode bitBoard : moveList) {
             bitBoard.getLegalMoves();
-            int moveScore = - bitBoard.getVarCornerScore(cornerWeight, xSqWeight, aSqWeight, cSqWeight,parityWeight,extrWeight )
-                    - (bitBoard.getVarMobility(moblitlityWeight));
+
+            int moveScore = - bitBoard.getVarCornerScore(cornerWeight, xSqWeight, aSqWeight, cSqWeight,multiplier * parityWeight,moblitlityWeight );
 
             if (moveScore > bestscore) {
                 bestMove = bitBoard;
@@ -130,9 +142,9 @@ public class VariableStrategy implements Strategy {
                 "\txSquareWeight: " + xSqWeight +
                 "\tcSquareWeight: " + cSqWeight +
                 "\taSquareWeight: " + aSqWeight +
-                "\tmobilityWeight: " + moblitlityWeight+
-                "\tDoubleMobWeight: " + extrWeight +
-                "\tstabilityWeight: " + stabilityWeight+
-                "\tparityWeight: " + parityWeight;
+                "\tDoubleMobWeight: " + moblitlityWeight+
+                "\tParityThreashold: " + extrWeight +
+                "\tparityWeight: " + parityWeight +
+                "\tstabilityWeight: " + stabilityWeight;
     }
 }

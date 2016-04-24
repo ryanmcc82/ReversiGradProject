@@ -15,6 +15,25 @@ public class BitBoardNode {
     BitBoardNode parent;
     ArrayList<BitBoardNode> parents;//note if using hashTable to cut down on searching could have multiple parents.
     ArrayList<BitBoardNode> children;
+
+    public BitBoardNode getBestChild() {
+        return bestChild;
+    }
+
+    public void setBestChild(BitBoardNode bestChild) {
+        this.bestChild = bestChild;
+    }
+
+    public int getHighestchildPathScore() {
+        return highestchildPathScore;
+    }
+
+    public void setHighestchildPathScore(int highestchildPathScore) {
+        this.highestchildPathScore = highestchildPathScore;
+    }
+
+    int highestchildPathScore;
+    BitBoardNode bestChild;
     final long moverPieces;
     final long opponentPieces;
     final long occupied; 
