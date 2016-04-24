@@ -45,6 +45,7 @@ public class Group3Reversi {
     TimeUnit getTimeoutUnit();
 
     @Option(longName = "debug",
+            defaultValue = "true",
             description = "Prints out additional information that may be useful for debugging")
     boolean getDebug();
   }
@@ -72,17 +73,17 @@ public class Group3Reversi {
       strategies.add(strategy);
     }
 //    Warning expands exponentially and can cause program to exceed java heap should vary 2 vars at most
-    boolean bookon = true; int mobWeight = 10; int cornerW = 810; int xSquare = 300; int cSquare = 40;int aSquare = 10; int parity = 0;
-    VariableStrategy testA = new VariableStrategy(true,mobWeight,cornerW,xSquare,cSquare,aSquare,0,0,0);
+    boolean bookon = true; int mobWeight = 100; int cornerW = 810; int xSquare = 300; int cSquare = 40;int aSquare = 10; int parity = 30;
+    VariableStrategy testA = new VariableStrategy(true,mobWeight,cornerW,xSquare,cSquare,aSquare,0,parity,0);
     testA.setChooseSquareTimeLimit(timeout, timeoutUnit);
     strategies.add(testA);
-    for(mobWeight = 100; mobWeight < 101; mobWeight += 1){//init est: 1
+    for(mobWeight = 33; mobWeight < 36; mobWeight += 1){//init est: 1
       for(cornerW = 8100; cornerW < 8101; cornerW += 50){
         for(xSquare = 3000; xSquare < 3001; xSquare += 1){//init est: 31 or 30 NOTE performance is very close 20 - 35
           for(cSquare = 400; cSquare < 401; cSquare += 1){//init est: 4
             for(aSquare = 100; aSquare < 101; aSquare += 1){//init est 1
-              for(parity = 10; parity<20; parity+=20 ) {
-                VariableStrategy test = new VariableStrategy(true, mobWeight, cornerW, xSquare, cSquare, aSquare, 0, parity, 0);
+              for(parity = 30; parity<40; parity+=20 ) {
+                VariableStrategy test = new VariableStrategy(true, 0, cornerW, xSquare, cSquare, aSquare, 0, parity, mobWeight);
                 test.setChooseSquareTimeLimit(timeout, timeoutUnit);
                 strategies.add(test);
               }

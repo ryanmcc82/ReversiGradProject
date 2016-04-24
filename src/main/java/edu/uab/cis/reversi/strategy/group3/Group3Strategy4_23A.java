@@ -1,21 +1,21 @@
 package edu.uab.cis.reversi.strategy.group3;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import edu.uab.cis.reversi.Board;
 import edu.uab.cis.reversi.Move;
 import edu.uab.cis.reversi.Square;
 import edu.uab.cis.reversi.Strategy;
 
-public class Group3Strategy implements Strategy {
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+public class Group3Strategy4_23A implements Strategy {
     private long timeLimit;
     private TimeUnit timeunit;
     private Book openingBook;
     private boolean inBook = true;
 
-    public Group3Strategy(){
+    public Group3Strategy4_23A(){
         this.openingBook = new Book();
     }
 
@@ -41,7 +41,7 @@ public class Group3Strategy implements Strategy {
         BitBoardNode currentState = new BitBoardNode(board);
         HashMap<BitBoardNode, Square>  moveMap = BitBoardNode.moveToSquare7(board);
         
-        BitBoardNode choiceState = currentState.getBestDMNewState();
+        BitBoardNode choiceState = currentState.getBestNewState();
         move = moveMap.get(choiceState);
         if(move == null) return Square.PASS;
        
@@ -62,7 +62,6 @@ public class Group3Strategy implements Strategy {
                 "\tcSquareWeight: " + BitBoardNode.CSQUAREW +
                 "\taSquareWeight: " + BitBoardNode.ASQUAREW +
                 "\tmobilityWeight: " + BitBoardNode.MOBILITYW+
-                "\tDoubleMobWeight: " + BitBoardNode.DMOBILITYW +
                 "\tstabilityWeight: " + BitBoardNode.SABILITYW+
                 "\tparityWeight: " + BitBoardNode.PARITY;
     }

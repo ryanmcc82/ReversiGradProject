@@ -92,8 +92,8 @@ public class VariableStrategy implements Strategy {
 
         for (BitBoardNode bitBoard : moveList) {
             bitBoard.getLegalMoves();
-            int moveScore = - bitBoard.getVarCornerScore(cornerWeight, xSqWeight, aSqWeight, cSqWeight )
-                    - (bitBoard.getVarMobility(moblitlityWeight))+ parityWeight * bitBoard.getParity();
+            int moveScore = - bitBoard.getVarCornerScore(cornerWeight, xSqWeight, aSqWeight, cSqWeight,parityWeight,extrWeight )
+                    - (bitBoard.getVarMobility(moblitlityWeight));
 
             if (moveScore > bestscore) {
                 bestMove = bitBoard;
@@ -131,6 +131,7 @@ public class VariableStrategy implements Strategy {
                 "\tcSquareWeight: " + cSqWeight +
                 "\taSquareWeight: " + aSqWeight +
                 "\tmobilityWeight: " + moblitlityWeight+
+                "\tDoubleMobWeight: " + extrWeight +
                 "\tstabilityWeight: " + stabilityWeight+
                 "\tparityWeight: " + parityWeight;
     }

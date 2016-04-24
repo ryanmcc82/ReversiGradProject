@@ -100,7 +100,7 @@ public class VariableDeepStrategy implements Strategy {
 
         for (BitBoardNode bitBoard : moveList) {
             bitBoard.getLegalMoves();
-            int moveScore = - bitBoard.getVarCornerScore(cornerWeight, xSqWeight, aSqWeight, cSqWeight )
+            int moveScore = - bitBoard.getVarCornerScore(cornerWeight, xSqWeight, aSqWeight, cSqWeight,parityWeight,extrWeight )
                     - (moblitlityWeight * bitBoard.getMobility());
 
             if (moveScore > bestscore) {

@@ -1,0 +1,9 @@
+
+
+--strategies
+edu.uab.cis.reversi.strategy.baseline.RandomStrategy
+edu.uab.cis.reversi.strategy.group2.StrategyReversi
+edu.uab.cis.reversi.strategy.group3.Group3Strategy
+edu.uab.cis.reversi.strategy.group3.Group3Strategy4_23A
+--games
+400

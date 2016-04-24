@@ -25,13 +25,14 @@ public class BitBoardNode {
     boolean movesSearched = false;
     static final long bitmask = 1;
 
-    public static final int CORNERW = 810;
-    public static final int XSQUAREW = 300;
-    public static final int ASQUAREW = 10;
-    public static final int CSQUAREW = 40;
-    public static final int MOBILITYW = 10;
+    public static final int CORNERW = 8100;
+    public static final int XSQUAREW = 3000;
+    public static final int ASQUAREW = 100;
+    public static final int CSQUAREW = 400;
+    public static final int MOBILITYW = 100;
+    public static final int DMOBILITYW = 35;
     public static final int SABILITYW = 0;
-    public static final int PARITY = 1;
+    public static final int PARITY = 30;
 
     /* Static References */
     /*********************************************************************************************************************************/
@@ -390,16 +391,14 @@ public class BitBoardNode {
     }
     
     public BitBoardNode play(long move){
-       long movers = this.moverPieces;
-       long opponent = this.opponentPieces; 
-       long moverResult = movers | move;
-       if(move == 0L) return this;
-       long surroundingOpp = opponent & ajacentArray[Long.numberOfTrailingZeros(move)];
+
+       long moverResult = moverPieces | move;
+       if(move == 0L) return new BitBoardNode(opponentPieces, this.moverPieces);
+       long surroundingOpp = opponentPieces & ajacentArray[Long.numberOfTrailingZeros(move)];
        long searchDirBit;
        long searchDirRay;
        long moverRayIntersect;
        long cancleDirRay;/**used to clear bits in SearchDirRay that occer after closestMoverBit */
-       
        int closestEmptyIndex;
        int closestMoverIndex;
        
@@ -417,7 +416,7 @@ public class BitBoardNode {
            searchDirDiff = Long.numberOfTrailingZeros(searchDirBit)
                    - moveSquareIndex;// This diff lets us search in a diretion using bitshift.
            searchDirRay = rayArray[moveSquareIndex][translationArray[searchDirDiff + 9]];
-           moverRayIntersect = searchDirRay & movers;
+           moverRayIntersect = searchDirRay & moverPieces;
            
             if(moverRayIntersect!= 0L){// if mover has no pieces in ray path its not valid move.
                     if(searchDirDiff > 0){
@@ -426,38 +425,21 @@ public class BitBoardNode {
                         if(closestMoverIndex < closestEmptyIndex){
                             cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
                             moverResult = moverResult | (searchDirRay ^ cancleDirRay);
-//                            System.out.println("\nSearchDirBit;Ray;CancelRay\n");
-//                            BitBoardDriver.printSBoard(searchDirBit);
-//                            BitBoardDriver.printSBoard(searchDirRay);
-//                            BitBoardDriver.printSBoard(cancleDirRay);
                         }
                     }else{
                         closestMoverIndex = Long.numberOfLeadingZeros(moverRayIntersect);
                         closestEmptyIndex = Long.numberOfLeadingZeros(searchDirRay & unoccupied);
                         if(closestMoverIndex < closestEmptyIndex) {
                             cancleDirRay = rayArray[63- closestMoverIndex][translationArray[searchDirDiff + 9]];
-                            moverResult = moverResult | (searchDirRay ^ cancleDirRay);//
-
-//                            System.out.println("\nElse:SearchDirBit;Ray;CancelRay\n");
-//                            BitBoardDriver.printSBoard(searchDirBit|move);
-//                            BitBoardDriver.printSBoard(searchDirRay);
-//                            BitBoardDriver.printSBoard(cancleDirRay);
-                            
+                            moverResult = moverResult | (searchDirRay ^ cancleDirRay);
                         }
                     }
                 }
-            
-           
-           
-           surroundingOpp = surroundingOpp & ~searchDirBit;// zero's search
-           // Direction
+           surroundingOpp = surroundingOpp & ~searchDirBit;// zero's search Direction
        }
+
        long newOpponent = moverResult;
-       long newMover = (opponent & moverResult) ^ opponent;
-//       System.out.println("\nNewOpponent\n");
-//       BitBoardDriver.printSBoard(newOpponent);
-//       System.out.println("\nNewMover\n");
-//       BitBoardDriver.printSBoard(newMover);
+       long newMover = (opponentPieces & moverResult) ^ opponentPieces;
        return  new BitBoardNode(newMover, newOpponent);
     }
 
@@ -559,60 +541,20 @@ public class BitBoardNode {
         return map;
     }
     
-    public static BitBoardNode getBestDoubleMobility(
-            ArrayList<BitBoardNode> moveList, BitBoardNode currentstate) {
-        
-        BitBoardNode bestMove = currentstate;
-        int bestscore = Integer.MIN_VALUE;
-
-        ArrayList<BitBoardNode> tiedBest = new ArrayList<BitBoardNode>(moveList.size());
-
-        for (BitBoardNode bitBoard : moveList) {
-            int mobilityScore = //Long.bitCount(bitBoard.play(0L).getLegalMoves())
-                    - bitBoard.getMobility();
-
-            if (mobilityScore > bestscore) {
-                bestMove = bitBoard;
-                bestscore = mobilityScore;
-                tiedBest.clear();
-            } else if (mobilityScore == bestscore) {
-                tiedBest.add(bitBoard);
-            }
+    public int getDoubleMobility() {
+       int oppmobility = Long.bitCount(play(0L).getLegalMoves());
+        int numerator;
+        int denominator = oppmobility + mobility;
+        if(denominator == 0){
+            return 0;
         }
-        if (tiedBest.isEmpty()) {
-            return bestMove;
+        if(mobility > oppmobility) {
+            numerator = mobility * -100;
+        }else{
+            numerator = oppmobility * 100;
         }
-        tiedBest.add(bestMove);
-        return tiedBest.get((int) (tiedBest.size() * Math.random()));
-    }
-    
-    public BitBoardNode getBestDoubleMobility() {
-        BitBoardNode currentstate = this;
-        ArrayList<BitBoardNode> moveList = this.getMovesAndResults();
-        BitBoardNode bestMove = currentstate;
-        int bestscore = Integer.MIN_VALUE;
+        return numerator/(oppmobility + mobility);
 
-        ArrayList<BitBoardNode> tiedBest = new ArrayList<BitBoardNode>(moveList.size());
-
-        for (BitBoardNode bitBoard : moveList) {
-            bitBoard.getLegalMoves();
-//            System.out.println(bitBoard);
-            int mobility = //Long.bitCount(bitBoard.play(0L).getLegalMoves())
-                    - bitBoard.getMobility();
-
-            if (mobility > bestscore) {
-                bestMove = bitBoard;
-                bestscore = mobility;
-                tiedBest.clear();
-            } else if (mobility == bestscore) {
-                tiedBest.add(bitBoard);
-            }
-        }
-        if (tiedBest.isEmpty()) {
-            return bestMove;
-        }
-        tiedBest.add(bestMove);
-        return tiedBest.get((int) (tiedBest.size() * Math.random()));
     }
     
     public int getCornerScore(){
@@ -633,7 +575,8 @@ public class BitBoardNode {
         return moverscore - opponentscore;
     }
 
-    public int getVarCornerScore(int CornerW, int xSquareW, int aSquareW,  int cSquareW){
+    public int getVarCornerScore(int CornerW, int xSquareW, int aSquareW,  int cSquareW, int parityW, int dmobilW){
+        int moveAndParityScore = parityW * getParity() + (dmobilW * getDoubleMobility());
         long emptyCorners = patternCorners & unoccupied;
         long xSquares = 0L;
         long cSquares = 0L;
@@ -656,10 +599,11 @@ public class BitBoardNode {
                 + (aSquareW * Long.bitCount(opponentPieces & aSquares))
                 - (xSquareW * Long.bitCount(opponentPieces & xSquares))
                 - (cSquareW * Long.bitCount(opponentPieces & cSquares));
-        return moverscore - opponentscore;
+        return moverscore - opponentscore - moveAndParityScore;
     }
 
-    public int getPositionalScore(){
+    public int getSMobBoardScore(){
+        int moveAndParityScore = PARITY * getParity() - getMobility();
         long emptyCorners = patternCorners & unoccupied;
         long xSquares = 0L;
         long cSquares = 0L;
@@ -682,11 +626,51 @@ public class BitBoardNode {
                 + (ASQUAREW  * Long.bitCount(opponentPieces & aSquares))
                 - (XSQUAREW * Long.bitCount(opponentPieces & xSquares))
                 - (CSQUAREW  * Long.bitCount(opponentPieces & cSquares));
-        return moverscore - opponentscore;
+        return (moverscore - opponentscore - moveAndParityScore);
+    }
+
+    public int getBoardScore(){
+        int moveAndParityScore = PARITY * getParity() + (DMOBILITYW * getDoubleMobility());
+        long emptyCorners = patternCorners & unoccupied;
+        long xSquares = 0L;
+        long cSquares = 0L;
+        long aSquares = 0L;
+        long cornerBit;
+        while(emptyCorners != 0b0L){
+            cornerBit = Long.highestOneBit(emptyCorners);
+            xSquares = xSquares | xSquaresArray[Long.numberOfTrailingZeros(cornerBit)];
+            cSquares = cSquares | cSquaresArray[Long.numberOfTrailingZeros(cornerBit)];
+            aSquares = aSquares | aSquaresArray[Long.numberOfTrailingZeros(cornerBit)];
+            emptyCorners = emptyCorners ^ cornerBit;
+        }
+
+        int moverscore = CORNERW * Long.bitCount(moverPieces & patternCorners)
+                + (ASQUAREW  * Long.bitCount(moverPieces & aSquares))
+                - (XSQUAREW * Long.bitCount(moverPieces & xSquares))
+                - (CSQUAREW  * Long.bitCount(moverPieces & cSquares));
+
+        int opponentscore = CORNERW * Long.bitCount(opponentPieces & patternCorners)
+                + (ASQUAREW  * Long.bitCount(opponentPieces & aSquares))
+                - (XSQUAREW * Long.bitCount(opponentPieces & xSquares))
+                - (CSQUAREW  * Long.bitCount(opponentPieces & cSquares));
+        return (moverscore - opponentscore - moveAndParityScore);
     }
 
     public int getStabilityScore(){
         long occupiedCorners = patternCorners & occupied;
+        long currentStable = occupiedCorners; // | passed in
+        if(currentStable == 0L){return 0;}
+        long temp = currentStable;
+        long neighborsToExplore = 0L;
+        long explored = 0L;
+        long workingSquare;
+        while(temp != 0){// geting all stable squares neighbors(all stable squares have at least 1 stable neighbor)
+            workingSquare = Long.highestOneBit(temp);
+            neighborsToExplore = neighborsToExplore | (ajacentArray[Long.numberOfTrailingZeros(workingSquare)] & occupied);
+
+
+            temp = temp ^ workingSquare;
+        }
 
         return 0;
     }
@@ -702,8 +686,36 @@ public class BitBoardNode {
         for (BitBoardNode bitBoard : moveList) {
             bitBoard.getLegalMoves();
 //            System.out.println(bitBoard);
-            int moveScore = - bitBoard.getPositionalScore()
-                    - bitBoard.getMobility() + PARITY * bitBoard.getParity();
+            int moveScore = - bitBoard.getSMobBoardScore();
+//                    - bitBoard.getMobility() + PARITY * bitBoard.getParity();
+
+            if (moveScore > bestscore) {
+                bestMove = bitBoard;
+                bestscore = moveScore;
+                tiedBest.clear();
+            } else if (moveScore == bestscore) {
+                tiedBest.add(bitBoard);
+            }
+        }
+        if (tiedBest.isEmpty()) {
+            return bestMove;
+        }
+        tiedBest.add(bestMove);
+        return tiedBest.get((int) (tiedBest.size() * Math.random()));
+    }
+
+    public BitBoardNode getBestDMNewState() {
+        BitBoardNode currentstate = this;
+        ArrayList<BitBoardNode> moveList = this.getMovesAndResults();
+        BitBoardNode bestMove = currentstate;
+        int bestscore = Integer.MIN_VALUE;
+
+        ArrayList<BitBoardNode> tiedBest = new ArrayList<BitBoardNode>(moveList.size());
+
+        for (BitBoardNode bitBoard : moveList) {
+            bitBoard.getLegalMoves();
+//            System.out.println(bitBoard);
+            int moveScore = - bitBoard.getBoardScore();
 
             if (moveScore > bestscore) {
                 bestMove = bitBoard;
