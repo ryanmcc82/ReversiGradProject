@@ -1,13 +1,11 @@
 package edu.uab.cis.reversi.strategy.group3;
 
 import edu.uab.cis.reversi.Board;
-import edu.uab.cis.reversi.Move;
 import edu.uab.cis.reversi.Square;
 import edu.uab.cis.reversi.Strategy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**

@@ -2,6 +2,7 @@ package edu.uab.cis.reversi.strategy.group3;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 import edu.uab.cis.reversi.Board;
 import edu.uab.cis.reversi.Square;
@@ -22,14 +23,7 @@ public class BitBoardDriver {
         
     }
     
-    private static void bitFirstStratagyTest(){
-        Board board = new Board();
-        BitFirstStratagy strategy = new BitFirstStratagy();
-        Square  s = strategy.chooseSquare(board);
-//        System.out.println(s);
-        
-        
-    }
+
     
     
     
@@ -258,28 +252,7 @@ public class BitBoardDriver {
         }
     }
     
-    public static void roatation(){
-        Book books  = new Book();
-        Board[] boards = new Board[4];
-        for(int i = 0; i< 4; i++){
-            boards[i] = new Board();
-        }
-        BoardBook book = new BoardBook();
-        boards = book.translateMoves(boards, 5, 4);
-        int count = 0;
-        for(Board bookl : boards){
-            System.out.println(++count);
-            System.out.println(bookl);
-        }
-        
-        boards = book.translateMoves(boards, 3, 5);
-        count = 0;
-        for(Board bookl : boards){
-            System.out.println(++count);
-            System.out.println(bookl);
-        }
-        
-    }
+
 
     public static void main(String[] args) {
 //        testBoardToBit();
@@ -297,12 +270,17 @@ public class BitBoardDriver {
 //        bitFirstStratagyTest();
 //        roatation();
 //        printSBoard(BitBoardNode.patternCorners);
-        printAArray();
-        printCArray();
-        printXArray();
-      BitBoardNode board = new BitBoardNode(2179300500046876928L,72358576150015742L);
-      System.out.println(board);
-      printSBoard(board.getStabilityScore());
+//        printAArray();
+//        printCArray();
+//        printXArray();
+      BitNode board = new BitNode(-13002539780L, 13002407936L, null);
+      VariableDeepStrategy strategy = new VariableDeepStrategy();
+      strategy.setChooseSquareTimeLimit(1000, TimeUnit.MILLISECONDS);
+      strategy.search(board);
+      BitNode board2 = new BitNode(9185941677167288064L,-9185941677167304577L, null);
+      printSBoard(board2.getMovesAndResults().iterator().next().getLegalMoves());
+      System.out.println(board2);
+//      printSBoard(board.getStabilityScore());
 
 //      2179300500046876928:72358576150015742
 //      22024594131968:-22033203200000

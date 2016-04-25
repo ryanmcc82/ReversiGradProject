@@ -685,19 +685,43 @@ public class BitBoardNode {
         long currentStable = occupiedCorners; // | passed in
         if(currentStable == 0L){return 0;}
         long temp = currentStable;
+        long currentUnstable = ~currentStable;
         long neighborsToExplore = 0L;
-        long explored = 0L;
+        long unexplored = occupied ^ currentStable;
         long workingSquare;
         while(temp != 0){// geting all stable squares neighbors(all stable squares have at least 1 stable neighbor)
             workingSquare = Long.highestOneBit(temp);
             neighborsToExplore = neighborsToExplore | (ajacentArray[Long.numberOfTrailingZeros(workingSquare)] & occupied);
-
-
             temp = temp ^ workingSquare;
         }
+        neighborsToExplore = neighborsToExplore & currentUnstable;
 
-        return neighborsToExplore;
+        boolean verts;
+        boolean forwardDiag;
+        boolean backDiag;
+        boolean horizontal;
+        long team;
+        while(neighborsToExplore !=0){
+            workingSquare = Long.highestOneBit(neighborsToExplore);
+
+            //subcase forpatterEdges
+
+//            verts = (Long.bitCount() == 0);
+
+
+            //if stable
+            neighborsToExplore = neighborsToExplore | (ajacentArray[Long.numberOfTrailingZeros(workingSquare)]  & currentUnstable & unexplored);
+            currentStable = currentStable |workingSquare;
+            currentUnstable = currentUnstable ^ workingSquare;
+            //
+            unexplored = unexplored ^ workingSquare;
+            neighborsToExplore = neighborsToExplore ^ workingSquare;
+        }
+
+
+        return (unexplored | ~occupied) ;
     }
+
     
     public BitBoardNode getBestNewState() {
         BitBoardNode currentstate = this;

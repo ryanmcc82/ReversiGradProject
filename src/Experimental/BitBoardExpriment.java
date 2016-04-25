@@ -726,7 +726,7 @@ public class BitBoardExpriment {
     
     public BitBoardExpriment getBestNewState() {
         BitBoardExpriment currentstate = this;
-        ArrayList<BitBoardExpriment> moveList = this.getMovesAndResults();
+        LinkedList<BitBoardExpriment> moveList = this.getMovesAndResults();
         BitBoardExpriment bestMove = currentstate;
         int bestscore = Integer.MIN_VALUE;
 
@@ -755,7 +755,7 @@ public class BitBoardExpriment {
 
     public BitBoardExpriment getBestDMNewState() {
         BitBoardExpriment currentstate = this;
-        ArrayList<BitBoardExpriment> moveList = this.getMovesAndResults();
+        LinkedList<BitBoardExpriment> moveList = this.getMovesAndResults();
         BitBoardExpriment bestMove = currentstate;
         int bestscore = Integer.MIN_VALUE;
 

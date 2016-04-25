@@ -78,7 +78,7 @@ public class Group3Reversi {
     VariableStrategy testA = new VariableStrategy(bookon,mobWeight,cornerW,xSquare,cSquare,aSquare,0,parity,parityThreashHold);
     testA.setChooseSquareTimeLimit(timeout, timeoutUnit);
 //    strategies.add(testA);
-    for(parityThreashHold = 150; parityThreashHold < 261; parityThreashHold += 50){//init est: 1
+    for(parityThreashHold = 250; parityThreashHold < 261; parityThreashHold += 50){//init est: 1
       for(cornerW = 8100; cornerW < 8101; cornerW += 50){
         for(xSquare = 3000; xSquare < 3001; xSquare += 1){//init est: 31 or 30 NOTE performance is very close 20 - 35
           for(cSquare = 400; cSquare < 401; cSquare += 1){//init est: 4

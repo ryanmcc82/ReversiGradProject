@@ -3,7 +3,6 @@ package edu.uab.cis.reversi.strategy.group3;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import edu.uab.cis.reversi.Board;
 import edu.uab.cis.reversi.Move;

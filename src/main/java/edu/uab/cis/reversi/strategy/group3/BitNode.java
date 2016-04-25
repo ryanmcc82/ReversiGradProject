@@ -1,24 +1,24 @@
 
 package edu.uab.cis.reversi.strategy.group3;
 
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import edu.uab.cis.reversi.Board;
 import edu.uab.cis.reversi.Player;
 import edu.uab.cis.reversi.Square;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public class BitNode {
 
     BitNode parent;
-    ArrayList<BitNode> parents;//note if using hashTable to cut down on searching could have multiple parents.
-    LinkedList<BitNode> children;
+//    ArrayList<BitNode> parents;//note if using hashTable to cut down on searching could have multiple parents.
+    ArrayList<BitNode> children = null;
 
-    public ArrayList<BitNode> getParents() {return parents;}
-    public void setParents(ArrayList<BitNode> parents) {this.parents = parents;}
+//    public ArrayList<BitNode> getParents() {return parents;}
+//    public void setParents(ArrayList<BitNode> parents) {this.parents = parents;}
     public BitNode getParent() {return parent;}
     public void setParent(BitNode parent) {this.parent = parent;}
 
@@ -34,8 +34,16 @@ public class BitNode {
         return highestchildPathScore;
     }
 
-    public void setHighestchildPathScore(int highestchildPathScore) {
-        this.highestchildPathScore = highestchildPathScore;
+    public boolean setChildScore(int childPathScore, BitNode child, int currentScoreDepth) {
+//        System.out.print("Push?: " + childPathScore + ":" + highestchildPathScore);
+        boolean swap = false;
+        if(bestChild == null||highestchildPathScore > ( -1 * childPathScore)||currentScoreDepth>this.currentScoreDepth){
+            bestChild = child;
+            this.highestchildPathScore =  -1 * childPathScore;
+            this.currentScoreDepth = currentScoreDepth;
+            swap = true;
+        }
+        return swap;
     }
 
     int highestchildPathScore;
@@ -46,7 +54,8 @@ public class BitNode {
     final long unoccupied;
     long moves;
     int mobility;
-    int score;
+    int currentScoreDepth;
+
     boolean movesSearched = false;
     static final long bitmask = 1;
 
@@ -58,7 +67,7 @@ public class BitNode {
     public static final int DMOBILITYW = 33;
     public static final int SABILITYW = 0;
     public static final int PARITY = 30;
-
+    public static final int WIN = Integer.MAX_VALUE / 2;
     /* Static References */
     /*********************************************************************************************************************************/
     // ###################
@@ -280,22 +289,14 @@ public class BitNode {
 
     /*********************************************************************************************************************************/
 
-    public BitNode(long moverPieces, long opponentPieces){
+    public BitNode(long moverPieces, long opponentPieces, BitNode parent){
         this.moverPieces = moverPieces;
         this.opponentPieces = opponentPieces;
         this.occupied = opponentPieces | moverPieces;
         this.unoccupied = ~occupied;
+        this.parent = parent;
 
     }
-
-//    private BitBoardNode(long moverPieces, long opponentPieces, long move){
-//        //TODO Make constructor
-//        this.moverPieces = moverPieces;
-//        this.opponentPieces = opponentPieces;
-//        this.moves = moves;
-//        this.occupied = opponentPieces | moverPieces;
-//        this.unoccupied = ~occupied;
-//    }
 
     public BitNode(Board boardObject){
         Map<Square, Player> owners = boardObject.getSquareOwners();
@@ -304,113 +305,144 @@ public class BitNode {
         this.opponentPieces  = owners.entrySet().stream().filter( e -> !e.getValue().equals(boardObject.getCurrentPlayer()))
                 .mapToLong(e -> squareToLong(e.getKey())).reduce(0b0L, (r, v) -> r | v);        
         this.occupied = opponentPieces | moverPieces;
+        children = null;
         this.unoccupied = ~occupied;
         getLegalMoves();
     }
+
+    public BitNode(Board boardObject, int one){
+        Map<Square, Player> owners = boardObject.getSquareOwners();
+        this.moverPieces = owners.entrySet().stream().filter( e -> e.getValue().equals(boardObject.getCurrentPlayer()))
+                .mapToLong(e -> squareToLong(e.getKey())).reduce(0b0L, (r, v) -> r | v);
+        this.opponentPieces  = owners.entrySet().stream().filter( e -> !e.getValue().equals(boardObject.getCurrentPlayer()))
+                .mapToLong(e -> squareToLong(e.getKey())).reduce(0b0L, (r, v) -> r | v);
+        this.occupied = opponentPieces | moverPieces;
+        this.unoccupied = ~occupied;
+    }
     
-    private long squareToLong(Square square){
+    private static long squareToLong(Square square){
         int index = square.getColumn() + (8 * (square.getRow()));
         long lindex = 0b1L << index;
         return lindex;
     }
     
-    public LinkedList<BitNode> getMovesAndResults(){
+    public ArrayList<BitNode> getMovesAndResults(){
         if (children == null) {
 
-            children = new LinkedList<BitNode>();
-            if(movesSearched){
+            children = new ArrayList<BitNode>();
+            if (movesSearched) {
+                return populateMoves();
+            } else {
+                getLegalMoves();
                 return populateMoves();
             }
 
-            long tempUnOcc = unoccupied;
-            long searchBit = Long.lowestOneBit(tempUnOcc);
-            long surrounding;
-            long surroundingOpp;
-            this.moves = 0L;
-
-            long searchDirBit;
-            int searchDirDiff;
-            int squareIndex;
-            int closestEmptyIndex;
-            int closestMoverIndex;
-            long searchDirRay;
-            long moverRayIntersect;
-            long cancleDirRay;
-            /**
-             * used to clear bits in SearchDirRay that occer after
-             * closestMoverBit
-             */
-
-            // if(Long.bitCount(occupied) < 32){//Note May should skip this
-            // comparison and just default to one or the other
-            while (searchBit != 0L) {
-                squareIndex = Long.numberOfTrailingZeros(searchBit);
-                surrounding = ajacentArray[squareIndex];// gets surrounding squares from static table
-                surroundingOpp = surrounding & opponentPieces;
-                long moverResult = moverPieces;
-                while (surroundingOpp != 0L) {// if none of the surrounding squares are an opponent then its not a valid move
-
-                    searchDirBit = Long.lowestOneBit(surroundingOpp);
-                    searchDirDiff = Long.numberOfTrailingZeros(searchDirBit)
-                            - squareIndex;// This diff lets us search in a diretion using bitshift.
-                    searchDirRay = rayArray[squareIndex][translationArray[searchDirDiff + 9]];
-                    moverRayIntersect = searchDirRay & moverPieces;
-                    if (moverRayIntersect != 0L) {// if mover has no pieces in ray path its not valid move.
-                        if (searchDirDiff > 0) {
-                            closestMoverIndex = Long
-                                    .numberOfTrailingZeros(moverRayIntersect);
-                            closestEmptyIndex = Long
-                                    .numberOfTrailingZeros(searchDirRay
-                                            & unoccupied);
-                            if (closestMoverIndex < closestEmptyIndex) {
-                                cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
-                                moverResult = moverResult | searchBit
-                                        | (searchDirRay ^ cancleDirRay);
-                                this.moves = this.moves |searchBit;//add square to valid Moves
-                            }
-                        } else {
-                            closestMoverIndex = Long
-                                    .numberOfLeadingZeros(moverRayIntersect);
-                            closestEmptyIndex = Long
-                                    .numberOfLeadingZeros(searchDirRay
-                                            & unoccupied);
-                            if (closestMoverIndex < closestEmptyIndex) {
-                                cancleDirRay = rayArray[63 - closestMoverIndex][translationArray[searchDirDiff + 9]];
-                                moverResult = moverResult | searchBit
-                                        | (searchDirRay ^ cancleDirRay);
-                                this.moves = this.moves |searchBit;//add square to valid Moves
-                            }
-                        }
-                    }
-
-                    if (moverResult != moverPieces) {
-                        long newOpponent = moverResult;
-                        long newMover = (opponentPieces & moverResult)
-                                ^ opponentPieces;
-                        children.add(new BitNode(newMover, newOpponent));
-                    }
-                    surroundingOpp = surroundingOpp & ~searchDirBit;// zero's
-                                                                    // search
-                                                                    // Direction
-                }
-
-                tempUnOcc = tempUnOcc ^ searchBit;// sets searched bit to zero
-                searchBit = Long.lowestOneBit(tempUnOcc);// finds new
-                                                         // bit(square) to
-                                                         // search.
-            }
+//            long tempUnOcc = unoccupied;
+//            long searchBit = Long.lowestOneBit(tempUnOcc);
+//            long surrounding;
+//            long surroundingOpp;
+//            this.moves = 0L;
+//
+//            long searchDirBit;
+//            int searchDirDiff;
+//            int squareIndex;
+//            int closestEmptyIndex;
+//            int closestMoverIndex;
+//            long searchDirRay;
+//            long moverRayIntersect;
+//            long cancleDirRay;
+//            /**
+//             * used to clear bits in SearchDirRay that occer after
+//             * closestMoverBit
+//             */
+//
+//            // if(Long.bitCount(occupied) < 32){//Note May should skip this
+//            // comparison and just default to one or the other
+//            while (searchBit != 0L) {
+//                squareIndex = Long.numberOfTrailingZeros(searchBit);
+//                surrounding = ajacentArray[squareIndex];// gets surrounding squares from static table
+//                surroundingOpp = surrounding & opponentPieces;
+//                long moverResult = moverPieces;
+//                while (surroundingOpp != 0L) {// if none of the surrounding squares are an opponent then its not a valid move
+//
+//                    searchDirBit = Long.lowestOneBit(surroundingOpp);
+//                    searchDirDiff = Long.numberOfTrailingZeros(searchDirBit)
+//                            - squareIndex;// This diff lets us search in a diretion using bitshift.
+//                    searchDirRay = rayArray[squareIndex][translationArray[searchDirDiff + 9]];
+//                    moverRayIntersect = searchDirRay & moverPieces;
+//                    if (moverRayIntersect != 0L) {// if mover has no pieces in ray path its not valid move.
+//                        if (searchDirDiff > 0) {
+//                            closestMoverIndex = Long
+//                                    .numberOfTrailingZeros(moverRayIntersect);
+//                            closestEmptyIndex = Long
+//                                    .numberOfTrailingZeros(searchDirRay
+//                                            & unoccupied);
+//                            if (closestMoverIndex < closestEmptyIndex) {
+//                                cancleDirRay = rayArray[closestMoverIndex][translationArray[searchDirDiff + 9]];
+//                                moverResult = moverResult | searchBit
+//                                        | (searchDirRay ^ cancleDirRay);
+//                                this.moves = this.moves |searchBit;//add square to valid Moves
+//                            }
+//                        } else {
+//                            closestMoverIndex = Long
+//                                    .numberOfLeadingZeros(moverRayIntersect);
+//                            closestEmptyIndex = Long
+//                                    .numberOfLeadingZeros(searchDirRay
+//                                            & unoccupied);
+//                            if (closestMoverIndex < closestEmptyIndex) {
+//                                cancleDirRay = rayArray[63 - closestMoverIndex][translationArray[searchDirDiff + 9]];
+//                                moverResult = moverResult | searchBit
+//                                        | (searchDirRay ^ cancleDirRay);
+//                                this.moves = this.moves |searchBit;//add square to valid Moves
+//                            }
+//                        }
+//                    }
+//
+//                    if (moverResult != moverPieces) {
+//                        long newOpponent = moverResult;
+//                        long newMover = (opponentPieces & moverResult)
+//                                ^ opponentPieces;
+//                        if(children.size()>40){
+//                            System.out.println("childOverFlow");
+//                        }
+//                        children.add(new BitNode(newMover, newOpponent, this));
+//                    }
+//                    surroundingOpp = surroundingOpp & ~searchDirBit;// zero's
+//                                                                    // search
+//                                                                    // Direction
+//                }
+//
+//                tempUnOcc = tempUnOcc ^ searchBit;// sets searched bit to zero
+//                searchBit = Long.lowestOneBit(tempUnOcc);// finds new
+//                                                         // bit(square) to
+//                                                         // search.
+//            }
+//        }
+//        movesSearched = true;
+//        mobility = Long.bitCount(moves);
         }
-        movesSearched = true;
-        mobility = Long.bitCount(moves);
         return children;
+
     }
     
-    private LinkedList<BitNode> populateMoves(){
-        long tempMoves = this.moves;
-        while(tempMoves != 0L){
-            long tempMove = Long.highestOneBit(tempMoves);
-            children.add(play(tempMove));
-            tempMoves = tempMoves ^ tempMove;
+    private ArrayList<BitNode> populateMoves(){
+        if(children == null) {
+            children = new ArrayList();
+        }
+        if( children.size() ==0) {
+            long tempMoves = this.moves;
+            while (tempMoves != 0L) {
+                long tempMove = Long.highestOneBit(tempMoves);
+                children.add(play(tempMove));
+                tempMoves = tempMoves ^ tempMove;
+            }
+            if (children.size() == 0 && opponentPieces != 0L) {
+                BitNode skipMove = new BitNode(opponentPieces, moverPieces, this);
+                if (skipMove.getLegalMoves() != 0L) {
+//                        System.out.println("skipp");
+                    children.add(skipMove);
+                }
+            }
         }
         return children;
     }
@@ -418,7 +450,7 @@ public class BitNode {
     public BitNode play(long move){
 
        long moverResult = moverPieces | move;
-       if(move == 0L) return new BitNode(opponentPieces, this.moverPieces);
+       if(move == 0L) return new BitNode(opponentPieces, this.moverPieces, this);
        long surroundingOpp = opponentPieces & ajacentArray[Long.numberOfTrailingZeros(move)];
        long searchDirBit;
        long searchDirRay;
@@ -465,7 +497,7 @@ public class BitNode {
 
        long newOpponent = moverResult;
        long newMover = (opponentPieces & moverResult) ^ opponentPieces;
-       return  new BitNode(newMover, newOpponent);
+       return  new BitNode(newMover, newOpponent, this);
     }
 
     public long getLegalMoves() {
@@ -550,19 +582,36 @@ public class BitNode {
     public int getParity(){
         return (Long.bitCount(moverPieces) - Long.bitCount(opponentPieces));
     }
-    
-    public static HashMap<BitNode, Square> moveToSquare(Board boardparent){
-        return 
-        (HashMap<BitNode, Square>) boardparent.getCurrentPossibleSquares().stream()
-        .collect( Collectors.toMap( (Square square) -> new BitNode(boardparent.play(square)),(Square square) -> square ));
+
+    public int getWiner(){
+        int score;
+        int movers = Long.bitCount(moverPieces);
+        int opps = Long.bitCount(opponentPieces);
+        if(movers > opps){
+            score = Integer.MIN_VALUE/2 - movers;
+        }else{
+            score = Integer.MAX_VALUE/2 + opps;
+        }
+        return score;
     }
     
-    public static HashMap<BitNode, Square> moveToSquare7(Board boardparent){
+    public static HashMap<BitNode, Square> moveToSquare(Board boardparent, BitNode node){
         HashMap<BitNode, Square> map = new HashMap<BitNode, Square>();
         for(Square square: boardparent.getCurrentPossibleSquares()){
-            map.put(new BitNode(boardparent.play(square)), square);
+            map.put(node.play(BitNode.squareToLong(square)), square);
         }
        
+        return map;
+    }
+
+    public static HashMap<BitNode, Square> moveToSquare(Board boardparent, BitNode node, ArrayList<BitNode> list){
+        HashMap<BitNode, Square> map = new HashMap<BitNode, Square>();
+        for(Square square: boardparent.getCurrentPossibleSquares()){
+            BitNode child = node.play(BitNode.squareToLong(square));
+            map.put(child, square);
+            list.add(child);
+        }
+
         return map;
     }
     
@@ -581,80 +630,18 @@ public class BitNode {
         return numerator/(oppmobility + mobility);
 
     }
-    
-    public int getCornerScore(){
-        long emptyCorners = patternCorners & unoccupied;
-        long dangerZones = 0L;
-        long cornerBit;
-        while(emptyCorners != 0b0L){
-            cornerBit = Long.highestOneBit(emptyCorners);
-            dangerZones = dangerZones | ajacentArray[Long.numberOfTrailingZeros(cornerBit)];
-            emptyCorners = emptyCorners ^ cornerBit;
-        }
-        
-        int moverscore = 25 * Long.bitCount(moverPieces & patternCorners) 
-                - (15 * Long.bitCount(moverPieces & dangerZones)) ;
-        
-        int opponentscore = 25 * Long.bitCount(opponentPieces & patternCorners)-
-                (15 * Long.bitCount(moverPieces & dangerZones));
-        return moverscore - opponentscore;
-    }
 
-    public int getVarCornerScore(int CornerW, int xSquareW, int aSquareW,  int cSquareW, int parityW, int dmobilW){
-        int moveAndParityScore = parityW * getParity() + (dmobilW * getDoubleMobility());
-        long emptyCorners = patternCorners & unoccupied;
-        long xSquares = 0L;
-        long cSquares = 0L;
-        long aSquares = 0L;
-        long cornerBit;
-        while(emptyCorners != 0b0L){
-            cornerBit = Long.highestOneBit(emptyCorners);
-            xSquares = xSquares | xSquaresArray[Long.numberOfTrailingZeros(cornerBit)];
-            cSquares = cSquares | cSquaresArray[Long.numberOfTrailingZeros(cornerBit)];
-            aSquares = aSquares | aSquaresArray[Long.numberOfTrailingZeros(cornerBit)];
-            emptyCorners = emptyCorners ^ cornerBit;
-        }
-
-        int moverscore = CornerW * Long.bitCount(moverPieces & patternCorners)
-                + (aSquareW * Long.bitCount(moverPieces & aSquares))
-                - (xSquareW * Long.bitCount(moverPieces & xSquares))
-                - (cSquareW * Long.bitCount(moverPieces & cSquares));
-
-        int opponentscore = CornerW * Long.bitCount(opponentPieces & patternCorners)
-                + (aSquareW * Long.bitCount(opponentPieces & aSquares))
-                - (xSquareW * Long.bitCount(opponentPieces & xSquares))
-                - (cSquareW * Long.bitCount(opponentPieces & cSquares));
-        return moverscore - opponentscore - moveAndParityScore;
-    }
-
-    public int getSMobBoardScore(){
-        int moveAndParityScore = PARITY * getParity() - getMobility();
-        long emptyCorners = patternCorners & unoccupied;
-        long xSquares = 0L;
-        long cSquares = 0L;
-        long aSquares = 0L;
-        long cornerBit;
-        while(emptyCorners != 0b0L){
-            cornerBit = Long.highestOneBit(emptyCorners);
-            xSquares = xSquares | xSquaresArray[Long.numberOfTrailingZeros(cornerBit)];
-            cSquares = cSquares | cSquaresArray[Long.numberOfTrailingZeros(cornerBit)];
-            aSquares = aSquares | aSquaresArray[Long.numberOfTrailingZeros(cornerBit)];
-            emptyCorners = emptyCorners ^ cornerBit;
-        }
-
-        int moverscore = CORNERW * Long.bitCount(moverPieces & patternCorners)
-                + (ASQUAREW  * Long.bitCount(moverPieces & aSquares))
-                - (XSQUAREW * Long.bitCount(moverPieces & xSquares))
-                - (CSQUAREW  * Long.bitCount(moverPieces & cSquares));
-
-        int opponentscore = CORNERW * Long.bitCount(opponentPieces & patternCorners)
-                + (ASQUAREW  * Long.bitCount(opponentPieces & aSquares))
-                - (XSQUAREW * Long.bitCount(opponentPieces & xSquares))
-                - (CSQUAREW  * Long.bitCount(opponentPieces & cSquares));
-        return (moverscore - opponentscore - moveAndParityScore);
-    }
 
     public int getBoardScore(){
+        if(unoccupied == 0L){
+            int moveScore = Long.bitCount(moverPieces);
+            if (moveScore > 32){
+                return (- WIN - moveScore);
+            }else if (moveScore < 32){
+                return ( WIN + Long.bitCount(opponentPieces));
+
+            }else return 0;
+        }
         int moveAndParityScore = PARITY * getParity() + (DMOBILITYW * getDoubleMobility());
         long emptyCorners = patternCorners & unoccupied;
         long xSquares = 0L;
@@ -723,36 +710,6 @@ public class BitNode {
         return (unexplored | ~occupied) ;
     }
 
-    
-    public BitNode getBestNewState() {
-        BitNode currentstate = this;
-        ArrayList<BitNode> moveList = this.getMovesAndResults();
-        BitNode bestMove = currentstate;
-        int bestscore = Integer.MIN_VALUE;
-
-        ArrayList<BitNode> tiedBest = new ArrayList<BitNode>(moveList.size());
-
-        for (BitNode bitBoard : moveList) {
-            bitBoard.getLegalMoves();
-//            System.out.println(bitBoard);
-            int moveScore = - bitBoard.getSMobBoardScore();
-//                    - bitBoard.getMobility() + PARITY * bitBoard.getParity();
-
-            if (moveScore > bestscore) {
-                bestMove = bitBoard;
-                bestscore = moveScore;
-                tiedBest.clear();
-            } else if (moveScore == bestscore) {
-                tiedBest.add(bitBoard);
-            }
-        }
-        if (tiedBest.isEmpty()) {
-            return bestMove;
-        }
-        tiedBest.add(bestMove);
-        return tiedBest.get((int) (tiedBest.size() * Math.random()));
-    }
-
     public BitNode getBestDMNewState() {
         BitNode currentstate = this;
         ArrayList<BitNode> moveList = this.getMovesAndResults();
@@ -795,7 +752,11 @@ public class BitNode {
         return
                 (this.opponentPieces == node.opponentPieces) && (this.moverPieces == node.moverPieces);
     }
-    
+
+    public String toLongs(){
+        String s = moverPieces + ":" + opponentPieces;
+        return s;
+    }
     public String toString(){
         StringBuffer sb = new StringBuffer();
         char tchar;
@@ -826,6 +787,33 @@ public class BitNode {
         sb.insert(0, "//###################\n//#");
         sb.append("##################");
         return sb.toString();
+    }
+
+    public static void printSBoard(long board) {
+
+            long tboard = board;
+            StringBuffer sb = new StringBuffer();
+            char tchar;
+
+            for (int i = 0; i < 8; i++) {
+                sb.insert(0, "//#");
+                sb.insert(0, "\n");
+                sb.insert(0, " #");
+                for (int j = 0; j < 8; j++) {
+
+                    tchar = ((bitmask & tboard) == 0) ? 'X' : 'O';
+                    // ^bitwise and test for 1 in right most bit
+                    sb.insert(0, tchar);
+                    sb.insert(0, ' ');
+                    tboard = tboard >>> 1; // bit shift right fill with 0
+                }
+
+            }
+            sb.insert(0, "//###################\n//#");
+            sb.append("##################");
+            System.out.println(sb.toString());
+
+
     }
 
 }
