@@ -1,5 +1,5 @@
 
-package edu.uab.cis.reversi.strategy.group3;
+package edu.uab.cis.reversi.strategy.group3.Experimental;
 
 import java.util.HashMap;
 import java.util.ArrayList;

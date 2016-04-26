@@ -12,7 +12,6 @@ import edu.uab.cis.reversi.Strategy;
 
 public class Group3Strategy implements Strategy {
 
-    private long BUFFER = 20L;
     private long timeLimit;
     private TimeUnit timeunit;
     Square move;
@@ -46,18 +45,10 @@ public class Group3Strategy implements Strategy {
             int currentDepth = Long.bitCount(requestedsSearchRoot.occupied);
 
             int target = 3;
-            if (currentDepth >= 63) {
+            if (currentDepth >= 64) {
                 return;
             }
-            if (timeLimit == 1000 - BUFFER) {
-                target = 4;
-            }
 
-            int targetDepth = currentDepth + target;
-            if (63 - targetDepth < 0) {
-                target = targetDepth - 65;
-                targetDepth = 64;
-            }
             Queue<BitNode> parentQueue = new LinkedList<>();
             Queue<BitNode> childQueue = new LinkedList<>();
             Queue<BitNode> endGameQue = new LinkedList<>();
@@ -66,6 +57,21 @@ public class Group3Strategy implements Strategy {
             ArrayList<BitNode> tempA;
             BitNode tempN;
             childQueue.addAll(bottomQueue);
+            if (timeLimit == 1000) {
+                target = 4;
+                if(bottomQueue.size()<5){
+                    target = 5;
+                    if(currentDepth>56){
+                        target = 64 -  currentDepth;
+                    }
+                }
+            }
+
+            int targetDepth = currentDepth + target;
+            if (64 - targetDepth < 0) {
+                target = 64 -  currentDepth;
+                targetDepth = 64;
+            }
 //            System.out.println("Start: "+childQueue.size() + " at " + currentDepth);
             do {//PopulateTree Loop
                 temp = childQueue;
@@ -120,6 +126,23 @@ public class Group3Strategy implements Strategy {
             }
             bestMove = requestedsSearchRoot.bestChild;
             return;
+        }
+    }
+
+    /**
+     * Indicates to the strategy how much time will be allowed for each call to chooseSquare. If the
+     * strategy takes longer than the allotted time, it will be considered to have lost the game.
+     *
+     * @param time The time allowed
+     * @param unit The time unit of the time argument
+     */
+    @Override
+    public void setChooseSquareTimeLimit(long time, TimeUnit unit) {
+        this.timeunit = unit;
+        if(timeunit == TimeUnit.MILLISECONDS){
+            timeLimit = time;
+        }else {
+            timeLimit = timeunit.toMillis(time);
         }
     }
 

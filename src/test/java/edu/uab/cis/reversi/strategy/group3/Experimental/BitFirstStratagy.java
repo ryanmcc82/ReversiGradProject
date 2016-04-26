@@ -1,4 +1,4 @@
-package edu.uab.cis.reversi.strategy.group3;
+package edu.uab.cis.reversi.strategy.group3.Experimental;
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +8,8 @@ import edu.uab.cis.reversi.Board;
 import edu.uab.cis.reversi.Move;
 import edu.uab.cis.reversi.Square;
 import edu.uab.cis.reversi.Strategy;
+import edu.uab.cis.reversi.strategy.group3.BitBoardNode;
+import edu.uab.cis.reversi.strategy.group3.Book;
 
 public class BitFirstStratagy implements Strategy {
     private long timeLimit;

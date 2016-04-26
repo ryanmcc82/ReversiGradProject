@@ -1,4 +1,4 @@
-package edu.uab.cis.reversi.strategy.group3;
+package edu.uab.cis.reversi.strategy.group3.Experimental;
 
 public class FirstHuristic {
     private final boolean TESTPRINTING = false;
