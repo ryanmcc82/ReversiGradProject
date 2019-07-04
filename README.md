@@ -1,4 +1,5 @@
 # Project: Reversi
+This was originally an assignment I recieved as an undergrad taking a Graduate level artificial inteligence class. The class was split up into teams and competed in a tournament. My team came in 3rd. Below are the original instructions.
 
 The goal of this class project is to give you some experience designing strategies for a competitive game. It assumes you have already familiarized yourself with Git and Maven in a previous assignment.
 
