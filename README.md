@@ -1,19 +1,12 @@
 # Project: Reversi
 This was originally an assignment I recieved as an undergrad taking a Graduate level artificial inteligence class. The class was split up into teams and competed in a tournament. My team came in 3rd. Below are the original instructions.
 
+## Original Instructions
 The goal of this class project is to give you some experience designing strategies for a competitive game. It assumes you have already familiarized yourself with Git and Maven in a previous assignment.
 
 ## Set up a repository for your group
 
 This is a group assignment, so your group will need to turn in a single solution to the problem. As a result, you will need to decide between the members of your group who will host the primary repository. All other members of the group will push and pull changes to and from this primary repository.
-
-1. Have one member from your group fork the repository https://git.cis.uab.edu/cs-460/reversi.
-
-2. Give your instructor access to this primary fork. **I cannot grade your assignment unless you complete this step.**
-
-3. Give the other members of your group access to the primary fork.
-
-Note that I will grade only a single fork per group, so be sure all members of your group are clear on where they should be pushing their code.
 
 ## Implement your part of the code
 
@@ -37,6 +30,6 @@ Then the class will have the strategies play several games against each other, a
 
 ## Submit your assignment
 
-1.  To submit your group's assignment, make sure that your group has pushed all of your changes to your group's repository at `git.cis.uab.edu`.
+1.  To submit your group's assignment, make sure that your group has pushed all of your changes to your group's repository at `*********`.
 
-2.  I will inspect the date of your last push to your `git.cis.uab.edu` repository. If it is after the deadline, your submission will be marked as late. So please **do not push changes to `git.cis.uab.edu` after the assignment deadline** unless you intend to submit a late assignment.
+2.  I will inspect the date of your last push to your `*************` repository. If it is after the deadline, your submission will be marked as late. So please **do not push changes to `*************` after the assignment deadline** unless you intend to submit a late assignment.
